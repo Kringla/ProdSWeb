@@ -1,0 +1,15 @@
+# Deaktiver katalogvisning
+Options -Indexes
+
+# Skru av feilmeldinger i nettleser, logg i stedet
+php_flag display_errors Off
+php_flag log_errors On
+
+# Egendefinert feilmelding for intern serverfeil
+ErrorDocument 500 "Internal Server Error"
+
+# Beskytt sensitive inkluderingsfiler fra direkte tilgang
+<FilesMatch "(config\.php|bootstrap\.php|functions\.php)">
+    Require all denied
+</FilesMatch>
+
