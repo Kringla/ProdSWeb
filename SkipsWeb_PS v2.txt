@@ -19,7 +19,7 @@ DB har et Schema som angitt i "SkipsWeb_SCHEMA v1.sql" fil.
 
 Data for connection string - deployert versjon: 
 vertsnavn (host): hostmaster.onnet.no 
-databasenavn: skipsweb_database
+databasenavn: skipsweb_skipsdb
 brukernavn (MySQL-konto): skipsweb_webman (alle rettigheter)
 passord: ########## (fås oppgitt hvis/når nødvendig)
 port: 3306
@@ -27,7 +27,7 @@ charset: utf8mb4 (behøves ikke for connection)
 
 Data for connection string - utvikling/testing: 
 vertsnavn (host): localhost 
-databasenavn: skipsweb_database
+databasenavn: skipsdb
 brukernavn (MySQL-konto): root
 passord: ""
 port: 3306 ?
