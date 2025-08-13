@@ -54,9 +54,10 @@ Strukturering av siten
 Definisjon av søk
 Utseende landingsside
 CSS utvikling.
-Generelle krav: 
-+ Knapper skal være like store. Knapper skal ha "knappefarge", f.eks. tilsvarende den blå fargen som er valgt for landingsside. Knapper skal ikke være i sidens fulle bredde, men være små, men likevel store nok til å takle 20 karakterer i valgt "knappefont". 
+Generelle krav til layout: 
 + side headinger skal være midtstilt.
++ Knapper skal være like store. Knapper skal ha "knappefarge", f.eks. tilsvarende den blå fargen som er valgt for landingsside. Knapper skal ikke være i sidens fulle bredde, men være små, men likevel store nok til å takle 20 karakterer i valgt "knappefont". 
++ felt og blokker bør være rimlig komprimerte, unngå bruk av store typer (over 12 pt).
 
 KOMMUNIKASJON:
 Jeg er redd for å skifte ut feil kode blokker når du foreslår endringer. Derfor må du alltid sørge for enten for
