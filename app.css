@@ -116,7 +116,7 @@ h3{ font-size: 14px; }
   user-select: none;
   min-width: 20ch;
   height: 38px;
-  font-size: 13px;
+  font-size: 12px;
   white-space: nowrap;        /* ikke full bredde */
 }
 .btn:hover{ background: var(--brand-600); }
@@ -239,3 +239,19 @@ h3{ font-size: 14px; }
 .mt-3{ margin-top: 16px; } .mb-3{ margin-bottom: 16px; }
 .grid{ display: grid; gap: 10px; }
 .grid-2{ grid-template-columns: 1fr 1fr; }
+
+/* Kompakte knapper (~24px) */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:28px;
+  padding:0 10px;      /* horisontal fyll */
+  line-height:1;       /* unngå ekstra høyde */
+  font-size:14px;      /* kan økes/lages mindre ved behov */
+  border-radius:4px;   /* behold myke hjørner */
+}
+.btn.primary,
+.btn.ghost{
+  height:24px;         /* sikre at variantene følger høyden */
+}
