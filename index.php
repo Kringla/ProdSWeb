@@ -23,7 +23,7 @@ $loggedIn = !empty($_SESSION['user_id']);
   <div class="hero-overlay"></div>
   <div class="container hero-inner">
     <h1>Finn fartøy, verft og rederier</h1>
-    <p>Søk fritt uten innlogging. Administrasjon krever innlogging.</p>
+    <h2>Søk fritt uten innlogging. Administrasjon krever innlogging.</h2>
     <div class="cta">
       <a class="btn primary" href="<?= $BASE ?>/user/fartoy_nat.php">Søk fartøy</a>
       <a class="btn" href="<?= $BASE ?>/user/verft_sok.php">Søk verft</a>
@@ -65,11 +65,11 @@ $loggedIn = !empty($_SESSION['user_id']);
   </div>
 
   <div class="grid cols-2 mt-3">
-    <div class="card">
+    <div class="card" style="padding:1.5rem 1.5rem 1.25rem;">
       <h3>Om søkene</h3>
       <p class="muted">Fartøys-, verft- og rederi-søk er på plass. Verft- og rederi-søk gir i tillegg hvilke fartøyer som er relatert til disse. Vi forbedrer dem fortløpende.</p>
     </div>
-    <div class="card">
+    <div class="card" style="padding:1.5rem 1.5rem 1.25rem;">
       <h3>Rent og raskt</h3>
       <p class="muted">Lesing uten innlogging. Redigering krever innlogging.</p>
     </div>
