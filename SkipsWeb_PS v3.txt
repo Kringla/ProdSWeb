@@ -3,8 +3,8 @@ Prosjekt Kunnskaps Dokument (PKD)
 Prosjektets navn er SKIPSWEB
 
 Prosjektets styrende filer er:
-"SkipsWeb_PRD v2.txt" 			Overordnete krav og utviklingsplan
-"SkipsWeb_PS v2.txt" 			Prosjektets styrende strukturer
+"SkipsWeb_PRD v3.txt" 			Overordnete krav og utviklingsplan
+"SkipsWeb_PS v3.txt" 			Prosjektets styrende strukturer
 "SkipsWeb_SCHEMA v1.sql"  		Schema til SkipsDb
 
 De produserte filene, sammen med de overnevnte filene, finnes på  https://github.com/Kringla/ProdSWeb NB! Der finnes de i ett directory, uten subdirectories!
@@ -20,7 +20,7 @@ DB har et Schema som angitt i "SkipsWeb_SCHEMA v1.sql" fil.
 Data for connection string - deployert versjon: 
 vertsnavn (host): hostmaster.onnet.no 
 databasenavn: skipsweb_skipsdb
-brukernavn (MySQL-konto): skipsweb_webman (alle rettigheter)
+brukernavn (MySQL-konto): skipsweb_webuser (SELECT-rettigheter)
 passord: ########## (fås oppgitt hvis/når nødvendig)
 port: 3306
 charset: utf8mb4 (behøves ikke for connection)
