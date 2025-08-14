@@ -1,20 +1,16 @@
 <?php
+// Konstanter (BASE_URL m.m.)
 require_once __DIR__ . '/../config/constants.php';
+
+// DB-tilkobling / konfig (skal ikke kaste fatal så lenge filen finnes)
 require_once __DIR__ . '/../config/config.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// MySQLi-tilkobling med feilhåndtering
-mysqli_report(MYSQLI_REPORT_OFF);
-$conn = @new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
-if ($conn->connect_errno) {
-    error_log("Database connection failed: " . $conn->connect_error);
-    http_response_code(500);
-    exit('Internal Server Error');
+// (Valgfritt) Felles hjelpefunksjoner
+$fn = __DIR__ . '/functions.php';
+if (file_exists($fn)) {
+    require_once $fn;
 }
-$conn->set_charset('utf8mb4');
-
-// Hjelpefunksjoner
-require_once __DIR__ . '/functions.php';

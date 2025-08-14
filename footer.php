@@ -1,7 +1,9 @@
-<?php $BASE = defined('BASE_URL') ? rtrim(BASE_URL, '/') : ''; ?>
-<footer class="container mt-4">
-  <p class="muted">© SkipsWeb</p>
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <?php echo date('Y'); ?> SkipsWeb</p>
+  </div>
 </footer>
-<script src="<?= $BASE ?>/assets/js/hero-rotator.js"></script>
+
 </body>
 </html>
+
