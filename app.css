@@ -1,1 +1,241 @@
-/* placeholder css recreated */
+
+/* =====================================================================
+   SkipsWeb — app.css (Trinn #3, v2)
+   - Bevarer hero-bilder/farger (lys overlay)
+   - Stor "SkipsWeb" i header kun på landingssiden (.home)
+   - Meny ser ut som faner/lenker, ikke knapper
+   - Knapper (.btn) beholdes i innhold (tabeller, skjema), ikke i navbar
+   ===================================================================== */
+
+:root{
+  --brand: #1f6fb2;
+  --brand-600: #1a5f98;
+  --brand-700: #164f7e;
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --radius: 12px;
+  --shadow: 0 2px 10px rgba(0,0,0,.04);
+}
+
+html, body{
+  background: var(--bg);
+  color: var(--fg);
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: 14px;            /* kompakt */
+  line-height: 1.35;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 14px;
+}
+
+/* ---------------------- Headings ---------------------- */
+h1, h2, h3{
+  text-align: center;
+  margin: 10px 0 12px;
+  font-weight: 600;
+}
+h1{ font-size: 16px; }
+h2{ font-size: 15px; }
+h3{ font-size: 14px; }
+
+/* ---------------------- Header / Navbar ---------------------- */
+.site-header{
+  border-bottom: 1px solid var(--border);
+  background: #fafafa;
+}
+.site-header .brand{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--brand-700);
+  font-weight: 700;
+  padding: 10px 0;
+  font-size: 18px;            /* standard størrelse */
+}
+
+/* Kun på landingssiden: stor logo/brand */
+.home .site-header .brand{
+  font-size: 34px;
+  letter-spacing: .3px;
+  line-height: 1.1;
+}
+
+.navbar{
+  display: flex;
+  gap: 10px;
+  padding: 8px 0 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Meny-lenker = faner/tekst, ikke knapper */
+.navbar a{
+  text-decoration: none;
+  color: var(--brand-700);
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+.navbar a:hover{ background: #f2f6fb; }
+
+/* Hvis noen meny-lenker bruker class="btn", fjern "button look" i navbar */
+.navbar .btn{
+  background: transparent !important;
+  color: var(--brand-700) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  min-width: auto !important;
+  height: auto !important;
+  padding: 6px 8px !important;
+}
+
+/* ---------------------- Buttons (innhold) ---------------------- */
+.btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  background: var(--brand);
+  color: #fff;
+  border: 1px solid var(--brand-600);
+  padding: 8px 12px;
+  line-height: 1;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  user-select: none;
+  min-width: 20ch;
+  height: 38px;
+  font-size: 13px;
+  white-space: nowrap;        /* ikke full bredde */
+}
+.btn:hover{ background: var(--brand-600); }
+.btn:active{ background: var(--brand-700); transform: translateY(1px); }
+.btn:focus{ outline: 2px solid #cde3f8; outline-offset: 2px; }
+.btn[disabled]{ opacity: .6; cursor: not-allowed; }
+
+/* Små knapper i tabeller */
+.table .btn{ min-width: 14ch; height: 34px; font-size: 12.5px; }
+
+/* ---------------------- Forms ---------------------- */
+.search-form{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  margin: 8px 0 14px;
+}
+.search-form label{
+  font-size: 13px;
+  color: var(--muted);
+}
+.search-form input[type="text"],
+.search-form input[type="search"],
+.search-form select{
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  min-width: 32ch;
+  font-size: 13px;
+  line-height: 1.2;
+}
+.search-form input:focus,
+.search-form select:focus{
+  outline: 2px solid #cde3f8;
+  border-color: #bcd7f4;
+}
+
+/* ---------------------- Cards ---------------------- */
+.card{
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+.card .card-content{ padding: 14px; }
+
+/* ---------------------- Tables ---------------------- */
+.table{
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 13px;
+}
+.table thead{
+  background: #f7f9fc;
+  color: #111827;
+}
+.table th, .table td{
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.table tbody tr:hover{
+  background: #fbfdff;
+}
+
+/* ---------------------- Alerts ---------------------- */
+.alert{
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin: 10px 0;
+}
+.alert-error{
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #7f1d1d;
+}
+
+/* ---------------------- Hero (landingsside) ---------------------- */
+/* Viktig: ikke overstyr bakgrunnsbilde/rotator; bare en lett film */
+.hero{
+  position: relative;
+  min-height: 260px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  margin: 10px 0 16px;
+}
+.hero .hero-overlay{
+  position: absolute; inset: 0;
+  background: linear-gradient(to right, rgba(0,0,0,.20), rgba(0,0,0,.08)); /* lettere overlay for å bevare farger */
+}
+.hero h1, .hero h2, .hero h3{
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 2px 6px rgba(0,0,0,.25);
+}
+
+/* ---------------------- Footer ---------------------- */
+.site-footer{
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12.5px;
+  padding: 14px 0 24px;
+  margin-top: 20px;
+}
+
+/* ---------------------- Utilities ---------------------- */
+.text-center{ text-align: center; }
+.mt-1{ margin-top: 6px; } .mb-1{ margin-bottom: 6px; }
+.mt-2{ margin-top: 10px; } .mb-2{ margin-bottom: 10px; }
+.mt-3{ margin-top: 16px; } .mb-3{ margin-bottom: 16px; }
+.grid{ display: grid; gap: 10px; }
+.grid-2{ grid-template-columns: 1fr 1fr; }

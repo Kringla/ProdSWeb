@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/bootstrap.php';
+<?php $page_class = 'home'; ?>
 include __DIR__ . '/includes/header.php';
 include __DIR__ . '/includes/menu.php';
 
@@ -64,7 +65,7 @@ $loggedIn = !empty($_SESSION['user_id']);
   <div class="grid cols-2 mt-3">
     <div class="card">
       <h3>Om søkene</h3>
-      <p class="muted">S1 er på plass. Verft-/rederi-søk er nye, og vi forbedrer dem fortløpende.</p>
+      <p class="muted">Fartøys-, verft- og rederi-søk er på plass. Verft- og rederi-søk gir i tillegg hvilke fartøyer som er relatert til disse. Vi forbedrer dem fortløpende.</p>
     </div>
     <div class="card">
       <h3>Rent og raskt</h3>
