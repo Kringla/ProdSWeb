@@ -64,22 +64,20 @@ $loggedIn = !empty($_SESSION['user_id']);
 	  Lykke til med å finne det fartøyet du er på jakt etter.
 	  </p>
     </div>
-    <div class="muted" style="margin-top:1rem padding:1.5rem 1.5rem 1.25rem;";">
-      Kommentarer, spørsmål og ønsker kan du sende til
-      <a href="mailto:webman@skipsweb.no">webman@skipsweb.no</a>.
-    </div>
   </div>
 
   <div class="grid cols-2 mt-3">
     <div class="card" style="padding:1.5rem 1.5rem 1.25rem;">
       <h3>Om søkene og dette nettstedet</h3>
-      <p class="muted">Søkene forbedres fortløpende basert på mottatte kommentarer.
-	  Innholdet utvikles fortløpende.
+      <p class="text-center">Søkene forbedres fortløpende basert på mottatte kommentarer. Innholdet utvikles fortløpende.
+  </p>
+    <p class="text-center">Kommentarer, spørsmål og ønsker kan du sende til
+      <a href="mailto:webman@skipsweb.no">webman@skipsweb.no</a>
 	  </p>
     </div>
     <div class="card" style="padding:1.5rem 1.5rem 1.25rem;">
       <h3>Innlogging?</h3>
-      <p class="muted">Lesing kan gjøres uten innlogging. Redigering krever innlogging.</p>
+      <p class="text-center"; >Lesing kan gjøres uten innlogging. Redigering krever innlogging.</p>
     </div>
   </div>
 </section>
