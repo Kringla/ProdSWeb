@@ -27,42 +27,45 @@ $loggedIn = !empty($_SESSION['user_id']);
   <div class="hero-overlay"></div>
   <div class="container hero-inner">
     <h1>Finn fartøy, verft og rederier</h1>
-    <h2>Søk fritt uten innlogging. Administrasjon krever innlogging.</h2>
+    <h2>Søk fritt uten innlogging. Administrasjon og endringer av innhold krever innlogging.</h2>
     <div class="cta">
       <a class="btn primary" href="<?= $BASE ?>/user/fartoy_nat.php">Søk fartøy</a>
       <a class="btn" href="<?= $BASE ?>/user/verft_sok.php">Søk verft</a>
       <a class="btn" href="<?= $BASE ?>/user/rederi_sok.php">Søk rederi</a>
       <?php if (!$loggedIn): ?>
-        <a class="btn ghost" href="<?= $BASE ?>/login.php">Logg inn (admin)</a>
+        <a class="btn ghost" href="<?= $BASE ?>/login.php">Administrasjon</a>
       <?php endif; ?>
     </div>
   </div>
 </section>
 
 <section class="container mt-4">
-  <div class="card" style="padding:1.5rem 1.5rem 1.25rem;">
+  <div class="card" style="padding:1.5rem 1.5rem 1.25rem;line-height:1.55;">
     <h2 style="margin:0 0 .25rem 0; font-size:1.6rem;">Velkommen til <span style="color:#2c3e50;">SkipsWeb</span></h2>
     <p class="muted" style="margin:.25rem 0 1rem 0; font-size:1.05rem;">
-      “SkipsWeb” gir adgang til en database for norske og utenlandske fartøyer som eksisterer bl.a. i
-      <em>Dampskipspostens</em> 125 numre, og i Digitalt Museum. Databasen er ganske fullstendig hva angår hvilke
-      fartøyer som er nevnt, men det finnes databaser som er bedre vedrørende fartøyers detaljer og tekniske spesifikasjoner.
-    </p>
-    <div style="line-height:1.55;">
-      <p>Fartøyenes <strong>CV (historikk)</strong> finnes for ca. 70&nbsp;% av fartøyene i databasen.</p>
-      <p>For gode, detaljerte beskrivelser av fartøyer vises primært til
-        <a href="https://www.sjohistorie.no/no" target="_blank" rel="noopener">Sjøhistorie.no</a>,
-        en svært godt utviklet (og mye større) database. Ellers kan en prøve Norsk Skipsfarthistorisk Selskaps
-        skipsdatabase på <a href="https://skipshistorie.net/" target="_blank" rel="noopener">skipshistorie.net</a>.
-      </p>
+      “SkipsWeb” er en database som gir adgang til data for norske og utenlandske fartøyer som er omtalt i <em>Dampskipspostens</em> 125 numre, 
+      og data om fartøyer samlet av <em>Ole Harald Fiske</em> gjennom mange års arbeide for <em>Norsk Maritimt Museum</em>. 
+      Noen av de eksisterer i <em>Digitalt Museum</em>. 
+      <br>Databasen er utviklet av frivillige entusiaster som bidrar til å registrere bilder av fartøyer ved Norsk Maritimt Museum.
+      <br><strong>Merk:</strong> Databasen har ingen offisell status ved museet. Riktigheten av dataen er ikke verifisert.
+    
+    <div style="line-height:1.0;">
       <p>Du kan søke på:</p>
       <ul style="margin:.25rem 0 1rem 1.1rem;">
         <li>Fritekst fartøysnavn, med ev. filter for nasjoner. Gir liste over fartøyer.</li>
         <li>Fritekst rederiers navn, og lister de fartøyer det valgte rederiet har disponert.</li>
         <li>Fritekst verft, og lister over de fartøyer som verftet har bygd.</li>
       </ul>
-      <p>Felles for alle listete fartøyene er at tilgjengelige data, historie, spesifikasjoner og linker til andre kilder kan vises.
-	  Lykke til med å finne det fartøyet du er på jakt etter.
-	  </p>
+      <p>Felles for alle listete fartøyene er at tilgjengelige data, historie, spesifikasjoner og linker til andre kilder kan vises. Fartøyenes <em>CV (historikk)</em> finnes for ca. 60&nbsp;% av fartøyene i databasen.</p>
+      <p> Databasens tilgjengelige data om det enkelte fartøyene i basen varierer. For flere detaljer kan en finne de i databaser som er bedre vedrørende fartøyers detaljer og 
+        tekniske spesifikasjoner.</p>
+      <p>For gode, detaljerte beskrivelser av fartøyer vises det til f.eks. 
+        <a href="https://www.sjohistorie.no/no" target="_blank" rel="noopener">Sjøhistorie.no</a>,
+        en svært godt utviklet (og mye større) database. Ellers kan du prøve Norsk Skipsfarthistorisk Selskaps
+        skipsdatabase på <a href="https://skipshistorie.net/" target="_blank" rel="noopener">skipshistorie.net</a>.
+      </p>
+      
+	    <p>Lykke til med å finne det fartøyet du er på jakt etter.</p>
     </div>
   </div>
 
