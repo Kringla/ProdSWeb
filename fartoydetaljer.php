@@ -46,10 +46,10 @@ if (!$err) {
             fn.FartNavn,
             fs.FartSpes_ID,
             v.VerftNavn
-        FROM tblFartTid ft
-        JOIN tblFartNavn fn ON fn.FartNavn_ID = ft.FartNavn_ID
-        LEFT JOIN tblFartSpes fs ON fs.FartSpes_ID = ft.FartSpes_ID
-        LEFT JOIN tblVerft v ON v.Verft_ID = fs.Verft_ID
+        FROM tblfarttid ft
+        JOIN tblfartnavn fn ON fn.FartNavn_ID = ft.FartNavn_ID
+        LEFT JOIN tblfartspes fs ON fs.FartSpes_ID = ft.FartSpes_ID
+        LEFT JOIN tblverft v ON v.Verft_ID = fs.Verft_ID
         WHERE ft.FartObj_ID = ? AND ft.FartNavn_ID = ?
         ORDER BY ft.YearTid DESC
         LIMIT 1
@@ -68,8 +68,8 @@ if (!$err) {
     if (!$err) {
         $sqlHist = "
             SELECT ft.YearTid, fn.FartNavn, ft.Rederi
-            FROM tblFartTid ft
-            JOIN tblFartNavn fn ON fn.FartNavn_ID = ft.FartNavn_ID
+            FROM tblfarttid ft
+            JOIN tblfartnavn fn ON fn.FartNavn_ID = ft.FartNavn_ID
             WHERE ft.FartObj_ID = ?
             ORDER BY ft.YearTid
         ";

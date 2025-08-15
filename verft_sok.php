@@ -21,7 +21,7 @@ $q = trim($_GET['q'] ?? '');
 $results = [];
 $error = null;
 
-// 3) Søk (min. 2 tegn). Vi slår opp verft i tblVerft og bygg i tblFartSpes.
+// 3) Søk (min. 2 tegn). Vi slår opp verft i tblverft og bygg i tblfartspes.
 // For hvert FartObj_ID velger vi "seneste navn" = MAX(FartNavn_ID).
 if ($q !== '' && mb_strlen($q) >= 2) {
     $sql = "
@@ -31,14 +31,14 @@ if ($q !== '' && mb_strlen($q) >= 2) {
             n.FartNavn,
             fs.YearSpes AS Byggeår,
             v.VerftNavn
-        FROM tblVerft v
-        JOIN tblFartSpes fs  ON fs.Verft_ID = v.Verft_ID
+        FROM tblverft v
+        JOIN tblfartspes fs  ON fs.Verft_ID = v.Verft_ID
         JOIN (
             SELECT FartObj_ID, MAX(FartNavn_ID) AS FartNavn_ID
-            FROM tblFartNavn
+            FROM tblfartnavn
             GROUP BY FartObj_ID
         ) mx ON mx.FartObj_ID = fs.FartObj_ID
-        JOIN tblFartNavn n ON n.FartNavn_ID = mx.FartNavn_ID
+        JOIN tblfartnavn n ON n.FartNavn_ID = mx.FartNavn_ID
         WHERE v.VerftNavn LIKE CONCAT('%', ?, '%')
         ORDER BY fs.YearSpes, n.FartNavn
         LIMIT 500

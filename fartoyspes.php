@@ -19,7 +19,7 @@ $navnId = isset($_GET['navn_id']) ? (int)$_GET['navn_id'] : 0;
 if ($spesId <= 0 && $objId > 0 && $navnId > 0) {
   $sqlFind = "
     SELECT t.FartSpes_ID
-    FROM tblFartTid t
+    FROM tblfarttid t
     WHERE t.FartObj_ID = ? AND t.FartNavn_ID = ?
     ORDER BY t.YearTid DESC, t.MndTid DESC, t.FartTid_ID DESC
     LIMIT 1
@@ -45,14 +45,14 @@ if ($spesId > 0) {
            mot.MotorFork, mot.MotorDetalj,
            kl.TypeKlasseNavn,
            mat.Materiale
-    FROM tblFartSpes s
-    LEFT JOIN tblVerft       v   ON v.Verft_ID        = s.Verft_ID
-    LEFT JOIN tblVerft       sv  ON sv.Verft_ID       = s.SkrogID
-    LEFT JOIN tblzFartSkrog  sk  ON sk.FartSkrog_ID   = s.FartSkrog_ID
-    LEFT JOIN tblzFartRigg   rigg ON rigg.FartRigg_ID = s.FartRigg_ID
-    LEFT JOIN tblzFartMotor  mot  ON mot.FartMotor_ID = s.FartMotor_ID
-    LEFT JOIN tblzFartKlasse kl  ON kl.FartKlasse_ID  = s.FartKlasse_ID
-    LEFT JOIN tblzFartMat    mat ON mat.FartMat_ID    = s.FartMat_ID
+    FROM tblfartspes s
+    LEFT JOIN tblverft       v   ON v.Verft_ID        = s.Verft_ID
+    LEFT JOIN tblverft       sv  ON sv.Verft_ID       = s.SkrogID
+    LEFT JOIN tblzfartskrog  sk  ON sk.FartSkrog_ID   = s.FartSkrog_ID
+    LEFT JOIN tblzfartrigg   rigg ON rigg.FartRigg_ID = s.FartRigg_ID
+    LEFT JOIN tblzfartmotor  mot  ON mot.FartMotor_ID = s.FartMotor_ID
+    LEFT JOIN tblzfartklasse kl  ON kl.FartKlasse_ID  = s.FartKlasse_ID
+    LEFT JOIN tblzfartmat    mat ON mat.FartMat_ID    = s.FartMat_ID
     WHERE s.FartSpes_ID = ?
   ";
   $stmt = $conn->prepare($sql) or die('Prepare feilet: ' . $conn->error);
@@ -136,7 +136,7 @@ include __DIR__ . '/../includes/menu.php';
       </div>
 
       <div class="card">
-        <h2>Kjernefelt fra tblFartSpes</h2>
+        <h2>Kjernefelt fra tblfartspes</h2>
         <table class="meta">
           <?php
             // Vis ALT fra s.* på en grei måte:

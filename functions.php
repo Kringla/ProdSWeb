@@ -17,3 +17,17 @@ function url(string $path = ''): string {
     $base = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
     return $base . '/' . ltrim($path, '/');
 }
+
+if (!function_exists('asset')) {
+    /**
+     * asset('/assets/img/hero1.jpg')  ->  '/assets/img/hero1.jpg?v=1699999999'
+     * Legger på mtime for cache-busting og respekterer BASE_URL.
+     */
+    function asset(string $path): string {
+        $base = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
+        $rel  = '/' . ltrim($path, '/');
+        $fs   = rtrim(__DIR__ . '/..', '/') . $rel; // prosjektrot = includes/..
+        $v    = @filemtime($fs);
+        return $base . $rel . ($v ? ('?v=' . $v) : '');
+    }
+}

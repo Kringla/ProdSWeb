@@ -14,10 +14,18 @@ function val($arr, $key, $def='') { return isset($arr[$key]) ? $arr[$key] : $def
 $nasjonId = isset($_GET['nasjon_id']) ? (int)$_GET['nasjon_id'] : 0; // 0 = alle
 $q        = isset($_GET['q']) ? trim($_GET['q']) : '';
 
-// Nasjoner til dropdown
+// Nasjoner til dropdown (robust)
 $nasjoner = [];
-if ($res = $conn->query("SELECT Nasjon_ID, Nasjon FROM tblzNasjon ORDER BY Nasjon")) {
-    while ($row = $res->fetch_assoc()) { $nasjoner[] = $row; }
+$sql = "
+    SELECT Nasjon_ID, Nasjon
+    FROM tblznasjon
+    WHERE Nasjon IS NOT NULL AND Nasjon <> ''
+    ORDER BY Nasjon
+";
+if ($res = $conn->query($sql)) {
+    while ($row = $res->fetch_assoc()) {
+        $nasjoner[] = $row;
+    }
     $res->free();
 }
 
@@ -45,22 +53,22 @@ if ($doSearch) {
       n.Nasjon,
       curr.Objekt                  AS IsOriginalNow,
       o.Bygget                     AS Bygget
-    FROM tblFartNavn AS fn
-    LEFT JOIN tblzFartType AS ft
+    FROM tblfartnavn AS fn
+    LEFT JOIN tblzfarttype AS ft
       ON ft.FartType_ID = fn.FartType_ID
-    LEFT JOIN tblFartTid AS curr
+    LEFT JOIN tblfarttid AS curr
       ON curr.FartTid_ID = (
          SELECT t2.FartTid_ID
-         FROM tblFartTid t2
+         FROM tblfarttid t2
          WHERE t2.FartNavn_ID = fn.FartNavn_ID
          ORDER BY t2.YearTid DESC, t2.MndTid DESC, t2.FartTid_ID DESC
          LIMIT 1
       )
-    LEFT JOIN tblzNasjon AS n
+    LEFT JOIN tblznasjon AS n
       ON n.Nasjon_ID = curr.Nasjon_ID
-    LEFT JOIN tblFartTid AS ot
+    LEFT JOIN tblfarttid AS ot
       ON ot.FartNavn_ID = fn.FartNavn_ID AND ot.Objekt = 1
-    LEFT JOIN tblFartObj AS o
+    LEFT JOIN tblfartobj AS o
       ON o.FartObj_ID = ot.FartObj_ID
     WHERE curr.FartTid_ID IS NOT NULL
       AND (? = 0 OR curr.Nasjon_ID = ?)
@@ -95,12 +103,12 @@ if ($doSearch) {
     <label for="q">Søk på del av fartøynamn:&nbsp;</label>
     <input type="text" id="q" name="q" value="<?= h($q) ?>" />
     &nbsp;&nbsp;
-    <label for="nasjon_id">Nasjon:&nbsp;</label>
-    <select id="nasjon_id" name="nasjon_id">
-      <option value="0"<?= $nasjonId===0?' selected':'' ?>Alle</option>
-      <?php foreach ($nasjoner as $n): ?>
-        <option value="<?= (int)$n['Nasjon_ID'] ?>"<?= ($nasjonId==(int)$n['Nasjon_ID'])?' selected':'' ?>
-          <?= h($n['Nasjon']) ?>
+    <label for="nasjon_id">Nasjon</label>
+    <select name="nasjon_id" id="nasjon_id">
+      <option value="0"<?= $nasjonId === 0 ? ' selected' : '' ?>>Alle nasjoner</option>
+      <?php foreach ($nasjoner as $r): ?>
+        <option value="<?= (int)$r['Nasjon_ID'] ?>"<?= $nasjonId === (int)$r['Nasjon_ID'] ? ' selected' : '' ?>>
+          <?= h($r['Nasjon']) ?>
         </option>
       <?php endforeach; ?>
     </select>

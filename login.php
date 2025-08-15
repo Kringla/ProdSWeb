@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
 
     // Slå opp bruker
-    $stmt = $conn->prepare("SELECT user_id, role, password FROM tblzUser WHERE email = ?");
+    $stmt = $conn->prepare("SELECT user_id, role, password FROM tblzuser WHERE email = ?");
     if ($stmt) {
         $stmt->bind_param('s', $email);
         $stmt->execute();

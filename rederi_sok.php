@@ -21,7 +21,7 @@ $q = trim($_GET['q'] ?? '');
 $results = [];
 $error = null;
 
-// 3) Søk (min. 2 tegn). Vi søker i tblFartTid.Rederi og henter navn via tblFartNavn
+// 3) Søk (min. 2 tegn). Vi søker i tblfarttid.Rederi og henter navn via tblfartnavn
 if ($q !== '' && mb_strlen($q) >= 2) {
     $sql = "
         SELECT 
@@ -30,8 +30,8 @@ if ($q !== '' && mb_strlen($q) >= 2) {
             fn.FartNavn,
             MIN(ft.YearTid) AS Fra,
             MAX(ft.YearTid) AS Til
-        FROM tblFartTid ft
-        JOIN tblFartNavn fn ON fn.FartNavn_ID = ft.FartNavn_ID
+        FROM tblfarttid ft
+        JOIN tblfartnavn fn ON fn.FartNavn_ID = ft.FartNavn_ID
         WHERE ft.Rederi LIKE CONCAT('%', ?, '%')
         GROUP BY ft.FartObj_ID, ft.FartNavn_ID, fn.FartNavn
         ORDER BY fn.FartNavn
