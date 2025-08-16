@@ -1,161 +1,221 @@
 <?php
+/**
+ * /user/fartoy_spes.php
+ * Viser tekniske spesifikasjoner for et fartøy (tblfartspes) basert på ?spes_id=...
+ * Layout: moderat kompakt, grupper og rekkefølge styrt av $GROUPS nedenfor.
+ */
+
 require_once __DIR__ . '/../includes/bootstrap.php';
-require_once __DIR__ . '/../includes/auth.php'; // ok å ha med for meny/rolle
+if (!isset($conn) && isset($mysqli) && $mysqli instanceof mysqli) { $conn = $mysqli; }
+require_once __DIR__ . '/../includes/auth.php'; // for meny/rolle
 
-ini_set('display_errors', '1');
-error_reporting(E_ALL);
+// === Konfig: grupper og rekkefølge ===
+// Endre kun denne blokken om du vil justere rekkefølge/etiketter/grupper.
+// Hver post er [felt-nøkkel i $data => ['label' => 'Etikett som vises']]
+$GROUPS = [
+  '-' => [
+    'Aarmnd'     => ['label' => 'År/mnd for spes'],
+    'ObjektBool' => ['label' => 'Objekt?'],
+  ],
+    'Hovedspesifikasjon' => [
+    'Lengde'  => ['label' => 'Lengde (fot)'],
+    'Bredde'  => ['label' => 'Bredde (fot)'],
+    'Dypg'    => ['label' => 'Dypgående (fot)'],
+    'TonnasjeFmt' => ['label' => 'Tonnasje'],
+    'DrektFmt'    => ['label' => 'Drektighet'],
+    'MaxFart'       => ['label' => 'Maks fart (knop)'],
+  ],
+  'Bygg & skrog' => [
+    'Byggeverft' => ['label' => 'Byggeverft'],
+    'Byggenr'    => ['label' => 'Byggenr'],
+    'Skrogverft' => ['label' => 'Skrog verft'],
+    'BnrSkrog'   => ['label' => 'Byggenr for verft'],
+    'Materiale'  => ['label' => 'Materiale'],
+    'Skrogtype'  => ['label' => 'Skrogtype'],
+    'RiggDetalj'  => ['label' => 'Rigg'],
+    'RiggFree'    => ['label' => 'Riggdetalj'],
+    'KlasseNavn'  => ['label' => 'Klasse'],
+    'Fartklasse'  => ['label' => 'Klassedetalj'],
+  ],
+  'Funksjon' => [
+    'Funksjon'    => ['label' => 'Funksjon'],
+    'FunkDetalj'  => ['label' => 'Funksjonsbeskrivelse'],
+    'Kapasitet'  => ['label' => 'Kapasitet'],
+  ],
+  'Fremdrift' => [
+    'DriftMiddel' => ['label' => 'Fremdriftsmiddel'],
+    'Motortype'     => ['label' => 'Motortype'],
+    'MotorDetalj'   => ['label' => 'Motordetalj'],
+    'MotorEff'      => ['label' => 'Effekt (BHK)'],
+  ],
 
-if (!function_exists('h')) {
-  function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
-}
-function intval_or_zero($v){ return isset($v) ? (int)$v : 0; }
+];
 
+// Små helpers
+if (!function_exists('h')) { function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); } }
+function nonempty($v){ return isset($v) && $v !== '' && $v !== null; }
+
+// Parametre
 $spesId = isset($_GET['spes_id']) ? (int)$_GET['spes_id'] : 0;
-$objId  = isset($_GET['obj_id'])  ? (int)$_GET['obj_id']  : 0;
-$navnId = isset($_GET['navn_id']) ? (int)$_GET['navn_id'] : 0;
-
-/* Hvis spes_id ikke er gitt, men obj_id & navn_id er gitt:
-   finn siste (nyeste) tidslinjerad for dette navnet/objektet og ta dens FartSpes_ID */
-if ($spesId <= 0 && $objId > 0 && $navnId > 0) {
-  $sqlFind = "
-    SELECT t.FartSpes_ID
-    FROM tblfarttid t
-    WHERE t.FartObj_ID = ? AND t.FartNavn_ID = ?
-    ORDER BY t.YearTid DESC, t.MndTid DESC, t.FartTid_ID DESC
-    LIMIT 1
-  ";
-  $p = $conn->prepare($sqlFind) or die('Prepare (find) feilet: ' . $conn->error);
-  $p->bind_param('ii', $objId, $navnId);
-  $p->execute() or die('Execute (find) feilet: ' . $p->error);
-  $res = $p->get_result()->fetch_assoc();
-  $p->close();
-  if (!empty($res['FartSpes_ID'])) {
-    $spesId = (int)$res['FartSpes_ID'];
-  }
+if ($spesId <= 0) {
+  http_response_code(400);
+  echo "<p>Mangler eller ugyldig parameter: spes_id må være &gt; 0.</p>";
+  exit;
 }
 
-$spes = [];
-if ($spesId > 0) {
-  $sql = "
-    SELECT s.*,
-           v.VerftNavn AS VerftNavn, v.Sted AS VerftSted,
-           sv.VerftNavn AS SkrogVerftNavn, sv.Sted AS SkrogVerftSted,
-           sk.TypeSkrog,
-           rigg.RiggFork, rigg.RiggDetalj,
-           mot.MotorFork, mot.MotorDetalj,
-           kl.TypeKlasseNavn,
-           mat.Materiale
-    FROM tblfartspes s
-    LEFT JOIN tblverft       v   ON v.Verft_ID        = s.Verft_ID
-    LEFT JOIN tblverft       sv  ON sv.Verft_ID       = s.SkrogID
-    LEFT JOIN tblzfartskrog  sk  ON sk.FartSkrog_ID   = s.FartSkrog_ID
-    LEFT JOIN tblzfartrigg   rigg ON rigg.FartRigg_ID = s.FartRigg_ID
-    LEFT JOIN tblzfartmotor  mot  ON mot.FartMotor_ID = s.FartMotor_ID
-    LEFT JOIN tblzfartklasse kl  ON kl.FartKlasse_ID  = s.FartKlasse_ID
-    LEFT JOIN tblzfartmat    mat ON mat.FartMat_ID    = s.FartMat_ID
-    WHERE s.FartSpes_ID = ?
-  ";
-  $stmt = $conn->prepare($sql) or die('Prepare feilet: ' . $conn->error);
-  $stmt->bind_param('i', $spesId);
-  $stmt->execute() or die('Execute feilet: ' . $stmt->error);
-  $spes = $stmt->get_result()->fetch_assoc() ?: [];
-  $stmt->close();
-}
+// Hent spes + oppslag + (seneste) navn
+$sql = "
+SELECT
+  fs.FartSpes_ID, fs.FartObj_ID, fs.YearSpes, fs.MndSpes, fs.Byggenr, fs.BnrSkrog, fs.Kapasitet,
+  fs.MotorDetalj AS MotorDetalj_free, fs.MotorEff, fs.MaxFart, fs.Lengde, fs.Bredde, fs.Dypg,
+  fs.Tonnasje, fs.Drektigh, fs.Objekt,
+  fs.FartType_ID AS FartTypeSpes_ID, fs.FunkDetalj, fs.Fartklasse, fs.Rigg,
+  CONCAT_WS(', ', vb.VerftNavn, vb.Sted) AS Byggeverft,
+  CONCAT_WS(', ', vs.VerftNavn, vs.Sted) AS Skrogverft,
+  zmat.MatFork AS Materiale,
+  zskrog.TypeSkrog AS Skrogtype,
+  zd.DriftMiddel,
+  zm.MotorDetalj AS Motortype,
+  zr.RiggDetalj AS RiggDetalj,
+  zf.TypeFunksjon AS Funksjon,
+  zk.TypeKlasseNavn AS KlasseNavn,
+  zt.TonnFork AS TonnEnh,
+  fn.FartNavn,
+  COALESCE(t.typefork, fs.FartType_ID) AS TypeForkOrID
+FROM tblfartspes fs
+LEFT JOIN tblverft vb            ON vb.Verft_ID         = fs.Verft_ID
+LEFT JOIN tblverft vs            ON vs.Verft_ID         = fs.SkrogID
+LEFT JOIN tblzfartmat zmat       ON zmat.FartMat_ID     = fs.FartMat_ID
+LEFT JOIN tblzfartskrog zskrog   ON zskrog.FartSkrog_ID = fs.FartSkrog_ID
+LEFT JOIN tblzfartdrift zd       ON zd.FartDrift_ID     = fs.FartDrift_ID
+LEFT JOIN tblzfartmotor zm       ON zm.FartMotor_ID     = fs.FartMotor_ID
+LEFT JOIN tblzfartrigg zr        ON zr.FartRigg_ID      = fs.FartRigg_ID
+LEFT JOIN tblzfartfunk zf        ON zf.FartFunk_ID      = fs.FartFunk_ID
+LEFT JOIN tblzfartklasse zk      ON zk.FartKlasse_ID    = fs.FartKlasse_ID
+LEFT JOIN tblztonnenh zt         ON zt.TonnEnh_ID       = fs.TonnEnh_ID
+LEFT JOIN (  -- seneste navn pr objekt
+  SELECT fn.FartObj_ID, fn.FartNavn, fn.FartType_ID
+  FROM tblfartnavn fn
+  INNER JOIN (
+    SELECT FartObj_ID, MAX(FartNavn_ID) AS max_id
+    FROM tblfartnavn
+    GROUP BY FartObj_ID
+  ) m ON m.FartObj_ID = fn.FartObj_ID AND fn.FartNavn_ID = m.max_id
+) fn ON fn.FartObj_ID = fs.FartObj_ID
+LEFT JOIN tblzfarttype t ON t.FartType_ID = COALESCE(fs.FartType_ID, fn.FartType_ID)
+WHERE fs.FartSpes_ID = ?
+LIMIT 1
+";
+$stmt = $conn->prepare($sql);
+if (!$stmt) { http_response_code(500); echo "<p>DB-feil (prepare): ".h($conn->error)."</p>"; exit; }
+$stmt->bind_param('i', $spesId);
+$stmt->execute();
+$res  = $stmt->get_result();
+$row  = $res ? $res->fetch_assoc() : null;
+$stmt->close();
 
-include __DIR__ . '/../includes/header.php';
-include __DIR__ . '/../includes/menu.php';
+if (!$row) { http_response_code(404); echo "<p>Fant ingen spesifikasjon for spes_id=".h($spesId).".</p>"; exit; }
+
+// Presentasjonsvennlige felt
+$Aarmnd = (nonempty($row['YearSpes']) || nonempty($row['MndSpes']))
+  ? sprintf('%s/%02d', (int)$row['YearSpes'], (int)$row['MndSpes'])
+  : '';
+
+$TonnasjeFmt = nonempty($row['Tonnasje']) ? trim($row['Tonnasje'].' '.($row['TonnEnh'] ?? '')) : '';
+$DrektFmt    = nonempty($row['Drektigh']) ? trim($row['Drektigh'].' '.($row['TonnEnh'] ?? '')) : '';
+
+$ObjektBool  = ((int)$row['Objekt'] ? 'Ja' : 'Nei');
+
+// For Riggdetalj (fri tekst) og MotorDetalj (fri tekst)
+$RiggFree    = $row['Rigg'] ?? '';
+$MotorDetalj = $row['MotorDetalj_free'] ?? '';
+
+// Topp-linje: Type + Navn
+$topLine = trim(($row['TypeForkOrID'] ? $row['TypeForkOrID'] : '').' '.($row['FartNavn'] ?? ''));
+
+// Pakk feltene vi skal bruke inn i ett array for enkel presentasjon
+$data = [
+  'FartSpes_ID' => $row['FartSpes_ID'],
+  'FartObj_ID'  => $row['FartObj_ID'],
+  // grupperte visningsfelt
+  'Aarmnd'      => $Aarmnd,
+  'Byggeverft'  => $row['Byggeverft'] ?? '',
+  'Byggenr'     => $row['Byggenr'] ?? '',
+  'Skrogverft'  => $row['Skrogverft'] ?? '',
+  'BnrSkrog'    => $row['BnrSkrog'] ?? '',
+  'Kapasitet'   => $row['Kapasitet'] ?? '',
+  'Materiale'   => $row['Materiale'] ?? '',
+  'Skrogtype'   => $row['Skrogtype'] ?? '',
+  'DriftMiddel' => $row['DriftMiddel'] ?? '',
+  'RiggDetalj'  => $row['RiggDetalj'] ?? '',
+  'RiggFree'    => $RiggFree,
+  'Funksjon'    => $row['Funksjon'] ?? '',
+  'FunkDetalj'  => $row['FunkDetalj'] ?? '',
+  'KlasseNavn'  => $row['KlasseNavn'] ?? '',
+  'Fartklasse'  => $row['Fartklasse'] ?? '',
+  'Motortype'   => $row['Motortype'] ?? '',
+  'MotorDetalj' => $MotorDetalj,
+  'MotorEff'    => $row['MotorEff'] ?? '',
+  'MaxFart'     => $row['MaxFart'] ?? '',
+  'Lengde'      => $row['Lengde'] ?? '',
+  'Bredde'      => $row['Bredde'] ?? '',
+  'Dypg'        => $row['Dypg'] ?? '',
+  'TonnasjeFmt' => $TonnasjeFmt,
+  'DrektFmt'    => $DrektFmt,
+  'ObjektBool'  => $ObjektBool,
+];
 ?>
+<?php include __DIR__ . '/../includes/header.php'; ?>
+<?php include __DIR__ . '/../includes/menu.php'; ?>
+
 <style>
-  .wrap{max-width:1100px;margin:0 auto;padding:12px}
-  .card{background:#fff;border:1px solid #ddd;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(0,0,0,.04);margin-bottom:14px}
-  table.meta{border-collapse:collapse}
-  table.meta th{white-space:nowrap;text-align:left;padding:.3rem .6rem .3rem 0;color:#444;vertical-align:top}
-  table.meta td{padding:.3rem 0}
-  .muted{color:#666}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-  @media (max-width:900px){.grid{grid-template-columns:1fr}}
-  .code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:.92rem;background:#f8f8f8;border:1px solid #eee;border-radius:8px;padding:.5rem .6rem}
+/* Moderat kompakt spesifikasjonslayout */
+.spec-wrap { max-width: 980px; margin: 0 auto; padding: 8px 12px; }
+.spec-head { text-align: center; margin: 4px 0 10px; }
+.spec-head h1 { margin: 0; font-size: 1.4rem; }
+.spec-head .sub { margin-top: 2px; font-size: 1.0rem; opacity: 0.9; }
+.spec-actions { display:flex; justify-content: space-between; align-items:center; margin: 6px 0 8px; }
+.spec-actions .left { display:flex; gap:8px; align-items:center; }
+.btn-back { display:inline-block; padding:6px 10px; border:1px solid #ccc; border-radius:8px; text-decoration:none; font-size:0.92rem; }
+.spec-id { font-size: 0.78rem; opacity: 0.8; }
+.spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; }
+.spec-group { grid-column: 1 / -1; margin-top: 8px; font-weight: 600; border-top: 1px solid #ddd; padding-top: 6px; }
+.spec-row { display: grid; grid-template-columns: 200px 1fr; align-items: start; gap: 8px; font-size: 0.95rem; }
+.spec-row .label { color: #333; opacity: 0.9; }
+.spec-row .value { color: #111; }
+@media (max-width: 700px) {
+  .spec-grid { grid-template-columns: 1fr; }
+}
 </style>
 
-<div class="wrap">
-  <h1>Fartøy – full spesifikasjon</h1>
+<div class="spec-wrap">
+  <div class="spec-head">
+    <h1>Fartøysspesifikasjoner</h1>
+    <div class="sub"><?= h($topLine) ?></div>
+  </div>
 
-  <form method="get" class="card" style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
-    <div>
-      <label for="spes_id">FartSpes&nbsp;ID</label><br>
-      <input type="number" id="spes_id" name="spes_id" value="<?= $spesId ?: '' ?>" min="1">
+  <div class="spec-actions">
+    <div class="left">
+      <!-- Tilbake-knapp: prioriterer history.back(); fallback-lenke under -->
+      <a href="#" class="btn-back" onclick="if(history.length>1){history.back();return false;}" title="Tilbake">← Tilbake</a>
+      <span class="spec-id">Spes ID: <?= (int)$data['FartSpes_ID'] ?></span>
     </div>
-    <div class="muted">eller</div>
-    <div>
-      <label for="obj_id">Objekt&nbsp;ID</label><br>
-      <input type="number" id="obj_id" name="obj_id" value="<?= $objId ?: '' ?>" min="1">
-    </div>
-    <div>
-      <label for="navn_id">Navn&nbsp;ID</label><br>
-      <input type="number" id="navn_id" name="navn_id" value="<?= $navnId ?: '' ?>" min="1">
-    </div>
-    <div>
-      <button type="submit">Hent</button>
-    </div>
-    <div class="muted" style="margin-left:auto">
-      Tips: Fra detaljsiden kan du lenke hit med <span class="code">fartoyspes.php?spes_id=&lt;FartSpes_ID&gt;</span>.
-    </div>
-  </form>
+    <!-- Fallback: direkte lenke til detaljer (om du har en fast URL-struktur). Justér ved behov. -->
+    <a class="btn-back" href="<?= BASE_URL ?>/user/fartoydetaljer.php?obj_id=<?= (int)$data['FartObj_ID'] ?>">Detaljside</a>
+  </div>
 
-  <?php if ($spesId > 0 && !$spes): ?>
-    <div class="card">Fant ingen spesifikasjon for ID <?= (int)$spesId ?>.</div>
-  <?php endif; ?>
-
-  <?php if ($spes): ?>
-    <div class="grid">
-      <div class="card">
-        <h2>Oppslåtte verdier (fra parameter-tabeller)</h2>
-        <table class="meta">
-          <?php if (!empty($spes['VerftNavn'])): ?>
-            <tr><th>Verft</th><td><?= h($spes['VerftNavn']) ?><?= !empty($spes['VerftSted'])?', '.h($spes['VerftSted']):'' ?></td></tr>
-          <?php endif; ?>
-          <?php if (!empty($spes['SkrogVerftNavn'])): ?>
-            <tr><th>Skrog/verft</th><td><?= h($spes['SkrogVerftNavn']) ?><?= !empty($spes['SkrogVerftSted'])?', '.h($spes['SkrogVerftSted']):'' ?></td></tr>
-          <?php endif; ?>
-          <?php if (!empty($spes['TypeSkrog'])): ?>
-            <tr><th>Skrogtype</th><td><?= h($spes['TypeSkrog']) ?></td></tr>
-          <?php endif; ?>
-          <?php if (!empty($spes['TypeKlasseNavn'])): ?>
-            <tr><th>Klasse</th><td><?= h($spes['TypeKlasseNavn']) ?></td></tr>
-          <?php endif; ?>
-          <?php if (!empty($spes['RiggFork']) || !empty($spes['RiggDetalj'])): ?>
-            <tr><th>Rigg</th><td><?= h(trim(($spes['RiggFork'] ?? '').' '.($spes['RiggDetalj'] ?? ''))) ?></td></tr>
-          <?php endif; ?>
-          <?php if (!empty($spes['MotorFork']) || !empty($spes['MotorDetalj'])): ?>
-            <tr><th>Motor</th><td><?= h(trim(($spes['MotorFork'] ?? '').' '.($spes['MotorDetalj'] ?? ''))) ?></td></tr>
-          <?php endif; ?>
-          <?php if (!empty($spes['Materiale'])): ?>
-            <tr><th>Materiale</th><td><?= h($spes['Materiale']) ?></td></tr>
-          <?php endif; ?>
-        </table>
-      </div>
-
-      <div class="card">
-        <h2>Kjernefelt fra tblfartspes</h2>
-        <table class="meta">
-          <?php
-            // Vis ALT fra s.* på en grei måte:
-            foreach ($spes as $k => $v) {
-              // hopp over de oppslåtte aliasene for å ikke duplisere
-              if (in_array($k, ['VerftNavn','VerftSted','SkrogVerftNavn','SkrogVerftSted','TypeSkrog','RiggFork','RiggDetalj','MotorFork','MotorDetalj','TypeKlasseNavn','Materiale'], true)) {
-                continue;
-              }
-              echo '<tr><th>'.h($k).'</th><td>'.h($v).'</td></tr>';
-            }
-          ?>
-        </table>
-      </div>
-    </div>
-  <?php else: ?>
-    <div class="card">Oppgi enten <strong>FartSpes_ID</strong> eller kombinasjonen <strong>Objekt&nbsp;ID + Navn&nbsp;ID</strong>, og trykk «Hent».</div>
-  <?php endif; ?>
-
-  <p style="margin-top:10px;"><a href="javascript:history.back()">← Tilbake</a></p>
+  <div class="spec-grid">
+    <?php foreach ($GROUPS as $groupTitle => $fields): ?>
+      <div class="spec-group"><?= h($groupTitle) ?></div>
+      <?php foreach ($fields as $key => $cfg): ?>
+        <?php $val = $data[$key] ?? ''; if (!nonempty($val)) continue; ?>
+        <div class="spec-row">
+          <div class="label"><?= h($cfg['label']) ?></div>
+          <div class="value"><?= h($val) ?></div>
+        </div>
+      <?php endforeach; ?>
+    <?php endforeach; ?>
+  </div>
 </div>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
