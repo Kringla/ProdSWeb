@@ -62,7 +62,8 @@ $loggedIn = !empty($_SESSION['user_id']);
       <p>For gode, detaljerte beskrivelser av fartøyer vises det til f.eks. 
         <a href="https://www.sjohistorie.no/no" target="_blank" rel="noopener">Sjøhistorie.no</a>,
         en svært godt utviklet (og mye større) database. Ellers kan du prøve Norsk Skipsfarthistorisk Selskaps
-        skipsdatabase på <a href="https://skipshistorie.net/" target="_blank" rel="noopener">skipshistorie.net</a>.
+        skipsdatabase på <a href="https://skipshistorie.net/" target="_blank" rel="noopener">skipshistorie.net, 
+        eller Krigsseilerregisterets fartøyer på <a href=https://krigsseilerregisteret.no/skip?q target="_blank" rel="noopener">.
       </p>
       
 	    <p>Lykke til med å finne det fartøyet du er på jakt etter.</p>
