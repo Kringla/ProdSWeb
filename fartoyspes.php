@@ -173,7 +173,7 @@ $data = [
 .spec-wrap { max-width: 980px; margin: 0 auto; padding: 8px 12px; }
 .spec-head { text-align: center; margin: 4px 0 10px; }
 .spec-head h1 { margin: 0; font-size: 1.4rem; }
-.spec-head .sub { margin-top: 2px; font-size: 1.0rem; opacity: 0.9; }
+.spec-head .sub { margin-top: 4px; font-size: 1.25rem; font-weight: 600; line-height: 1.25; opacity: 0.9; }
 .spec-actions { display:flex; justify-content: space-between; align-items:center; margin: 6px 0 8px; }
 .spec-actions .left { display:flex; gap:8px; align-items:center; }
 .btn-back { display:inline-block; padding:6px 10px; border:1px solid #ccc; border-radius:8px; text-decoration:none; font-size:0.92rem; }
@@ -191,7 +191,7 @@ $data = [
 <div class="spec-wrap">
   <div class="spec-head">
     <h1>Fartøysspesifikasjoner</h1>
-    <div class="sub"><?= h($topLine) ?></div>
+    <h2 class="sub"><?= h($topLine) ?></h2>
   </div>
 
   <div class="spec-actions">
