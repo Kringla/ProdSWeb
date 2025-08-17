@@ -53,4 +53,10 @@ Ferdig testet
 Strukturering av siten
 Definisjon av søk
 Utseende landingsside
-CSS utvikling.
+CSS utvikling
+
+# TRINN 4 - Utseende generelt, nye krav til innhold
+Redefinisjon av søk
+Utseende alle sider
+CSS videreutvikling
+Nye linker
