@@ -99,6 +99,7 @@ Lay-out:
 
 Utførelse av endringer:
 Alle endringer skal skje basert på enten  en vedlagt fil, eller siste versjon av den relevante filen som ligger på https://github.com/Kringla/ProdSWeb.
+Bruk alltid BASE_URL som referanse til rot.
 
 Jeg er redd for å skifte ut feil kode blokker når du foreslår endringer. Derfor må du alltid sørge for enten for
 1) å vise hele blokken den skal erstatte, (best for meg)

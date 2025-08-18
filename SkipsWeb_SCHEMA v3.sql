@@ -181,7 +181,7 @@ CREATE TABLE IF NOT EXISTS `tblxdigmuseum` (
 -- Dumping structure for table skipsweb_skipsdb.tblxfartlink
 CREATE TABLE IF NOT EXISTS `tblxfartlink` (
   `FartLk_ID` int NOT NULL AUTO_INCREMENT,
-  `FartID` int NOT NULL DEFAULT '1',
+  `FartNavn_ID` int NOT NULL DEFAULT '1',
   `LinkType_ID` int DEFAULT NULL,
   `LinkType` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `LinkInnh` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
