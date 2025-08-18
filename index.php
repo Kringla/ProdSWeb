@@ -60,10 +60,10 @@ $loggedIn = !empty($_SESSION['user_id']);
       <p> Databasens tilgjengelige data om det enkelte fartøyene i basen varierer. For flere detaljer kan en finne de i databaser som er bedre vedrørende fartøyers detaljer og 
         tekniske spesifikasjoner.</p>
       <p>For gode, detaljerte beskrivelser av fartøyer vises det til f.eks. 
-        <a href="https://www.sjohistorie.no/no" target="_blank" rel="noopener">Sjøhistorie.no</a>,
+        <a href="https://www.sjohistorie.no/no" target="_blank" rel="noopener">sjøhistorie.no</a>,
         en svært godt utviklet (og mye større) database. Ellers kan du prøve Norsk Skipsfarthistorisk Selskaps
-        skipsdatabase på <a href="https://skipshistorie.net/" target="_blank" rel="noopener">skipshistorie.net, 
-        eller Krigsseilerregisterets fartøyer på <a href=https://krigsseilerregisteret.no/skip?q target="_blank" rel="noopener">.
+        skipsdatabase på <a href="https://skipshistorie.net/" target="_blank" rel="noopener">skipshistorie.net</a>, 
+        eller Krigsseilerregisterets fartøyer på <a href=https://krigsseilerregisteret.no/skip?q target="_blank" rel="noopener">krigsseilerregisteret.no</a>.
       </p>
       
 	    <p>Lykke til med å finne det fartøyet du er på jakt etter.</p>
