@@ -171,6 +171,7 @@ CREATE TABLE IF NOT EXISTS `tblxdigmuseum` (
   `ID` int NOT NULL AUTO_INCREMENT,
   `FartNavn_ID` int NOT NULL,
   `DIMUkode` varchar(15) DEFAULT '0',
+  `Motiv` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`ID`),
   KEY `FartID` (`FartNavn_ID`),
   CONSTRAINT `FartNavnDIMU` FOREIGN KEY (`FartNavn_ID`) REFERENCES `tblfartnavn` (`FartNavn_ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
