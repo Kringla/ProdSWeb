@@ -255,3 +255,9 @@ h3{ font-size: 14px; }
 .btn.ghost{
   height:24px;         /* sikre at variantene følger høyden */
 }
+
+/* --- Header logo --- */
+.site-header .brand img.logo{ height:28px; width:auto; display:block; }
+
+/* Større på landingssiden hvis <body> har .home (bevarer ditt mønster) */
+.home .site-header .brand img.logo{ height:36px; }

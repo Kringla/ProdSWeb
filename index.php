@@ -15,15 +15,14 @@ $loggedIn = !empty($_SESSION['user_id']);
   </div>
 <?php endif; ?>
 
+<?php
+$files = glob(__DIR__ . '/assets/img/hero*.jpg');
+natsort($files);
+$heroUrls = array_map(fn($p) => $BASE . '/assets/img/' . basename($p), $files);
+?>
 <section class="hero hero-rotator"
-  data-images='[
-    "<?= $BASE ?>/assets/img/hero1.jpg",
-    "<?= $BASE ?>/assets/img/hero2.jpg",
-    "<?= $BASE ?>/assets/img/hero3.jpg",
-    "<?= $BASE ?>/assets/img/hero4.jpg",
-    "<?= $BASE ?>/assets/img/hero5.jpg"
-  ]'
-  style="--hero-a: url('<?= $BASE ?>/assets/img/hero1.jpg'); --hero-b: url('<?= $BASE ?>/assets/img/hero2.jpg');">
+         data-images='<?= json_encode(array_values($heroUrls), JSON_UNESCAPED_SLASHES) ?>'
+         data-interval="3500">
   <div class="hero-overlay"></div>
   <div class="container hero-inner">
     <h1>Finn fartøy, verft og rederier</h1>
@@ -65,7 +64,7 @@ $loggedIn = !empty($_SESSION['user_id']);
         skipsdatabase på <a href="https://skipshistorie.net/" target="_blank" rel="noopener">skipshistorie.net</a>, 
         eller Krigsseilerregisterets fartøyer på <a href=https://krigsseilerregisteret.no/skip?q target="_blank" rel="noopener">krigsseilerregisteret.no</a>.
       </p>
-      
+      <p>Bildene som vises i båndet over, er private eller hentet fra Digitalt  Museums 'frie' bilder.</p>
 	    <p>Lykke til med å finne det fartøyet du er på jakt etter.</p>
     </div>
   </div>
