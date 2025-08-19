@@ -3,11 +3,12 @@ Prosjekt Kunnskaps Dokument (PKD)
 Prosjektets navn er SKIPSWEB
 
 Prosjektets styrende filer er:
-"SkipsWeb_PRD v4.txt" 			Overordnete krav og utviklingsplan
-"SkipsWeb_PS v6.txt" 			Prosjektets styrende strukturer
-"SkipsWeb_SCHEMA v5.sql"  		Schema til SkipsDb
+"SkipsWeb_PRD v*.txt" 			Overordnete krav og utviklingsplan (v* er versjonsnummer)
+"SkipsWeb_PS v*.txt" 			Prosjektets styrende strukturer (v* er versjonsnummer)
+"SkipsWeb_SCHEMA v*.sql"  		Schema til SkipsDb (v* er versjonsnummer)
 
-De produserte filene, sammen med de overnevnte filene, finnes på  https://github.com/Kringla/ProdSWeb NB! Der finnes de i ett directory, uten subdirectories!
+De produserte filene, sammen med SISTE VERSJON av de overnevnte filene, finnes på  https://github.com/Kringla/ProdSWeb NB! Der finnes de i ett directory, uten subdirectories!
+Siste versjon skal ALLTID brukes!
 
 RESSURSRAMMEBETINGELSER:
 DB som skal gis et GUI i prosjektet ligger på et Webhotell, OnNet.no.
@@ -79,7 +80,8 @@ skipsweb/
 │   └── functions.php        			# Hjelpefunksjoner (validering, formatering mv.)
 │
 ├── user/
-│   ├── fartoy_nat.php       			# Søk, utlisting for søkeresultat
+│   ├── fartoy_navn_sok.php       		# Søk på fartøysnavn, utlisting for søkeresultat
+│   ├── fartoy_spes_sok.php       		# Søk på spesifikasjonsparametre, utlisting for søkeresultat
 │   ├── fartoydetaljer.php       		# Søk, utlisting for søkeresultat
 │   ├── fartoy_spes.php        			# Spesifikasjoner av fartøy
 │   ├── verft_sok   					# Søk verft, utlisting for søkeresultat
