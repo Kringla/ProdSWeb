@@ -16,9 +16,9 @@ $loggedIn = !empty($_SESSION['user_id']);
 <?php endif; ?>
 
 <?php
-$files = glob(__DIR__ . '/assets/img/hero*.jpg');
+$files = glob(__DIR__ . '/assets/img/hero/hero*.{jpg,jpeg,webp,png}', GLOB_BRACE);
 natsort($files);
-$heroUrls = array_map(fn($p) => $BASE . '/assets/img/' . basename($p), $files);
+$heroUrls = array_map(fn($p) => $BASE . '/assets/img/hero/' . basename($p), $files);
 ?>
 <section class="hero hero-rotator"
          data-images='<?= json_encode(array_values($heroUrls), JSON_UNESCAPED_SLASHES) ?>'

@@ -8,15 +8,20 @@
    ===================================================================== */
 
 :root{
-  --brand: #1f6fb2;
-  --brand-600: #1a5f98;
-  --brand-700: #164f7e;
-  --bg: #ffffff;
-  --fg: #1a1a1a;
+  /* Oppdatert fargepalett: marineblå, nesten hvitt og rødt */
+  --brand: #003f7d; /* Primær marineblå */
+  --brand-600: #00529b; /* Hover-variant av primærfargen */
+  --brand-700: #002f63; /* Aktiv/trykk-variant av primærfargen */
+  --bg: #f5f9fc; /* Nesten hvit bakgrunn med et hint av blått */
+  --fg: #14213d; /* Mørk blågrå tekstfarge for god kontrast */
   --muted: #6b7280;
   --border: #e5e7eb;
   --radius: 12px;
   --shadow: 0 2px 10px rgba(0,0,0,.04);
+  /* Nye variabler for aksent- og sekundærfarger */
+  --accent: #e2e8f0; /* Lys gråblå for paneler og hover */
+  --secondary: #c83c3c; /* Sekundær rødfarge til varsler eller fremheving */
+  --secondary-hover: #a62828; /* Hover-variant av rødfargen */
 }
 
 html, body{
@@ -50,7 +55,8 @@ h3{ font-size: 14px; }
 /* ---------------------- Header / Navbar ---------------------- */
 .site-header{
   border-bottom: 1px solid var(--border);
-  background: #fafafa;
+  /* Bruk lys aksentfarge i topptekst for å harmonere med ny palett */
+  background: var(--accent);
 }
 .site-header .brand{
   display: inline-flex;
@@ -85,7 +91,7 @@ h3{ font-size: 14px; }
   padding: 6px 8px;
   border-radius: 8px;
 }
-.navbar a:hover{ background: #f2f6fb; }
+.navbar a:hover{ background: var(--accent); }
 
 /* Hvis noen meny-lenker bruker class="btn", fjern "button look" i navbar */
 .navbar .btn{
@@ -160,7 +166,8 @@ h3{ font-size: 14px; }
 .card{
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: #fff;
+  /* Bakgrunn for kort følger samme nesten-hvite bakgrunn */
+  background: var(--bg);
   box-shadow: var(--shadow);
 }
 .card .card-content{ padding: 14px; }
@@ -175,8 +182,9 @@ h3{ font-size: 14px; }
   font-size: 13px;
 }
 .table thead{
-  background: #f7f9fc;
-  color: #111827;
+  /* Tabellen bruker aksentfarge i header og mørk tekstfarge */
+  background: var(--accent);
+  color: var(--fg);
 }
 .table th, .table td{
   text-align: left;
@@ -185,7 +193,8 @@ h3{ font-size: 14px; }
   vertical-align: top;
 }
 .table tbody tr:hover{
-  background: #fbfdff;
+  /* Diskret hover på rad */
+  background: var(--accent);
 }
 
 /* ---------------------- Alerts ---------------------- */
@@ -198,9 +207,10 @@ h3{ font-size: 14px; }
   margin: 10px 0;
 }
 .alert-error{
-  background: #fff1f2;
-  border-color: #fecdd3;
-  color: #7f1d1d;
+  /* Varsel bakgrunn og kant basert på sekundær rødfarge */
+  background: #fef2f2;
+  border-color: #fbdada;
+  color: var(--secondary);
 }
 
 /* ---------------------- Hero (landingsside) ---------------------- */
@@ -261,3 +271,19 @@ h3{ font-size: 14px; }
 
 /* Større på landingssiden hvis <body> har .home (bevarer ditt mønster) */
 .home .site-header .brand img.logo{ height:36px; }
+
+/* Gjelder hero-bilder på undersidene (/user) */
+/* Gjelder hero-bilder på undersidene (/user) */
+.container > .hero {
+    /* Bredden du ønsker, for eksempel 800px */
+    max-width: 800px;
+    /* Midtstill hero-blokken innenfor containeren */
+    margin-left: auto;
+    margin-right: auto;
+}
+/* Sørg for at eventuell tekst i heroen (h1, h2, h3) er midtstilt */
+.container > .hero h1,
+.container > .hero h2,
+.container > .hero h3 {
+    text-align: center;
+}

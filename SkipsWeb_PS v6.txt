@@ -3,9 +3,9 @@ Prosjekt Kunnskaps Dokument (PKD)
 Prosjektets navn er SKIPSWEB
 
 Prosjektets styrende filer er:
-"SkipsWeb_PRD v3.txt" 			Overordnete krav og utviklingsplan
-"SkipsWeb_PS v3.txt" 			Prosjektets styrende strukturer
-"SkipsWeb_SCHEMA v1.sql"  		Schema til SkipsDb
+"SkipsWeb_PRD v4.txt" 			Overordnete krav og utviklingsplan
+"SkipsWeb_PS v5.txt" 			Prosjektets styrende strukturer
+"SkipsWeb_SCHEMA v4.sql"  		Schema til SkipsDb
 
 De produserte filene, sammen med de overnevnte filene, finnes på  https://github.com/Kringla/ProdSWeb NB! Der finnes de i ett directory, uten subdirectories!
 
@@ -41,23 +41,32 @@ skipsweb/
 ├── login.php                			# Innlogging
 ├── logout.php               			# Utlogging
 ├── register.php             			# Brukerregistrering
-││
+│
 ├── admin/
 │   └── dashboard.php           		# Hoveddashboard
 │   └── users.php      					# ?
 │
 ├── assets/
 │   ├── css/          			
-│   │	└── app.css  					# ??? 
-│   ├── img/          			
-│   │   ├── hero1.jpg         			# Bilde 1
-│   │   ├── hero2.jpg              		# Bilde 2
-│   │	└── hero2.jpg  					# Bilde 3
+│   │	└── app.css  					# css-fil
+│   ├── img/ 
+│   │	├── hero 						# Rotator bilder        			
+│   │   │   ├── hero1.jpg         		# Bilde 1
+│   │   │   ├── hero2.jpg              	# Bilde 2
+│   │   │   ├── hero3.jpg              	# Bilde 3
+│   │   │   ├── hero4.jpg              	# Bilde 4
+│   │   │   └── hero5.jpg              	# Bilde 5
+│   │   │
+│   │   ├── fartoy_nat_1.jpg           	# Bilde av skip
+│   │   ├── fartoydetaljer_1.jpg        # Bilde av skip
+│   │   ├── fartoy_spes_1.jpg           # Bilde av skip
+│   │   ├── SkipsWeb-logo.jpg           # Logo
+│   │	└── SkipsWeb-logo@2x.jpg  		# Logo x2 størrelser
 │   └── js/  
 │   	└── hero-rotator.js 
 │
 ├── config/
-│   └── config.php           			# Database- og app-innstillinger
+│   ├── config.php           			# Database- og app-innstillinger
 │   └── constants.php        			# Lokasjonsinnstillinger
 │
 ├── includes/

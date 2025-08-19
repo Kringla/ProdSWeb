@@ -28,6 +28,12 @@ $BASE = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
 
 <header class="site-header">
   <div class="container">
-    <a class="brand" href="<?php echo $BASE; ?>/">SkipsWeb</a>
+    <a class="brand" href="<?php echo $BASE; ?>/">
+      <img
+        src="<?php echo $BASE; ?>/assets/img/skipsweb-logo@2x.jpg"
+        srcset="<?php echo $BASE; ?>/assets/img/skipsweb-logo.jpg 1x,
+                 <?php echo $BASE; ?>/assets/img/skipsweb-logo@2x.jpg 2x"
+        alt="SkipsWeb" class="logo">
+    </a>
   </div>
 </header>
