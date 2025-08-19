@@ -4,8 +4,8 @@ Prosjektets navn er SKIPSWEB
 
 Prosjektets styrende filer er:
 "SkipsWeb_PRD v4.txt" 			Overordnete krav og utviklingsplan
-"SkipsWeb_PS v5.txt" 			Prosjektets styrende strukturer
-"SkipsWeb_SCHEMA v4.sql"  		Schema til SkipsDb
+"SkipsWeb_PS v6.txt" 			Prosjektets styrende strukturer
+"SkipsWeb_SCHEMA v5.sql"  		Schema til SkipsDb
 
 De produserte filene, sammen med de overnevnte filene, finnes på  https://github.com/Kringla/ProdSWeb NB! Der finnes de i ett directory, uten subdirectories!
 
