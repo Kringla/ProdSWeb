@@ -51,12 +51,19 @@ skipsweb/
 │   ├── css/          			
 │   │	└── app.css  					# css-fil
 │   ├── img/ 
-│   │	├── hero 						# Rotator bilder        			
+│   │	├── hero/ 						# Rotator bilder        			
 │   │   │   ├── hero1.jpg         		# Bilde 1
 │   │   │   ├── hero2.jpg              	# Bilde 2
 │   │   │   ├── hero3.jpg              	# Bilde 3
 │   │   │   ├── hero4.jpg              	# Bilde 4
 │   │   │   └── hero5.jpg              	# Bilde 5
+│   │   │
+│   │	├── skip/ 						# Bilder for fartoysdetaljer.php       			
+│   │   │   ├── placeholder.jpg         # Bilde Placeholder
+│   │   │   ├── aaa..jpg              	# Bilde aaa ... 
+│   │   │   ├── .....jpg              	# Bilde .....
+│   │   │   ├── yyy..jpg              	# Bilde yyy.....
+│   │   │   └── zzz..jpg              	# Bilde zzz ....
 │   │   │
 │   │   ├── fartoy_nat_1.jpg           	# Bilde av skip
 │   │   ├── fartoydetaljer_1.jpg        # Bilde av skip
