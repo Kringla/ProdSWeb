@@ -170,8 +170,10 @@ CREATE TABLE IF NOT EXISTS `tblverft` (
 CREATE TABLE IF NOT EXISTS `tblxdigmuseum` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `FartNavn_ID` int(11) NOT NULL,
-  `DIMUkode` varchar(15) DEFAULT '0',
-  `NSMkode` varchar(15) NOT NULL,
+  `DIMUkode` varchar(15) DEFAULT NULL,
+  `NSMkode` varchar(15) DEFAULT NULL
+  `Bilde_Navn` varchar(255) DEFAULT NULL,
+  `URL_Bane` varchar(255) DEFAULT 'https://skipsweb/assets/img/skip/',
   `Motiv` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`ID`),
   KEY `FartNavnDIMU` (`FartNavn_ID`)
