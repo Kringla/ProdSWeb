@@ -94,7 +94,7 @@
 
     <!-- Hero image for fartoy_nat page -->
     <div class="container">
-      <section class="hero" style="background-image:url('../assets/img/fartoy_nat_1.jpg'); background-size:cover; background-position:center;">
+      <section class="hero" style="background-image:url('../assets/img/fartoy_navn_sok_1.jpg'); background-size:cover; background-position:center;">
         <div class="hero-overlay"></div>
       </section>
     </div>

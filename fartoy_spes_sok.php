@@ -50,8 +50,8 @@
     $fartMotorId = isset($_GET['fartmotor_id']) ? (int)$_GET['fartmotor_id'] : 0;
     $fartRiggId  = isset($_GET['fartrigg_id'])  ? (int)$_GET['fartrigg_id']  : 0;
     $fartKlasseId= isset($_GET['fartklasse_id'])? (int)$_GET['fartklasse_id']: 0;
-    $fartObjId   = isset($_GET['fartobj_id'])   ? (int)$_GET['fartobj_id']   : 0;
-    $fartSpesId  = isset($_GET['fartspes_id'])  ? (int)$_GET['fartspes_id']  : 0;
+    // FartObj_ID og FartSpes_ID skal ikke benyttes som søkekriterier og beholdes derfor
+    // kun internt til lenkegenerering via SQL‑spørringen. De leses ikke fra URL.
 
     // Kjør søk bare hvis bruker har angitt noen parametre (tom GET betyr ingen søk)
     $doSearch = ($_GET !== []);
@@ -78,14 +78,15 @@
     }
 
     // I henhold til PKD v6 bruker vi bestemte feltnavn fra parametertabellene
-    $listFartMat   = getParamList($conn, 'tblzfartmat',   'FartMat_ID',   'MatFork');
-    $listFartType  = getParamList($conn, 'tblzfarttype',  'FartType_ID',  'FartType');
-    $listFartFunk  = getParamList($conn, 'tblzfartfunk',  'FartFunk_ID',  'TypeFunksjon');
-    $listFartSkrog = getParamList($conn, 'tblzfartskrog', 'FartSkrog_ID', 'TypeSkrog');
-    $listFartDrift = getParamList($conn, 'tblzfartdrift','FartDrift_ID','DriftMiddel');
-    $listFartMotor = getParamList($conn, 'tblzfartmotor','FartMotor_ID','MotorDetalj');
-    $listFartRigg  = getParamList($conn, 'tblzfartrigg', 'FartRigg_ID', 'RiggDetalj');
-    $listFartKlasse= getParamList($conn, 'tblzfartklasse','FartKlasse_ID','KlasseNavn');
+    // Hent lister fra parametertabellene. Kolonnenavn må reflektere schema v6.
+    $listFartMat    = getParamList($conn, 'tblzfartmat',    'FartMat_ID',    'MatFork');     // Materiale/MatFork
+    $listFartType   = getParamList($conn, 'tblzfarttype',   'FartType_ID',   'FartType');    // FartType, ikke 'type'
+    $listFartFunk   = getParamList($conn, 'tblzfartfunk',   'FartFunk_ID',   'TypeFunksjon');
+    $listFartSkrog  = getParamList($conn, 'tblzfartskrog',  'FartSkrog_ID',  'TypeSkrog');
+    $listFartDrift  = getParamList($conn, 'tblzfartdrift',  'FartDrift_ID',  'DriftMiddel');
+    $listFartMotor  = getParamList($conn, 'tblzfartmotor',  'FartMotor_ID',  'MotorDetalj');
+    $listFartRigg   = getParamList($conn, 'tblzfartrigg',   'FartRigg_ID',   'RiggDetalj');
+    $listFartKlasse = getParamList($conn, 'tblzfartklasse', 'FartKlasse_ID', 'KlasseNavn');  // bruker KlasseNavn fra schema v6
 
     // --- Kjør søk ved behov
     $rows = [];
@@ -100,13 +101,13 @@
               fs.Dypg,
               fn.FartNavn,
               curr.FartNavn_ID AS FartNavn_ID,
-              zft.type        AS FartType,
+              zft.FartType     AS FartType,
               zff.TypeFunksjon AS FartFunk,
               zfs.TypeSkrog    AS FartSkrog,
               zfd.DriftMiddel  AS FartDrift,
               zfm.MotorDetalj  AS FartMotor,
               zfr.RiggDetalj   AS FartRigg,
-              zfk.Klasse       AS FartKlasse,
+              zfk.KlasseNavn   AS FartKlasse,
               COALESCE(fs.MotorDetalj, zfm.MotorDetalj) AS MotorDetalj
             FROM tblfartspes AS fs
             LEFT JOIN tblzfartmat    AS zfm2 ON zfm2.FartMat_ID    = fs.FartMat_ID
@@ -136,8 +137,6 @@
               AND (? = 0 OR fs.FartMotor_ID  = ?)
               AND (? = 0 OR fs.FartRigg_ID   = ?)
               AND (? = 0 OR fs.FartKlasse_ID = ?)
-              AND (? = 0 OR fs.FartObj_ID    = ?)
-              AND (? = 0 OR fs.FartSpes_ID   = ?)
             ORDER BY fn.FartNavn ASC, fs.FartSpes_ID ASC
             LIMIT 200
         ";
@@ -147,8 +146,8 @@
         }
         // Bind parametre i samme rekkefølge som de forekommer i SQL
         $stmt->bind_param(
-            // 20 heltall: 2 for hver av de 10 filtrene
-            'iiiiiiiiiiiiiiiiiiii',
+            // 16 heltall: 2 for hver av de 8 filtrene
+            'iiiiiiiiiiiiiiii',
             $fartMatId,   $fartMatId,
             $fartTypeId,  $fartTypeId,
             $fartFunkId,  $fartFunkId,
@@ -156,9 +155,7 @@
             $fartDriftId, $fartDriftId,
             $fartMotorId, $fartMotorId,
             $fartRiggId,  $fartRiggId,
-            $fartKlasseId,$fartKlasseId,
-            $fartObjId,   $fartObjId,
-            $fartSpesId,  $fartSpesId
+            $fartKlasseId,$fartKlasseId
         );
         if (!$stmt->execute()) {
             die('Execute feilet: ' . $stmt->error);
@@ -251,12 +248,7 @@
                     <option value="<?= (int)$r['id'] ?>"<?= $fartKlasseId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
                 <?php endforeach; ?>
             </select>
-            <!-- FartObj_ID (numerisk søk) -->
-            <label for="fartobj_id">Objekt‑ID</label>
-            <input type="number" id="fartobj_id" name="fartobj_id" value="<?= $fartObjId > 0 ? h($fartObjId) : '' ?>" placeholder="0 = alle" min="0" />
-            <!-- FartSpes_ID (numerisk søk) -->
-            <label for="fartspes_id">Spes‑ID</label>
-            <input type="number" id="fartspes_id" name="fartspes_id" value="<?= $fartSpesId > 0 ? h($fartSpesId) : '' ?>" placeholder="0 = alle" min="0" />
+            <!-- FartObj_ID og FartSpes_ID er ikke søkbare og vises derfor ikke. -->
             <!-- Avsluttende knapper -->
             <div style="flex-basis:100%; text-align:center; margin-top:0.75rem;">
                 <button type="submit" class="btn" style="margin-right:1rem;">Søk</button>
