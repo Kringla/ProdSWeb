@@ -1,6 +1,6 @@
 <?php
     /**
-     * /user/fartoy_spes.php
+     * /user/fartoyspes.php
      * Viser tekniske spesifikasjoner for et fartøy (tblfartspes) basert på ?spes_id=...
      * Layout: moderat kompakt, grupper og rekkefølge styrt av $GROUPS nedenfor.
      */
@@ -78,10 +78,11 @@
       zm.MotorDetalj AS Motortype,
       zr.RiggDetalj AS RiggDetalj,
       zf.TypeFunksjon AS Funksjon,
-      zk.TypeKlasseNavn AS KlasseNavn,
+      zk.KlasseNavn AS KlasseNavn,
       zt.TonnFork AS TonnEnh,
       fn.FartNavn,
-      COALESCE(t.typefork, fs.FartType_ID) AS TypeForkOrID
+      -- Hent TypeFork fra tblzfarttype. Hvis ingen rad, kan vi falle tilbake til FartType_ID men det håndteres i PHP
+      t.TypeFork AS TypeFork
     FROM tblfartspes fs
     LEFT JOIN tblverft vb            ON vb.Verft_ID         = fs.Verft_ID
     LEFT JOIN tblverft vs            ON vs.Verft_ID         = fs.SkrogID
@@ -119,9 +120,71 @@
       exit;
     }
 
+    // --- Dynamisk bilde basert på FartObj_ID via tblxnmmfoto
+    // Standard fallback-bilde
+    $imageSrc = '/assets/img/skip/fartoydetaljer_1.jpg';
+    // Finn seneste FartNavn_ID for objektet via tblfartnavn (høyeste ID per objekt)
+    $latestNavnId = 0;
+    $fid = (int)($row['FartObj_ID'] ?? 0);
+    if ($fid > 0) {
+        $stmt = $conn->prepare(
+            "SELECT MAX(FartNavn_ID) AS max_id
+             FROM tblfartnavn
+             WHERE FartObj_ID = ?"
+        );
+        if ($stmt) {
+            $stmt->bind_param('i', $fid);
+            $stmt->execute();
+            $resN = $stmt->get_result();
+            if ($resN) {
+                $navnRow = $resN->fetch_assoc();
+                if ($navnRow && $navnRow['max_id'] !== null) {
+                    $latestNavnId = (int)$navnRow['max_id'];
+                }
+                $resN->free();
+            }
+            $stmt->close();
+        }
+    }
+    // Hvis vi har et navn-id, slå opp bildet i tblxnmmfoto
+    if ($latestNavnId > 0) {
+        $stmt = $conn->prepare(
+            "SELECT URL_Bane, Bilde_Fil
+             FROM tblxnmmfoto
+             WHERE FartNavn_ID = ? AND COALESCE(Bilde_Fil,'') <> ''
+             ORDER BY ID DESC
+             LIMIT 1"
+        );
+        if ($stmt) {
+            $stmt->bind_param('i', $latestNavnId);
+            $stmt->execute();
+            $resImg = $stmt->get_result();
+            if ($resImg) {
+                $imgRow = $resImg->fetch_assoc();
+                if ($imgRow && trim((string)$imgRow['Bilde_Fil']) !== '') {
+                    $base = rtrim((string)$imgRow['URL_Bane'], '/');
+                    $file = ltrim((string)$imgRow['Bilde_Fil'], '/');
+                    $imageSrc = $base . '/' . $file;
+                }
+                $resImg->free();
+            }
+            $stmt->close();
+        }
+    }
+    // Beregn relativ sti: denne filen ligger i /user, så vi går ett nivå opp hvis stien starter med '/'
+    $imageSrcRel = (substr($imageSrc, 0, 1) === '/') ? ('..' . $imageSrc) : $imageSrc;
+
     // Bygg $data og $topLine med samme logikk som originalfil
     $data = [];
-    $topLine = isset($row['FartNavn']) ? $row['FartNavn'] : '';
+    $data['FartSpes_ID'] = $row['FartSpes_ID'] ?? null;
+    $data['FartObj_ID']  = $row['FartObj_ID']  ?? null;
+    // Bygg topptekst: vis TypeFork (fra tblzfarttype) og FartNavn sammen
+    $typeFork = isset($row['TypeFork']) ? trim((string)$row['TypeFork']) : '';
+    $navn = isset($row['FartNavn']) ? trim((string)$row['FartNavn']) : '';
+    $topLine = $navn;
+    if ($typeFork !== '') {
+        $topLine = trim($typeFork . ' ' . $navn);
+    }
     // Bygg $data basert på $GROUPS og $row
     foreach ($GROUPS as $section => $fields) {
         foreach ($fields as $key => $_cfg) {
@@ -153,7 +216,7 @@
 
     <!-- Hero image for fartøys­spesifikasjon page -->
     <div class="container">
-        <section class="hero" style="background-image:url('../assets/img/fartoy_spes_1.jpg'); background-size:cover; background-position:center;">
+        <section class="hero" style="background-image:url('<?= h($imageSrcRel) ?>'); background-size:cover; background-position:center;">
             <div class="hero-overlay"></div>
         </section>
     </div>
@@ -163,7 +226,14 @@
     .spec-wrap { max-width: 980px; margin: 0 auto; padding: 8px 12px; }
     .spec-head { text-align: center; margin: 4px 0 10px; }
     .spec-head h1 { margin: 0; font-size: 1.4rem; }
-    .spec-head .sub { margin-top: 4px; font-size: 1.25rem; font-weight: 600; line-height: 1.25; opacity: 0.9; }
+.spec-head .sub {
+      margin-top: 4px;
+      /* Bruk samme fontstørrelse som i detaljsiden */
+      font-size: 1.8rem;
+      font-weight: 600;
+      line-height: 1.25;
+      opacity: 0.9;
+    }
     .spec-actions { display:flex; justify-content: space-between; align-items:center; margin: 6px 0 8px; }
     .spec-actions .left { display:flex; gap:8px; align-items:center; }
     .btn-back { display:inline-block; padding:6px 10px; border:1px solid #ccc; border-radius:8px; text-decoration:none; font-size:0.92rem; }
@@ -184,14 +254,9 @@
         <h2 class="sub"><?= h($topLine) ?></h2>
       </div>
 
-      <div class="spec-actions">
-        <div class="left">
-          <!-- Tilbake-knapp: prioriterer history.back(); fallback-lenke under -->
-          <a href="#" class="btn" onclick="if(history.length>1){history.back();return false;}" title="Tilbake">← Tilbake</a>
-          <span class="spec-id">Spes ID: <?= (int)$data['FartSpes_ID'] ?></span>
-        </div>
-        <!-- Fallback: direkte lenke til detaljer (om du har en fast URL-struktur). Justér ved behov. -->
-        <a class="btn" href="<?= BASE_URL ?>/user/fartoydetaljer.php?obj_id=<?= (int)$data['FartObj_ID'] ?>">Detaljside</a>
+      <!-- Plasser spes-ID i headingen i stedet for egen actions-seksjon -->
+      <div class="spec-id" style="text-align:center; font-size:0.85rem; opacity:0.8; margin-bottom:0.5rem;">
+        Spes ID: <?= (int)$data['FartSpes_ID'] ?>
       </div>
 
       <div class="spec-grid">
@@ -206,6 +271,11 @@
           <?php endforeach; ?>
         <?php endforeach; ?>
       </div>
+    </div>
+
+    <!-- Tilbake-knapp nederst: midtstilt -->
+    <div class="actions" style="margin:1rem 0 2rem; text-align:center;">
+      <a class="btn" href="#" onclick="if(history.length>1){history.back();return false;}" title="Tilbake">← Tilbake</a>
     </div>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

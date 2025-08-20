@@ -42,6 +42,62 @@
         exit;
     }
 
+    // --- Hent TypeFork (fartøytypeforkortelse) tilhørende denne navneoppføringen via fartspes og farttype.
+    $typeFork = '';
+    $stmt = $conn->prepare(
+        "SELECT zft.TypeFork
+         FROM tblfarttid t
+         LEFT JOIN tblfartspes fs ON fs.FartSpes_ID = t.FartSpes_ID
+         LEFT JOIN tblzfarttype zft ON zft.FartType_ID = fs.FartType_ID
+         WHERE t.FartObj_ID = ? AND t.FartNavn_ID = ?
+         LIMIT 1"
+    );
+    if ($stmt) {
+        $stmt->bind_param('ii', $obj_id, $navn_id);
+        $stmt->execute();
+        $resTF = $stmt->get_result();
+        if ($resTF) {
+            $tfRow = $resTF->fetch_assoc();
+            if ($tfRow && isset($tfRow['TypeFork'])) {
+                $typeFork = trim((string)$tfRow['TypeFork']);
+            }
+            $resTF->free();
+        }
+        $stmt->close();
+    }
+
+    // --- Hent bildet til valgt FartNavn_ID fra tblxnmmfoto
+    // Standard fallback‑bilde dersom ingen oppføring finnes eller Bilde_Fil er tomt.
+    // URL_Bane i tabellen peker til rot (typisk «/assets/img/skip/»), så vi kan bruke den direkte.
+    $imageSrc = '/assets/img/skip/fartoydetaljer_1.jpg';
+    $stmt = $conn->prepare(
+        "SELECT URL_Bane, Bilde_Fil
+         FROM tblxnmmfoto
+         WHERE FartNavn_ID = ? AND COALESCE(Bilde_Fil,'') <> ''
+         ORDER BY ID DESC
+         LIMIT 1"
+    );
+    if ($stmt) {
+        $stmt->bind_param('i', $navn_id);
+        $stmt->execute();
+        $resImg = $stmt->get_result();
+        if ($resImg) {
+            $imgRow = $resImg->fetch_assoc();
+            if ($imgRow && isset($imgRow['Bilde_Fil']) && trim((string)$imgRow['Bilde_Fil']) !== '') {
+                // Sørg for å fjerne/demme ekstra skråstreker og konstruere full URL.
+                $base = rtrim((string)$imgRow['URL_Bane'], '/');
+                $file = ltrim((string)$imgRow['Bilde_Fil'], '/');
+                $imageSrc = $base . '/' . $file;
+            }
+            $resImg->free();
+        }
+        $stmt->close();
+    }
+
+    // Beregn relativ sti for bakgrunnsbildet. Siden denne filen ligger i /user,
+    // må vi gå ett nivå opp dersom $imageSrc starter med '/'.
+    $imageSrcRel = (substr($imageSrc, 0, 1) === '/') ? ('..' . $imageSrc) : $imageSrc;
+
     // --- DigitaltMuseum-lenker (ALLE for FartNavn_ID)
     $dimuList = [];
     $stmt = $conn->prepare(
@@ -114,7 +170,7 @@
 
     <!-- Hero image for fartøydetaljer page -->
     <div class="container">
-        <section class="hero" style="background-image:url('../assets/img/fartoydetaljer_1.jpg'); background-size:cover; background-position:center;">
+        <section class="hero" style="background-image:url('<?= h($imageSrcRel) ?>'); background-size:cover; background-position:center;">
             <div class="hero-overlay"></div>
         </section>
     </div>
@@ -124,8 +180,16 @@
 
         <!-- Hovedinfo-boks -->
         <div class="card" style="padding:1rem; margin-bottom:1rem;">
-            <h2 style="margin-top:0;">
-                <?= h(val($main,'FartNavn','(ukjent navn)')) ?>
+            <?php
+                // Kombiner TypeFork og FartNavn for visningen (TypeFork + ' ' + navn)
+                $navn = val($main, 'FartNavn', '(ukjent navn)');
+                $displayName = $navn;
+                if ($typeFork !== '') {
+                    $displayName = trim($typeFork . ' ' . $navn);
+                }
+            ?>
+            <h2 style="margin-top:0; font-size:1.8rem; font-weight:600;">
+                <?= h($displayName) ?>
             </h2>
             <div class="meta" style="display:flex; gap:1.5rem; flex-wrap:wrap;">
                 <div><strong>Objekt-ID:</strong> <?= (int)$main['FartObj_ID'] ?></div>
@@ -232,6 +296,10 @@
                 <span class="btn" style="opacity:.5; pointer-events:none;">Tekniske data (mangler)</span>
             <?php endif; ?>
         </div>
+    </div>
+
+    <div class="actions" style="margin:1rem 0 2rem;display:flex; justify-content:center;">
+        <a class="btn" href="<?= h(BASE_URL) ?>/user/fartoy_navn_sok.php">Tilbake</a>
     </div>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
