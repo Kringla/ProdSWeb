@@ -69,7 +69,7 @@
     // --- Hent bildet til valgt FartNavn_ID fra tblxnmmfoto
     // Standard fallback‑bilde dersom ingen oppføring finnes eller Bilde_Fil er tomt.
     // URL_Bane i tabellen peker til rot (typisk «/assets/img/skip/»), så vi kan bruke den direkte.
-    $imageSrc = '/assets/img/skip/fartoydetaljer_1.jpg';
+    $imageSrc = '/assets/img/skip/placeholder.jpg';
     $stmt = $conn->prepare(
         "SELECT URL_Bane, Bilde_Fil
          FROM tblxnmmfoto
@@ -86,7 +86,7 @@
             if ($imgRow && isset($imgRow['Bilde_Fil']) && trim((string)$imgRow['Bilde_Fil']) !== '') {
                 // Sørg for å fjerne/demme ekstra skråstreker og konstruere full URL.
                 $base = rtrim((string)$imgRow['URL_Bane'], '/');
-                $file = ltrim((string)$imgRow['Bilde_Fil'], '/');
+                $file = basename((string)$imgRow['Bilde_Fil']);
                 $imageSrc = $base . '/' . $file;
             }
             $resImg->free();
@@ -168,11 +168,17 @@
 <?php include __DIR__ . '/../includes/header.php'; ?>
 <?php include __DIR__ . '/../includes/menu.php'; ?>
 
-    <!-- Hero image for fartøydetaljer page -->
-    <div class="container">
-        <section class="hero" style="background-image:url('<?= h($imageSrcRel) ?>'); background-size:cover; background-position:center;">
-            <div class="hero-overlay"></div>
-        </section>
+    <!-- Responsive image box (contain, no crop) -->
+    <div class="container" style="display:flex; justify-content:center;">
+    <div class="image-box">
+        <?php
+        // Bruk den allerede beregnede relative stien
+        $imgRel  = (substr($imageSrc, 0, 1) === '/') ? ('..' . $imageSrc) : $imageSrc;
+        // Alt-tekst: bruk $displayName hvis satt, ellers generisk
+        $altText = isset($displayName) && trim($displayName) !== '' ? $displayName : 'Fartøybilde';
+        ?>
+        <img src="<?= h($imgRel) ?>" alt="<?= h($altText) ?>">
+    </div>
     </div>
 
     <div class="container">
@@ -188,9 +194,11 @@
                     $displayName = trim($typeFork . ' ' . $navn);
                 }
             ?>
-            <h2 style="margin-top:0; font-size:1.8rem; font-weight:600;">
-                <?= h($displayName) ?>
-            </h2>
+            <div style="display:flex; justify-content:center;">
+                <h2 style="margin-top:0; font-size:1.8rem; font-weight:600;">
+                    <?= h($displayName) ?>
+                </h2>
+            </div>
             <div class="meta" style="display:flex; gap:1.5rem; flex-wrap:wrap;">
                 <div><strong>Objekt-ID:</strong> <?= (int)$main['FartObj_ID'] ?></div>
                 <?php if (val($main,'NasjonNavn','') !== ''): ?>
@@ -214,31 +222,52 @@
             </div>
         </div>
 
-        <!-- Lenkelister-boks (alltid viser overskriftene) -->
+        <!-- Navnehistorikk-boks -->
+        <div class="card" style="padding:1rem; margin-bottom:1rem;">
+            <h3 style="text-align:center; margin-top:0;">Navnehistorikk</h3>
+            <table class="table" style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding:.35rem .5rem;">Navn</th>
+                        <th style="text-align:left; padding:.35rem .5rem;">Tidspunkt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($navnehist as $row): ?>
+                    <tr>
+                        <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($row['NavnKomp']) ?></td>
+                        <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($row['Tidspunkt']) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+
+ <!-- Lenkelister-boks (alltid viser overskriftene) -->
         <div class="card" style="padding:1rem; margin-bottom:1rem;">
             <h3 style="margin:.25rem 0;">Digitalt Museum</h3>
-    <table class="table" style="width:100%; border-collapse:collapse; margin-bottom:.75rem;">
-        <thead>
-            <tr>
-                <th style="text-align:left; padding:.35rem .5rem;">Kode</th>
-                <th style="text-align:left; padding:.35rem .5rem;">Motiv</th>
-                <th style="text-align:left; padding:.35rem .5rem; width:1%;">Åpne</th>
-            </tr>
-        </thead>
-        <tbody class="dm-links">
-        <?php foreach ($dimuList as $dm): ?>
-            <tr data-open="<?= h($dm['url']) ?>" style="cursor:pointer;">
-                <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($dm['kode']) ?></td>
-                <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($dm['motiv']) ?></td>
-                <td style="padding:.35rem .5rem; border-top:1px solid #ddd;">
-                    <a class="btn" href="<?= h($dm['url']) ?>" target="_blank" rel="noopener noreferrer">
-                        Åpne bilde med DM koden
-                    </a>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
+                <table class="table" style="width:100%; border-collapse:collapse; margin-bottom:.75rem;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left; padding:.35rem .5rem;">Kode</th>
+                            <th style="text-align:left; padding:.35rem .5rem;">Motiv</th>
+                            <th style="text-align:left; padding:.35rem .5rem; width:1%;">Åpne</th>
+                        </tr>
+                    </thead>
+                    <tbody class="dm-links">
+                    <?php foreach ($dimuList as $dm): ?>
+                        <tr data-open="<?= h($dm['url']) ?>" style="cursor:pointer;">
+                            <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($dm['kode']) ?></td>
+                            <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($dm['motiv']) ?></td>
+                            <td style="padding:.35rem .5rem; border-top:1px solid #ddd;">
+                                <a class="btn" href="<?= h($dm['url']) ?>" target="_blank" rel="noopener noreferrer">
+                                    Åpne bilde med DM koden
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
 
             <h3 style="margin:.25rem 0;">Andre lenker</h3>
             <table class="table" style="width:100%; border-collapse:collapse;">
@@ -264,28 +293,8 @@
                 </tbody>
             </table>
         </div>
-
-        <!-- Navnehistorikk-boks -->
-        <div class="card" style="padding:1rem; margin-bottom:1rem;">
-            <h3 style="text-align:center; margin-top:0;">Navnehistorikk</h3>
-            <table class="table" style="width:100%; border-collapse:collapse;">
-                <thead>
-                    <tr>
-                        <th style="text-align:left; padding:.35rem .5rem;">Navn</th>
-                        <th style="text-align:left; padding:.35rem .5rem;">Tidspunkt</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($navnehist as $row): ?>
-                    <tr>
-                        <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($row['NavnKomp']) ?></td>
-                        <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($row['Tidspunkt']) ?></td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-
+        
+        <!-- DigitaltMuseum-lenker -->
         <!-- Tekniske data: UNDER Navnehistorikk, midtstilt, med BASE_URL -->
         <div class="actions" style="margin:1rem 0 2rem; display:flex; justify-content:center;">
             <?php if (!empty($main['FartSpes_ID'])): ?>

@@ -122,7 +122,7 @@
 
     // --- Dynamisk bilde basert på FartObj_ID via tblxnmmfoto
     // Standard fallback-bilde
-    $imageSrc = '/assets/img/skip/fartoydetaljer_1.jpg';
+    $imageSrc = '/assets/img/skip/placeholder.jpg';
     // Finn seneste FartNavn_ID for objektet via tblfartnavn (høyeste ID per objekt)
     $latestNavnId = 0;
     $fid = (int)($row['FartObj_ID'] ?? 0);
@@ -163,7 +163,7 @@
                 $imgRow = $resImg->fetch_assoc();
                 if ($imgRow && trim((string)$imgRow['Bilde_Fil']) !== '') {
                     $base = rtrim((string)$imgRow['URL_Bane'], '/');
-                    $file = ltrim((string)$imgRow['Bilde_Fil'], '/');
+                    $file = basename((string)$imgRow['Bilde_Fil'], '/');
                     $imageSrc = $base . '/' . $file;
                 }
                 $resImg->free();
@@ -214,11 +214,16 @@
 <?php include __DIR__ . '/../includes/header.php'; ?>
 <?php include __DIR__ . '/../includes/menu.php'; ?>
 
-    <!-- Hero image for fartøys­spesifikasjon page -->
-    <div class="container">
-        <section class="hero" style="background-image:url('<?= h($imageSrcRel) ?>'); background-size:cover; background-position:center;">
-            <div class="hero-overlay"></div>
-        </section>
+    <!-- Responsive image box (contain, no crop) -->
+    <div class="container" style="display:flex; justify-content:center;">
+      <div class="image-box">
+        <?php
+          $imgRel  = (substr($imageSrc, 0, 1) === '/') ? ('..' . $imageSrc) : $imageSrc;
+          // Alt-tekst: bruk $topLine (TypeFork + FartNavn) hvis tilgjengelig
+          $altText = isset($topLine) && trim($topLine) !== '' ? $topLine : 'Fartøybilde';
+        ?>
+        <img src="<?= h($imgRel) ?>" alt="<?= h($altText) ?>">
+      </div>
     </div>
 
     <style>

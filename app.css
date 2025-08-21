@@ -123,7 +123,7 @@ h3{ font-size: 14px; }
   min-width: 20ch;
   height: 38px;
   font-size: 12px;
-  white-space: nowrap;        /* ikke full bredde */
+  white-space: nowrap;       
 }
 .btn:hover{ background: var(--brand-600); }
 .btn:active{ background: var(--brand-700); transform: translateY(1px); }
@@ -296,15 +296,14 @@ h3{ font-size: 14px; }
 
 /* Standard container */
 .image-box {
-  width: 800px;
-  height: 600px;
+  width: 100%; max-width: 800px; aspect-ratio: 3 / 1;
   overflow: hidden;   /* hindrer at bildet stikker ut */
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #f0f0f0; /* nøytral bakgrunn (kan endres til hvit eller mørk) */
+  background: #f5f9fc; /* nøytral bakgrunn (kan endres til hvit eller mørk) */
   margin: 1rem auto;   /* gir litt luft og sentrerer boksen */
-  border: 1px solid #ccc; /* valgfritt, for å se rammen */
+  border: 1px solid transparent; /* valgfritt, for å se rammen */
 }
 
 .image-box img {
