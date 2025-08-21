@@ -281,9 +281,34 @@ h3{ font-size: 14px; }
     margin-left: auto;
     margin-right: auto;
 }
+@media (min-width: 768px) {
+    .container > .hero {
+        max-width: 800px;
+    }
+}
+
 /* Sørg for at eventuell tekst i heroen (h1, h2, h3) er midtstilt */
 .container > .hero h1,
 .container > .hero h2,
 .container > .hero h3 {
     text-align: center;
+}
+
+/* Standard container */
+.image-box {
+  width: 800px;
+  height: 600px;
+  overflow: hidden;   /* hindrer at bildet stikker ut */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f0f0f0; /* nøytral bakgrunn (kan endres til hvit eller mørk) */
+  margin: 1rem auto;   /* gir litt luft og sentrerer boksen */
+  border: 1px solid #ccc; /* valgfritt, for å se rammen */
+}
+
+.image-box img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain; /* viktig: behold aspektforhold, ikke crop */
 }
