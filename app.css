@@ -20,6 +20,7 @@
   --shadow: 0 2px 10px rgba(0,0,0,.04);
   /* Nye variabler for aksent- og sekundærfarger */
   --accent: #e2e8f0; /* Lys gråblå for paneler og hover */
+  --access: #0078D4;
   --secondary: #c83c3c; /* Sekundær rødfarge til varsler eller fremheving */
   --secondary-hover: #a62828; /* Hover-variant av rødfargen */
 }
@@ -56,7 +57,8 @@ h3{ font-size: 14px; }
 .site-header{
   border-bottom: 1px solid var(--border);
   /* Bruk lys aksentfarge i topptekst for å harmonere med ny palett */
-  background: var(--accent);
+  /* background: var(--accent); */
+  background: var(--access);
 }
 .site-header .brand{
   display: inline-flex;
@@ -274,6 +276,7 @@ h3{ font-size: 14px; }
 
 /* Gjelder hero-bilder på undersidene (/user) */
 /* Gjelder hero-bilder på undersidene (/user) */
+
 .container > .hero {
     /* Bredden du ønsker, for eksempel 800px */
     max-width: 800px;
@@ -285,6 +288,29 @@ h3{ font-size: 14px; }
     .container > .hero {
         max-width: 800px;
     }
+}
+
+.hero.hero-rotator {
+    max-width: 1100px;   /* begrens bredde */
+    margin: 0 auto;      /* sentrer på siden */
+    display: flex;          /* gjør seksjonen til en flex-container */
+    flex-direction: column; /* slik at innhold kan skyves til bunn */
+    position: relative;
+}
+
+/* plasser innholdet (inkl. h1/h2) nederst i rotator-blokken */
+.hero.hero-rotator .hero-inner {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    margin-top: auto;        /* skyv innholdet til bunnen */
+    padding-bottom: 1.25rem; /* litt luft mot underkant */
+}
+
+@media (max-width: 640px) {
+  .hero.hero-rotator .hero-inner {
+    padding-bottom: .75rem;
+  }
 }
 
 /* Sørg for at eventuell tekst i heroen (h1, h2, h3) er midtstilt */

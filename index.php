@@ -20,6 +20,7 @@ $files = glob(__DIR__ . '/assets/img/hero/hero*.{jpg,jpeg,webp,png}', GLOB_BRACE
 natsort($files);
 $heroUrls = array_map(fn($p) => $BASE . '/assets/img/hero/' . basename($p), $files);
 ?>
+
 <section class="hero hero-rotator"
          data-images='<?= json_encode(array_values($heroUrls), JSON_UNESCAPED_SLASHES) ?>'
          data-interval="3500">
@@ -28,7 +29,8 @@ $heroUrls = array_map(fn($p) => $BASE . '/assets/img/hero/' . basename($p), $fil
     <h1>Finn fartøy, verft og rederier</h1>
     <h2>Søk fritt uten innlogging. Administrasjon og endringer av innhold krever innlogging.</h2>
     <div class="cta">
-      <a class="btn primary" href="<?= $BASE ?>/user/fartoy_nat.php">Søk fartøy</a>
+      <a class="btn primary" href="<?= $BASE ?>/user/fartoy_navn_sok.php">Søk fartøy</a>
+      <a class="btn" href="<?= $BASE ?>/user/fartoy_spes_sok.php">Søk spesifikasjoner</a>
       <a class="btn" href="<?= $BASE ?>/user/verft_sok.php">Søk verft</a>
       <a class="btn" href="<?= $BASE ?>/user/rederi_sok.php">Søk rederi</a>
       <?php if (!$loggedIn): ?>
@@ -40,7 +42,7 @@ $heroUrls = array_map(fn($p) => $BASE . '/assets/img/hero/' . basename($p), $fil
 
 <section class="container mt-4">
   <div class="card" style="padding:1.5rem 1.5rem 1.25rem;line-height:1.55;">
-    <h2 style="margin:0 0 .25rem 0; font-size:1.6rem;">Velkommen til <span style="color:#2c3e50;">SkipsWeb</span></h2>
+    <h2 style="margin:0 0 .25rem 0; font-size:1.6rem">Velkommen til <span style="color:#FF5733;">SkipsWeb</span></h2>
     <p class="muted" style="margin:.25rem 0 1rem 0; font-size:1.05rem;">
       “SkipsWeb” er en database som gir adgang til data for norske og utenlandske fartøyer som er omtalt i <em>Dampskipspostens</em> 125 numre, 
       og data om fartøyer samlet av <em>Ole Harald Fiske</em> gjennom mange års arbeide for <em>Norsk Maritimt Museum</em>. 
