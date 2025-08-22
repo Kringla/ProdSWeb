@@ -174,13 +174,41 @@
 <?php include __DIR__ . '/../includes/header.php'; ?>
 <?php include __DIR__ . '/../includes/menu.php'; ?>
 
-    <!-- Hero image for fartøyspesifikasjonssøk -->
-    <div class="container">
-        <section class="hero" style="background-image:url('../assets/img/fartoy_nat_1.jpg'); background-size:cover; background-position:center;">
-            <div class="hero-overlay"></div>
-        </section>
-    </div>
+   <!-- Responsive image box (contain, no crop) -->
+    <div class="container" style="display:flex; justify-content:center;">
+        <div class="image-box">
+            <?php
+            // 1) Velg tryggt bilde (DB -> fallback). Bruk basename()+h() for sikkerhet.
+            $imgCandidate = null;
 
+            // Hvis du i denne siden har en $imgRow fra tblxnmmfoto:
+            if (isset($imgRow) && is_array($imgRow) && !empty($imgRow['Bilde_Fil'])) {
+                $base = rtrim((string)($imgRow['URL_Bane'] ?? '/assets/img/skip'), '/');
+                $file = basename((string)$imgRow['Bilde_Fil']); // dropp path-fragmenter
+                $imgCandidate = $base . '/' . $file;
+            }
+            // Alternativ kilde: $main['Bilde_Fil'] dersom du bruker den i siden:
+            elseif (!empty($main['Bilde_Fil'])) {
+                $imgCandidate = '/assets/img/skip/' . basename((string)$main['Bilde_Fil']);
+            }
+            // 2) Garantert fallback:
+            if (!$imgCandidate) {
+                $imgCandidate = '/assets/img/skip/placeholder.jpg';
+            }
+
+            // 3) Relativ URL hvis siden ligger i /user/
+            $imgRel = (substr($imgCandidate, 0, 1) === '/') ? ('..' . $imgCandidate) : $imgCandidate;
+
+            // 4) Alt‑tekst (prøv å bruke type + navn hvis det finnes)
+            $altText = trim(
+                (string)($main['TypeFork'] ?? ($main['FartType'] ?? '')) . ' ' .
+                (string)($main['FartNavn'] ?? 'Fartøy')
+            );
+            if ($altText === '') { $altText = 'Fartøybilde'; }
+            ?>
+            <img src="<?= h($imgRel) ?>" alt="<?= h($altText) ?>">
+        </div>
+    </div>
     <div class="container">
         <h1 style="text-align:center;">Søk fartøyspesifikasjoner</h1>
         <form method="get" class="form-inline" style="margin-bottom:1rem; display:flex; flex-wrap:wrap; gap:0.5rem; justify-content:flex-start;">

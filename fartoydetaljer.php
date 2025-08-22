@@ -69,7 +69,7 @@
     // --- Hent bildet til valgt FartNavn_ID fra tblxnmmfoto
     // Standard fallback‑bilde dersom ingen oppføring finnes eller Bilde_Fil er tomt.
     // URL_Bane i tabellen peker til rot (typisk «/assets/img/skip/»), så vi kan bruke den direkte.
-    $imageSrc = '/assets/img/skip/placeholder.jpg';
+    $imageSrc = '/assets/img/skip/fartoydetaljer_1.jpg';
     $stmt = $conn->prepare(
         "SELECT URL_Bane, Bilde_Fil
          FROM tblxnmmfoto
@@ -86,7 +86,7 @@
             if ($imgRow && isset($imgRow['Bilde_Fil']) && trim((string)$imgRow['Bilde_Fil']) !== '') {
                 // Sørg for å fjerne/demme ekstra skråstreker og konstruere full URL.
                 $base = rtrim((string)$imgRow['URL_Bane'], '/');
-                $file = basename((string)$imgRow['Bilde_Fil']);
+                $file = ltrim((string)$imgRow['Bilde_Fil'], '/');
                 $imageSrc = $base . '/' . $file;
             }
             $resImg->free();
@@ -120,25 +120,6 @@
     }
     $stmt->close();
 
-    // --- Øvrige lenker (tblxfartlink) via FartNavn_ID
-    $fartLinks = [];
-    $stmt = $conn->prepare(
-        "SELECT COALESCE(LinkType,'') AS LinkType,
-                COALESCE(LinkInnh,'') AS LinkInnh,
-                Link,
-                COALESCE(SerNo, 9999) AS SortNo
-         FROM tblxfartlink
-         WHERE FartNavn_ID = ? AND COALESCE(Link,'') <> ''
-         ORDER BY SortNo, LinkType, LinkInnh"
-    );
-    $stmt->bind_param("i", $navn_id);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    while ($row = $res->fetch_assoc()) {
-        $fartLinks[] = $row;
-    }
-    $stmt->close();
-
     // --- Navnehistorikk (for hele objektet), med TypeFork + FartNavn og Year/Mnd (MM)
     $navnehist = [];
     $stmt = $conn->prepare(
@@ -164,28 +145,42 @@
         $navnehist[] = $r;
     }
     $stmt->close();
+
+    // --- Øvrige lenker (tblxfartlink) via FartNavn_ID
+    $fartLinks = [];
+    $stmt = $conn->prepare(
+        "SELECT COALESCE(LinkType,'') AS LinkType,
+                COALESCE(LinkInnh,'') AS LinkInnh,
+                Link,
+                COALESCE(SerNo, 9999) AS SortNo
+         FROM tblxfartlink
+         WHERE FartNavn_ID = ? AND COALESCE(Link,'') <> ''
+         ORDER BY SortNo, LinkType, LinkInnh"
+    );
+    $stmt->bind_param("i", $navn_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    while ($row = $res->fetch_assoc()) {
+        $fartLinks[] = $row;
+    }
+    $stmt->close();
+
 ?>
 <?php include __DIR__ . '/../includes/header.php'; ?>
 <?php include __DIR__ . '/../includes/menu.php'; ?>
 
-    <!-- Responsive image box (contain, no crop) -->
-    <div class="container" style="display:flex; justify-content:center;">
-    <div class="image-box">
-        <?php
-        // Bruk den allerede beregnede relative stien
-        $imgRel  = (substr($imageSrc, 0, 1) === '/') ? ('..' . $imageSrc) : $imageSrc;
-        // Alt-tekst: bruk $displayName hvis satt, ellers generisk
-        $altText = isset($displayName) && trim($displayName) !== '' ? $displayName : 'Fartøybilde';
-        ?>
-        <img src="<?= h($imgRel) ?>" alt="<?= h($altText) ?>">
-    </div>
+    <!-- Hero image for fartøydetaljer page -->
+    <div class="container">
+        <section class="hero" style="background-image:url('<?= h($imageSrcRel) ?>'); background-size:cover; background-position:center;">
+            <div class="hero-overlay"></div>
+        </section>
     </div>
 
     <div class="container">
         <h1 style="text-align:center;">Fartøydetaljer</h1>
 
         <!-- Hovedinfo-boks -->
-        <div class="card" style="padding:1rem; margin-bottom:1rem;">
+        <div class="card centered-card" style="padding:1rem; margin-bottom:1rem; text-align:center;">
             <?php
                 // Kombiner TypeFork og FartNavn for visningen (TypeFork + ' ' + navn)
                 $navn = val($main, 'FartNavn', '(ukjent navn)');
@@ -199,75 +194,66 @@
                     <?= h($displayName) ?>
                 </h2>
             </div>
-            <div class="meta" style="display:flex; gap:1.5rem; flex-wrap:wrap;">
-                <div><strong>Objekt-ID:</strong> <?= (int)$main['FartObj_ID'] ?></div>
+
+            <!-- Merk: .meta er flex; text-align påvirker ikke plasseringen av barna.
+                Vi må derfor sentrere selve flex-linjen med justify-content:center og 
+                gjerne align-items:center for vertikal justering. -->
+            <div class="meta"
+                style="display:flex; gap:1.5rem; flex-wrap:wrap; justify-content:center; align-items:center;">
+
                 <?php if (val($main,'NasjonNavn','') !== ''): ?>
-                    <div><strong>Nasjon:</strong> <?= h($main['NasjonNavn']) ?></div>
+                    <div style="text-align:center;"><strong>Nasjon:</strong> <?= h($main['NasjonNavn']) ?></div>
                 <?php endif; ?>
+
                 <?php if (val($main,'RegHavn','') !== ''): ?>
-                    <div><strong>Reg.havn:</strong> <?= h($main['RegHavn']) ?></div>
+                    <div style="text-align:center;"><strong>Reg.havn:</strong> <?= h($main['RegHavn']) ?></div>
                 <?php endif; ?>
+
                 <?php if (val($main,'Rederi','') !== ''): ?>
-                    <div><strong>Rederi:</strong> <?= h($main['Rederi']) ?></div>
+                    <div style="text-align:center;"><strong>Rederi:</strong> <?= h($main['Rederi']) ?></div>
                 <?php endif; ?>
+
                 <?php if (val($main,'Kallesignal','') !== ''): ?>
-                    <div><strong>Kallesignal:</strong> <?= h($main['Kallesignal']) ?></div>
+                    <div style="text-align:center;"><strong>Kallesignal:</strong> <?= h($main['Kallesignal']) ?></div>
                 <?php endif; ?>
+
                 <?php if (val($main,'MMSI','') !== ''): ?>
-                    <div><strong>MMSI:</strong> <?= h($main['MMSI']) ?></div>
+                    <div style="text-align:center;"><strong>MMSI:</strong> <?= h($main['MMSI']) ?></div>
                 <?php endif; ?>
+
                 <?php if (val($main,'Fiskerinr','') !== ''): ?>
-                    <div><strong>Fiskerinr:</strong> <?= h($main['Fiskerinr']) ?></div>
+                    <div style="text-align:center;"><strong>Fiskerinr:</strong> <?= h($main['Fiskerinr']) ?></div>
                 <?php endif; ?>
+
+                <div style="text-align:center; font-size: 9px">Objekt-ID:<?= (int)$main['FartObj_ID'] ?></div>
             </div>
         </div>
 
-        <!-- Navnehistorikk-boks -->
-        <div class="card" style="padding:1rem; margin-bottom:1rem;">
-            <h3 style="text-align:center; margin-top:0;">Navnehistorikk</h3>
-            <table class="table" style="width:100%; border-collapse:collapse;">
-                <thead>
-                    <tr>
-                        <th style="text-align:left; padding:.35rem .5rem;">Navn</th>
-                        <th style="text-align:left; padding:.35rem .5rem;">Tidspunkt</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($navnehist as $row): ?>
-                    <tr>
-                        <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($row['NavnKomp']) ?></td>
-                        <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($row['Tidspunkt']) ?></td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-
- <!-- Lenkelister-boks (alltid viser overskriftene) -->
+        <!-- Lenkelister-boks (alltid viser overskriftene) -->
         <div class="card" style="padding:1rem; margin-bottom:1rem;">
             <h3 style="margin:.25rem 0;">Digitalt Museum</h3>
-                <table class="table" style="width:100%; border-collapse:collapse; margin-bottom:.75rem;">
-                    <thead>
-                        <tr>
-                            <th style="text-align:left; padding:.35rem .5rem;">Kode</th>
-                            <th style="text-align:left; padding:.35rem .5rem;">Motiv</th>
-                            <th style="text-align:left; padding:.35rem .5rem; width:1%;">Åpne</th>
-                        </tr>
-                    </thead>
-                    <tbody class="dm-links">
-                    <?php foreach ($dimuList as $dm): ?>
-                        <tr data-open="<?= h($dm['url']) ?>" style="cursor:pointer;">
-                            <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($dm['kode']) ?></td>
-                            <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($dm['motiv']) ?></td>
-                            <td style="padding:.35rem .5rem; border-top:1px solid #ddd;">
-                                <a class="btn" href="<?= h($dm['url']) ?>" target="_blank" rel="noopener noreferrer">
-                                    Åpne bilde med DM koden
-                                </a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
+    <table class="table" style="width:100%; border-collapse:collapse; margin-bottom:.75rem;">
+        <thead>
+            <tr>
+                <th style="text-align:left; padding:.35rem .5rem;">Kode</th>
+                <th style="text-align:left; padding:.35rem .5rem;">Motiv</th>
+                <th style="text-align:left; padding:.35rem .5rem; width:1%;">Åpne</th>
+            </tr>
+        </thead>
+        <tbody class="dm-links">
+        <?php foreach ($dimuList as $dm): ?>
+            <tr data-open="<?= h($dm['url']) ?>" style="cursor:pointer;">
+                <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($dm['kode']) ?></td>
+                <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($dm['motiv']) ?></td>
+                <td style="padding:.35rem .5rem; border-top:1px solid #ddd;">
+                    <a class="btn" href="<?= h($dm['url']) ?>" target="_blank" rel="noopener noreferrer">
+                        Åpne bilde med DM koden
+                    </a>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
 
             <h3 style="margin:.25rem 0;">Andre lenker</h3>
             <table class="table" style="width:100%; border-collapse:collapse;">
@@ -293,8 +279,28 @@
                 </tbody>
             </table>
         </div>
-        
-        <!-- DigitaltMuseum-lenker -->
+
+        <!-- Navnehistorikk-boks -->
+        <div class="card" style="padding:1rem; margin-bottom:1rem;">
+            <h3 style="text-align:center; margin-top:0;">Navnehistorikk</h3>
+            <table class="table" style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding:.35rem .5rem;">Navn</th>
+                        <th style="text-align:left; padding:.35rem .5rem;">Tidspunkt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($navnehist as $row): ?>
+                    <tr>
+                        <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($row['NavnKomp']) ?></td>
+                        <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($row['Tidspunkt']) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+
         <!-- Tekniske data: UNDER Navnehistorikk, midtstilt, med BASE_URL -->
         <div class="actions" style="margin:1rem 0 2rem; display:flex; justify-content:center;">
             <?php if (!empty($main['FartSpes_ID'])): ?>
@@ -308,7 +314,7 @@
     </div>
 
     <div class="actions" style="margin:1rem 0 2rem;display:flex; justify-content:center;">
-        <a class="btn" href="<?= h(BASE_URL) ?>/user/fartoy_navn_sok.php">Tilbake</a>
+        <a class="btn" href="<?= h(BASE_URL) ?>/user/fartoy_navn_sok.php">← Tilbake</a>
     </div>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

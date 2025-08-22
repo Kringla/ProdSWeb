@@ -90,7 +90,7 @@ skipsweb/
 │   ├── fartoy_navn_sok.php       		# Søk på fartøysnavn, utlisting for søkeresultat
 │   ├── fartoy_spes_sok.php       		# Søk på spesifikasjonsparametre, utlisting for søkeresultat
 │   ├── fartoydetaljer.php       		# Søk, utlisting for søkeresultat
-│   ├── fartoy_spes.php        			# Spesifikasjoner av fartøy
+│   ├── fartoyspes.php        			# Spesifikasjoner av fartøy
 │   ├── verft_sok   					# Søk verft, utlisting for søkeresultat
 │   └── rederi_sok.php        			# Søk rederi, utlisting for søkeresultat
 │
@@ -116,7 +116,7 @@ Lay-out:
 	+ Når knapper benyttes må de ikke være duplikater 
 
 Utførelse av endringer:
-Alle endringer skal skje basert på enten  en vedlagt fil, eller siste versjon av den relevante filen som ligger på https://github.com/Kringla/ProdSWeb.
+Alle endringer skal skje basert på enten fil vedlagt i prosjektets dokumenter, en vedlagt fil, eller siste versjon av den relevante filen som ligger på https://github.com/Kringla/ProdSWeb.
 Bruk alltid BASE_URL som referanse til rot.
 
 Jeg er redd for å skifte ut feil kode blokker når du foreslår endringer. Derfor må du alltid sørge for enten for

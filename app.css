@@ -311,3 +311,58 @@ h3{ font-size: 14px; }
   max-height: 100%;
   object-fit: contain; /* viktig: behold aspektforhold, ikke crop */
 }
+* Sentrer alt innhold i Hovedinfo-boks på fartoydetaljer.php */
+.card.centered-card {
+  text-align: center;           /* sentrer tekst i default flow */
+}
+
+/* Vanlige elementer som skal stå midt i boksen */
+.card.centered-card .image-box,
+.card.centered-card img,
+.card.centered-card table {
+  margin-left: auto;
+  margin-right: auto;           /* midtstill blokk-/tabell-/bilde-elementer */
+  display: block;
+}
+
+/* Hvis du har en knapperekke / actions-linje i boksen */
+.card.centered-card .actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: .75rem;                  /* litt luft mellom knapper */
+  flex-wrap: wrap;
+}
+
+/* Hvis du har flex-rader som tidligere var venstrejustert */
+.card.centered-card .row,
+.card.centered-card .flex,
+.card.centered-card .grid {
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+
+/* H2/H3 inni boksen – noen temaer tvinger venstre via spesifikke regler */
+.card.centered-card h1,
+.card.centered-card h2,
+.card.centered-card h3 {
+  text-align: center !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Sikre at bilder skaleres pent i image-box (hvis du bruker den) */
+.card.centered-card .image-box {
+  /* forutsetter at du allerede har width:100%; max-width; aspect-ratio i .image-box */
+}
+.card.centered-card .image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* (Valgfritt) Småknapper i boksen: gi lik spacing uten å strekke hele bredden */
+.card.centered-card .btn {
+  margin: .25rem .5rem;
+}
