@@ -33,14 +33,40 @@ $selRederi   = isset($_GET['rederi']) ? trim((string)$_GET['rederi']) : '';
 $rederiList  = [];
 $fartoyListe = [];
 $error       = null;
+// SQL uttrykk for 'trimmet rederinavn' iht. CR: behold alt t.o.m. siste ')', eller t.o.m. tegnet før siste ','.
+$REDE_TI_TRIM_T = "
+RTRIM(
+  SUBSTRING(
+    t.Rederi,
+    1,
+    GREATEST(
+      CHAR_LENGTH(t.Rederi) - LOCATE(')', REVERSE(t.Rederi)) + 1,
+      (CHAR_LENGTH(t.Rederi) - LOCATE(',', REVERSE(t.Rederi)) + 1) - 1
+    )
+  )
+)
+";
+$REDE_TI_TRIM_FT = "
+RTRIM(
+  SUBSTRING(
+    ft.Rederi,
+    1,
+    GREATEST(
+      CHAR_LENGTH(ft.Rederi) - LOCATE(')', REVERSE(ft.Rederi)) + 1,
+      (CHAR_LENGTH(ft.Rederi) - LOCATE(',', REVERSE(ft.Rederi)) + 1) - 1
+    )
+  )
+)
+";
+
 
 // 1) Søk etter rederier (min. 2 tegn). Basert på tblfarttid.Rederi.
 if ($q !== '' && mb_strlen($q) >= 2) {
     $sql = "
-        SELECT DISTINCT Rederi
-        FROM tblfarttid
-        WHERE Rederi LIKE CONCAT('%', ?, '%')
-          AND Rederi IS NOT NULL AND Rederi <> ''
+        SELECT DISTINCT $REDE_TI_TRIM_T AS Rederi
+        FROM tblfarttid t
+        WHERE $REDE_TI_TRIM_T LIKE CONCAT('%', ?, '%')
+          AND t.Rederi IS NOT NULL AND t.Rederi <> ''
         ORDER BY Rederi
         LIMIT 500
     ";
@@ -88,7 +114,7 @@ if ($q !== '' && mb_strlen($q) >= 2) {
             FROM tblfarttid ft
             JOIN tblfartnavn fn ON fn.FartNavn_ID = ft.FartNavn_ID
             LEFT JOIN tblzfarttype zt ON zt.FartType_ID = fn.FartType_ID
-            WHERE ft.Rederi = ?
+            WHERE $REDE_TI_TRIM_FT = ?
             ORDER BY ft.YearTid, ft.MndTid, fn.FartNavn
             LIMIT 500
         ";
@@ -137,25 +163,27 @@ if ($q !== '' && mb_strlen($q) >= 2) {
       <p>Ingen treff.</p>
     <?php else: ?>
       <div id="rederiliste" class="card centered-card" style="overflow-x:auto;">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Rederi</th>
-              <th>Velg</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php foreach ($rederiList as $r): ?>
-              <?php $navn = (string)$r['Rederi']; ?>
-              <tr <?php if (isset($selectedName) && $navn === $selectedName): ?> style="background:var(--accent);"<?php endif; ?>>
-                <td><?= h($navn) ?></td>
-                <td>
-                  <a class="btn" href="?q=<?= urlencode($q) ?>&rederi=<?= urlencode($navn) ?>#rederiliste">Velg</a>
-                </td>
+          <div class="table-wrap center">
+            <table class="table tight fit">
+            <thead>
+              <tr>
+                <th>Rederi</th>
+                <th>Velg</th>
               </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              <?php foreach ($rederiList as $r): ?>
+                <?php $navn = (string)$r['Rederi']; ?>
+                <tr <?php if (isset($selectedName) && $navn === $selectedName): ?> style="background:var(--accent);"<?php endif; ?>>
+                  <td><?= h($navn) ?></td>
+                  <td>
+                    <a class="btn-small" href="?q=<?= urlencode($q) ?>&rederi=<?= urlencode($navn) ?>#rederiliste" title="Velg">☑</a>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- Fartøyliste for valgt rederi -->
@@ -164,50 +192,52 @@ if ($q !== '' && mb_strlen($q) >= 2) {
         <p>Ingen registrerte fartøyer for dette rederiet.</p>
       <?php else: ?>
         <div id="fartoyer" class="card centered-card" style="overflow-x:auto;">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Navn</th>
-                <th>Reg. havn</th>
-                <th>Fra År/mnd</th>
-                <th>Objekt</th>
-                <th>Vis</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php foreach ($fartoyListe as $r): ?>
-                <?php
-                  $year  = isset($r['YearTid']) ? (int)$r['YearTid'] : 0;
-                  $month = isset($r['MndTid']) ? (int)$r['MndTid'] : 0;
-                  $ym    = $year ? ($year . '/' . ($month ? str_pad((string)$month, 2, '0', STR_PAD_LEFT) : '')) : '';
-                  $navn  = trim((string)($r['TypeFork'] ?? ''));
-                  $navn  = $navn !== '' ? ($navn . ' ') : '';
-                  $navn .= (string)($r['FartNavn'] ?? '');
-                ?>
+          <div class="table-wrap center">
+            <table class="table tight fit">
+              <thead>
                 <tr>
-                  <td><?= h($navn) ?></td>
-                  <td><?= h($r['RegHavn'] ?? '') ?></td>
-                  <td><?= h($ym) ?></td>
-                  <td>
-                    <?php if (isset($r['Objekt']) && (int)$r['Objekt'] === 1): ?>
-                      <span title="Navnet tilhører opprinnelig fartøy" aria-hidden="true">•</span>
-                    <?php endif; ?>
-                  </td>
-                  <td>
-                    <?php
-                      $objId  = isset($r['FartObj_ID']) ? (int)$r['FartObj_ID'] : 0;
-                      $navnId = isset($r['FartNavn_ID']) ? (int)$r['FartNavn_ID'] : 0;
-                    ?>
-                    <?php if ($objId > 0 && $navnId > 0): ?>
-                      <a class="btn" href="fartoydetaljer.php?obj_id=<?= $objId ?>&navn_id=<?= $navnId ?>">Vis</a>
-                    <?php else: ?>
-                      <span class="muted">–</span>
-                    <?php endif; ?>
-                  </td>
+                  <th>Navn</th>
+                  <th>Reg. havn</th>
+                  <th>Fra År/mnd</th>
+                  <th>Objekt</th>
+                  <th>Vis</th>
                 </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                <?php foreach ($fartoyListe as $r): ?>
+                  <?php
+                    $year  = isset($r['YearTid']) ? (int)$r['YearTid'] : 0;
+                    $month = isset($r['MndTid']) ? (int)$r['MndTid'] : 0;
+                    $ym    = $year ? ($year . '/' . ($month ? str_pad((string)$month, 2, '0', STR_PAD_LEFT) : '')) : '';
+                    $navn  = trim((string)($r['TypeFork'] ?? ''));
+                    $navn  = $navn !== '' ? ($navn . ' ') : '';
+                    $navn .= (string)($r['FartNavn'] ?? '');
+                  ?>
+                  <tr>
+                    <td><?= h($navn) ?></td>
+                    <td><?= h($r['RegHavn'] ?? '') ?></td>
+                    <td><?= h($ym) ?></td>
+                    <td>
+                      <?php if (isset($r['Objekt']) && (int)$r['Objekt'] === 1): ?>
+                        <span title="Navnet tilhører opprinnelig fartøy" aria-hidden="true">•</span>
+                      <?php endif; ?>
+                    </td>
+                    <td>
+                      <?php
+                        $objId  = isset($r['FartObj_ID']) ? (int)$r['FartObj_ID'] : 0;
+                        $navnId = isset($r['FartNavn_ID']) ? (int)$r['FartNavn_ID'] : 0;
+                      ?>
+                      <?php if ($objId > 0 && $navnId > 0): ?>
+                        <a class="btn-small" href="fartoydetaljer.php?obj_id=<?= $objId ?>&navn_id=<?= $navnId ?>#fartoyliste" title="Velg">☑</a>
+                      <?php else: ?>
+                        <span class="muted">–</span>
+                      <?php endif; ?>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
         </div>
       <?php endif; ?>
     <?php endif; ?>

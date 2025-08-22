@@ -202,28 +202,30 @@ if ($q !== '' && mb_strlen($q) >= 2) {
       <p>Ingen treff.</p>
     <?php else: ?>
       <div id="verftliste" class="card centered-card" style="overflow-x:auto;">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Verft</th>
-              <th>Sted</th>
-              <th>Nasjon</th>
-              <th>Velg</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php foreach ($verftList as $v): ?>
-              <tr <?php if ((int)$v['Verft_ID'] === $verftId): ?> style="background:var(--accent);"<?php endif; ?>>
-                <td><?= h($v['VerftNavn'] ?? '') ?></td>
-                <td><?= h($v['Sted'] ?? '') ?></td>
-                <td><?= h($v['Nasjon'] ?? '') ?></td>
-                <td>
-                  <a class="btn" href="?q=<?= urlencode($q) ?>&verft_id=<?= (int)$v['Verft_ID'] ?>#verftliste">Velg</a>
-                </td>
+          <div class="table-wrap center">
+            <table class="table tight fit">
+            <thead>
+              <tr>
+                <th>Verft</th>
+                <th>Sted</th>
+                <th>Nasjon</th>
+                <th>Velg</th>
               </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              <?php foreach ($verftList as $v): ?>
+                <tr <?php if ((int)$v['Verft_ID'] === $verftId): ?> style="background:var(--accent);"<?php endif; ?>>
+                  <td><?= h($v['VerftNavn'] ?? '') ?></td>
+                  <td><?= h($v['Sted'] ?? '') ?></td>
+                  <td><?= h($v['Nasjon'] ?? '') ?></td>
+                  <td>
+                    <a class="btn-small" href="?q=<?= urlencode($q) ?>&verft_id=<?= (int)$v['Verft_ID'] ?>#verftliste" title="Velg">Vis</a>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- Leveranseliste -->
@@ -232,54 +234,57 @@ if ($q !== '' && mb_strlen($q) >= 2) {
         <p>Ingen registrerte leveranser for dette verftet.</p>
       <?php else: ?>
         <div id="leveranser" class="card centered-card" style="overflow-x:auto;">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Byggenr</th>
-                <th>Bygd År/mnd</th>
-                <th>Navn</th>
-                <th>Reg. havn</th>
-                <th>Eier</th>
-                <th>Objekt</th>
-                <th>Vis</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php foreach ($leveranseList as $r): ?>
-                <?php
-                  $year  = isset($r['YearSpes']) ? (int)$r['YearSpes'] : 0;
-                  $month = isset($r['MndSpes']) ? (int)$r['MndSpes'] : 0;
-                  $ym    = $year ? ($year . '/' . ($month ? str_pad((string)$month, 2, '0', STR_PAD_LEFT) : '')) : '';
-                  $navn  = trim((string)($r['TypeFork'] ?? ''));
-                  $navn  = $navn !== '' ? ($navn . ' ') : '';
-                  $navn .= (string)($r['FartNavn'] ?? '');
-                ?>
+          <div class="table-wrap center">
+            <table class="table tight fit">
+              <thead>
                 <tr>
-                  <td><?= h($r['Byggenr'] ?? '') ?></td>
-                  <td><?= h($ym) ?></td>
-                  <td><?= h($navn) ?></td>
-                  <td><?= h($r['RegHavn'] ?? '') ?></td>
-                  <td><?= h($r['Rederi'] ?? '') ?></td>
-                  <td>
-                    <?php if (isset($r['Objekt']) && (int)$r['Objekt'] === 1): ?>
-                      <span title="Navnet tilhører opprinnelig fartøy" aria-hidden="true">•</span>
-                    <?php endif; ?>
-                  </td>
-                  <td>
-                    <?php
-                      $objId  = isset($r['FartObj_ID']) ? (int)$r['FartObj_ID'] : 0;
-                      $navnId = isset($r['FartNavn_ID']) ? (int)$r['FartNavn_ID'] : 0;
-                    ?>
-                    <?php if ($objId > 0 && $navnId > 0): ?>
-                      <a class="btn" href="fartoydetaljer.php?obj_id=<?= $objId ?>&navn_id=<?= $navnId ?>">Vis</a>
-                    <?php else: ?>
-                      <span class="muted">–</span>
-                    <?php endif; ?>
-                  </td>
+                  <th>Byggenr</th>
+                  <th>Bygd År/mnd</th>
+                  <th>Navn</th>
+                  <th>Reg. havn</th>
+                  <th>Eier</th>
+                  <th>Objekt</th>
+                  <th>Vis</th>
                 </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                <?php foreach ($leveranseList as $r): ?>
+                  <?php
+                    $year  = isset($r['YearSpes']) ? (int)$r['YearSpes'] : 0;
+                    $month = isset($r['MndSpes']) ? (int)$r['MndSpes'] : 0;
+                    $ym    = $year ? ($year . '/' . ($month ? str_pad((string)$month, 2, '0', STR_PAD_LEFT) : '')) : '';
+                    $navn  = trim((string)($r['TypeFork'] ?? ''));
+                    $navn  = $navn !== '' ? ($navn . ' ') : '';
+                    $navn .= (string)($r['FartNavn'] ?? '');
+                  ?>
+                  <tr>
+                    <td><?= h($r['Byggenr'] ?? '') ?></td>
+                    <td><?= h($ym) ?></td>
+                    <td><?= h($navn) ?></td>
+                    <td><?= h($r['RegHavn'] ?? '') ?></td>
+                    <td><?= h($r['Rederi'] ?? '') ?></td>
+                    <td>
+                      <?php if (isset($r['Objekt']) && (int)$r['Objekt'] === 1): ?>
+                        <span title="Navnet tilhører opprinnelig fartøy" aria-hidden="true">•</span>
+                      <?php endif; ?>
+                    </td>
+                    <td>
+                      <?php
+                        $objId  = isset($r['FartObj_ID']) ? (int)$r['FartObj_ID'] : 0;
+                        $navnId = isset($r['FartNavn_ID']) ? (int)$r['FartNavn_ID'] : 0;
+                      ?>
+                      <?php if ($objId > 0 && $navnId > 0): ?>
+                        <a class="btn-small" href="fartoydetaljer.php?obj_id=<?= $objId ?>&navn_id=<?= $navnId ?>">Vis</a>
+                        
+                      <?php else: ?>
+                        <span class="muted">–</span>
+                      <?php endif; ?>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
         </div>
       <?php endif; ?>
 
@@ -289,54 +294,56 @@ if ($q !== '' && mb_strlen($q) >= 2) {
         <p>Ingen registrerte skrogbygg for dette verftet.</p>
       <?php else: ?>
         <div id="skrogleveranser" class="card centered-card" style="overflow-x:auto;">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Byggenr</th>
-                <th>Bygd År/mnd</th>
-                <th>Navn</th>
-                <th>Reg. havn</th>
-                <th>Eier</th>
-                <th>Objekt</th>
-                <th>Vis</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php foreach ($skrogList as $r): ?>
-                <?php
-                  $year  = isset($r['YearSpes']) ? (int)$r['YearSpes'] : 0;
-                  $month = isset($r['MndSpes']) ? (int)$r['MndSpes'] : 0;
-                  $ym    = $year ? ($year . '/' . ($month ? str_pad((string)$month, 2, '0', STR_PAD_LEFT) : '')) : '';
-                  $navn  = trim((string)($r['TypeFork'] ?? ''));
-                  $navn  = $navn !== '' ? ($navn . ' ') : '';
-                  $navn .= (string)($r['FartNavn'] ?? '');
-                ?>
+          <div class="table-wrap center">
+            <table class="table tight fit">
+              <thead>
                 <tr>
-                  <td><?= h($r['Byggenr'] ?? '') ?></td>
-                  <td><?= h($ym) ?></td>
-                  <td><?= h($navn) ?></td>
-                  <td><?= h($r['RegHavn'] ?? '') ?></td>
-                  <td><?= h($r['Rederi'] ?? '') ?></td>
-                  <td>
-                    <?php if (isset($r['Objekt']) && (int)$r['Objekt'] === 1): ?>
-                      <span title="Navnet tilhører opprinnelig fartøy" aria-hidden="true">•</span>
-                    <?php endif; ?>
-                  </td>
-                  <td>
-                    <?php
-                      $objId  = isset($r['FartObj_ID']) ? (int)$r['FartObj_ID'] : 0;
-                      $navnId = isset($r['FartNavn_ID']) ? (int)$r['FartNavn_ID'] : 0;
-                    ?>
-                    <?php if ($objId > 0 && $navnId > 0): ?>
-                      <a class="btn" href="fartoydetaljer.php?obj_id=<?= $objId ?>&navn_id=<?= $navnId ?>">Vis</a>
-                    <?php else: ?>
-                      <span class="muted">–</span>
-                    <?php endif; ?>
-                  </td>
+                  <th>Byggenr</th>
+                  <th>Bygd År/mnd</th>
+                  <th>Navn</th>
+                  <th>Reg. havn</th>
+                  <th>Eier</th>
+                  <th>Objekt</th>
+                  <th>Vis</th>
                 </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                <?php foreach ($skrogList as $r): ?>
+                  <?php
+                    $year  = isset($r['YearSpes']) ? (int)$r['YearSpes'] : 0;
+                    $month = isset($r['MndSpes']) ? (int)$r['MndSpes'] : 0;
+                    $ym    = $year ? ($year . '/' . ($month ? str_pad((string)$month, 2, '0', STR_PAD_LEFT) : '')) : '';
+                    $navn  = trim((string)($r['TypeFork'] ?? ''));
+                    $navn  = $navn !== '' ? ($navn . ' ') : '';
+                    $navn .= (string)($r['FartNavn'] ?? '');
+                  ?>
+                  <tr>
+                    <td><?= h($r['Byggenr'] ?? '') ?></td>
+                    <td><?= h($ym) ?></td>
+                    <td><?= h($navn) ?></td>
+                    <td><?= h($r['RegHavn'] ?? '') ?></td>
+                    <td><?= h($r['Rederi'] ?? '') ?></td>
+                    <td>
+                      <?php if (isset($r['Objekt']) && (int)$r['Objekt'] === 1): ?>
+                        <span title="Navnet tilhører opprinnelig fartøy" aria-hidden="true">•</span>
+                      <?php endif; ?>
+                    </td>
+                    <td>
+                      <?php
+                        $objId  = isset($r['FartObj_ID']) ? (int)$r['FartObj_ID'] : 0;
+                        $navnId = isset($r['FartNavn_ID']) ? (int)$r['FartNavn_ID'] : 0;
+                      ?>
+                      <?php if ($objId > 0 && $navnId > 0): ?>
+                        <a class="btn-small" href="fartoydetaljer.php?obj_id=<?= $objId ?>&navn_id=<?= $navnId ?>">Vis</a>
+                      <?php else: ?>
+                        <span class="muted">–</span>
+                      <?php endif; ?>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
         </div>
       <?php endif; ?>
     <?php endif; ?>
