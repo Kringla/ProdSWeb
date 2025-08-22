@@ -121,18 +121,27 @@
     $stmt->close();
 
     // --- Navnehistorikk (for hele objektet), med TypeFork + FartNavn og Year/Mnd (MM)
-    $navnehist = [];
-    $stmt = $conn->prepare(
-        "SELECT t.FartTid_ID, t.YearTid, t.MndTid,
-                fn.FartNavn,
-                zft.TypeFork
-         FROM tblfarttid t
-         LEFT JOIN tblfartnavn   fn  ON fn.FartNavn_ID   = t.FartNavn_ID
-         LEFT JOIN tblfartspes   fs  ON fs.FartSpes_ID   = t.FartSpes_ID
-         LEFT JOIN tblzfarttype  zft ON zft.FartType_ID  = fs.FartType_ID
-         WHERE t.FartObj_ID = ?
-         ORDER BY COALESCE(t.YearTid,0), COALESCE(t.MndTid,0), t.FartTid_ID"
-    );
+$navnehist = [];
+$stmt = $conn->prepare(
+    "SELECT t.FartTid_ID,
+            t.YearTid,
+            t.MndTid,
+            fn.FartNavn,
+            zft.TypeFork,
+            t.Rederi,
+            t.RegHavn,
+            zn.Nasjon
+     FROM tblfarttid t
+     LEFT JOIN tblfartnavn  fn ON fn.FartNavn_ID  = t.FartNavn_ID
+     LEFT JOIN tblfartspes  fs ON fs.FartSpes_ID  = t.FartSpes_ID
+     LEFT JOIN tblzfarttype zft ON zft.FartType_ID = fs.FartType_ID
+     LEFT JOIN tblznasjon   zn ON zn.Nasjon_ID    = t.Nasjon_ID
+     WHERE t.FartObj_ID = ?
+     ORDER BY COALESCE(t.YearTid,0),
+              COALESCE(t.MndTid,0),
+              t.FartTid_ID"
+);
+    
     $stmt->bind_param("i", $obj_id);
     $stmt->execute();
     $res = $stmt->get_result();
@@ -229,33 +238,63 @@
             </div>
         </div>
 
+        <!-- Navnehistorikk-boks -->
+        <h3 style="margin:.25rem 0;">Navnehistorikk</h3>
+        <table class="table" style="width:100%; border-collapse:collapse;">
+            <thead>
+                <tr>
+                    <th style="text-align:left; padding:.35rem .5rem;">Tidspunkt</th>
+                    <th style="text-align:left; padding:.35rem .5rem;">Navn</th>
+                    <th style="text-align:left; padding:.35rem .5rem;">Rederi</th>
+                    <th style="text-align:left; padding:.35rem .5rem;">Reg.havn</th>
+                    <th style="text-align:left; padding:.35rem .5rem;">Nasjon</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($navnehist as $nh): ?>
+                <?php
+                    $tid = ($nh['YearTid'] ? $nh['YearTid'] : '') .
+                        ($nh['MndTid'] ? '/' . str_pad($nh['MndTid'], 2, '0', STR_PAD_LEFT) : '');
+                    $navn = trim(($nh['TypeFork'] ?? '') . ' ' . ($nh['FartNavn'] ?? ''));
+                ?>
+                <tr>
+                    <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($tid) ?></td>
+                    <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($navn) ?></td>
+                    <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($nh['Rederi']) ?></td>
+                    <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($nh['RegHavn']) ?></td>
+                    <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($nh['Nasjon']) ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+
         <!-- Lenkelister-boks (alltid viser overskriftene) -->
         <div class="card" style="padding:1rem; margin-bottom:1rem;">
-            <h3 style="margin:.25rem 0;">Digitalt Museum</h3>
-    <table class="table" style="width:100%; border-collapse:collapse; margin-bottom:.75rem;">
-        <thead>
-            <tr>
-                <th style="text-align:left; padding:.35rem .5rem;">Kode</th>
-                <th style="text-align:left; padding:.35rem .5rem;">Motiv</th>
-                <th style="text-align:left; padding:.35rem .5rem; width:1%;">Åpne</th>
-            </tr>
-        </thead>
-        <tbody class="dm-links">
-        <?php foreach ($dimuList as $dm): ?>
-            <tr data-open="<?= h($dm['url']) ?>" style="cursor:pointer;">
-                <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($dm['kode']) ?></td>
-                <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($dm['motiv']) ?></td>
-                <td style="padding:.35rem .5rem; border-top:1px solid #ddd;">
-                    <a class="btn" href="<?= h($dm['url']) ?>" target="_blank" rel="noopener noreferrer">
-                        Åpne bilde med DM koden
-                    </a>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
+            <h3 style="margin:4rem 0 0;">Lenker til bilder i Digitalt Museum</h3>
+            <table class="table" style="width:100%; border-collapse:collapse; margin-bottom:.75rem;">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding:.35rem .5rem;">Kode</th>
+                        <th style="text-align:left; padding:.35rem .5rem;">Motiv</th>
+                        <th style="text-align:left; padding:.35rem .5rem; width:1%;">Åpne</th>
+                    </tr>
+                </thead>
+                <tbody class="dm-links">
+                <?php foreach ($dimuList as $dm): ?>
+                    <tr data-open="<?= h($dm['url']) ?>" style="cursor:pointer;">
+                        <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($dm['kode']) ?></td>
+                        <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($dm['motiv']) ?></td>
+                        <td style="padding:.35rem .5rem; border-top:1px solid #ddd;">
+                            <a class="btn" href="<?= h($dm['url']) ?>" target="_blank" rel="noopener noreferrer">
+                                Åpne bilde med DM koden
+                            </a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
 
-            <h3 style="margin:.25rem 0;">Andre lenker</h3>
+            <h3 style="margin:2rem 0 0;">Andre lenker</h3>
             <table class="table" style="width:100%; border-collapse:collapse;">
                 <thead>
                     <tr>
@@ -280,28 +319,7 @@
             </table>
         </div>
 
-        <!-- Navnehistorikk-boks -->
-        <div class="card" style="padding:1rem; margin-bottom:1rem;">
-            <h3 style="text-align:center; margin-top:0;">Navnehistorikk</h3>
-            <table class="table" style="width:100%; border-collapse:collapse;">
-                <thead>
-                    <tr>
-                        <th style="text-align:left; padding:.35rem .5rem;">Navn</th>
-                        <th style="text-align:left; padding:.35rem .5rem;">Tidspunkt</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($navnehist as $row): ?>
-                    <tr>
-                        <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($row['NavnKomp']) ?></td>
-                        <td style="padding:.35rem .5rem; border-top:1px solid #ddd;"><?= h($row['Tidspunkt']) ?></td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Tekniske data: UNDER Navnehistorikk, midtstilt, med BASE_URL -->
+        <!-- Tekniske data: UNDER Lenkelister, midtstilt, med BASE_URL -->
         <div class="actions" style="margin:1rem 0 2rem; display:flex; justify-content:center;">
             <?php if (!empty($main['FartSpes_ID'])): ?>
                 <a class="btn" href="<?= h(BASE_URL) ?>/user/fartoyspes.php?spes_id=<?= (int)$main['FartSpes_ID'] ?>">
