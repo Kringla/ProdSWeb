@@ -289,7 +289,8 @@
         <?php endif; ?>
 
         <?php if ($rows): ?>
-        <div class="table-wrap outline-brand"><table class="table table-striped table-sm" border: 1 cellspacing="0" cellpadding="4" style="width:100%;">
+        <div class="table-wrap outline-brand">
+            <table class="table tight fit">
             <thead>
                 <tr>
                     <th>Navn</th>

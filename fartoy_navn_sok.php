@@ -158,7 +158,7 @@
 
       <?php if ($rows): ?>
         <div class="table-wrap outline-brand">
-          <table class="table table-striped table-sm" border: 1 cellspacing="0" cellpadding="4">
+          <table class="table tight fit">
             <thead>
               <tr>
                 <th>Type</th>

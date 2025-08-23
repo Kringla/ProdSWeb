@@ -154,7 +154,7 @@ h3{ font-size: 14px; }
 .btn-small:hover { filter: brightness(.92); }
 
 .table.tight th,
-.table.tight td { padding:.25rem .5rem; border-bottom:1px solid #ff3300; }
+.table.tight td { padding:.25rem .5rem; border-bottom:1px solid #00529b; }
 
 
 /* ---------------------- Forms ---------------------- */

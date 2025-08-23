@@ -16,7 +16,7 @@ Webhotellet har MySQL ver 8.3.28 og støtter Cron.
 Jeg har en MSc i "Design of Information Systems" fra 1980. Jeg har utviklet applikajoner i og kan lese VBA kode. Jeg har god erfaring med design av Relasjonsdatabaser.
 Jeg har tilgjengelig VB Studio Code, Notebook++, Access, phpMySQL ver 5.2.2, MySQL Workbench ver 8.0 CE og xampp.
 
-DB har et Schema som angitt i "SkipsWeb_SCHEMA v1.sql" fil.
+DB har et Schema som angitt i "SkipsWeb_SCHEMA v*.sql" fil.
 
 Data for connection string - deployert versjon: 
 vertsnavn (host): hostmaster.onnet.no 
@@ -60,10 +60,10 @@ skipsweb/
 │   │   │
 │   │	├── skip/ 						# Bilder for fartoysdetaljer.php       			
 │   │   │   ├── placeholder.jpg         # Bilde Placeholder
-│   │   │   ├── aaa..jpg              	# Bilde aaa ... 
-│   │   │   ├── .....jpg              	# Bilde .....
-│   │   │   ├── yyy..jpg              	# Bilde yyy.....
-│   │   │   └── zzz..jpg              	# Bilde zzz ....
+│   │   │   ├── aaa..jpg              	# Bilde aaa ... (Finnes ikke på det nåværende)
+│   │   │   ├── .....jpg              	# Bilde ....... (Finnes ikke på det nåværende)
+│   │   │   ├── yyy..jpg              	# Bilde yyy.....(Finnes ikke på det nåværende)
+│   │   │   └── zzz..jpg              	# Bilde zzz ....(Finnes ikke på det nåværende)
 │   │   │
 │   │   ├── fartoy_nat_1.jpg           	# Bilde av skip
 │   │   ├── fartoydetaljer_1.jpg        # Bilde av skip
