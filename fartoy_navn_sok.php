@@ -130,13 +130,13 @@
 
     <div class="container">
       <h1>Fartøy i databasen</h1>
-      <div style="margin:-0.25rem 0 0.75rem 0; font-size:0.95rem; color:#555;">
+      <div style="margin:-0.25rem 0 0.75rem 0; font-size:0.95rem; color:#555;text-align: center;">
         <strong>Forklaring:</strong>
         <span title="Navnet tilhører opprinnelig fartøy" aria-hidden="true" style="font-size:1.1rem; vertical-align:baseline;">•</span>
         = navnet tilhører <em>opprinnelig</em> fartøy (Objekt = 1).
       </div>
-      <form method="get" class="form-inline" style="margin-bottom:1rem">
-        <label for="q">Søk på del av fartøynamn:&nbsp;</label>
+      <form method="get" class="form-inline" style="margin-bottom:1rem;text-align: center;">
+        <label for="q">Søk på del av fartøynavn:&nbsp;</label>
         <input type="text" id="q" name="q" value="<?= h($q) ?>" />
         &nbsp;&nbsp;
         <label for="nasjon_id">Nasjon</label>
@@ -157,7 +157,7 @@
       <?php endif; ?>
 
       <?php if ($rows): ?>
-      <table class="table table-striped table-sm" border="1" cellspacing="0" cellpadding="4">
+      <table class="table table-striped table-sm" border: 1 cellspacing="0" cellpadding="4">
         <thead>
           <tr>
             <th>Type</th>
@@ -188,7 +188,7 @@
             <td>
               <?php $id = (int)val($r,'FartObj_ID',0); ?>
               <?php if ($id > 0): ?>
-                <a class="btn" href="fartoydetaljer.php?obj_id=<?= (int)$r['FartObj_ID'] ?>&navn_id=<?= (int)$r['FartNavn_ID'] ?>">Vis</a>
+                <a class="btn-small" href="fartoydetaljer.php?obj_id=<?= (int)$r['FartObj_ID'] ?>&navn_id=<?= (int)$r['FartNavn_ID'] ?>">Vis</a>
               <?php else: ?>
                 <span class="muted">–</span>
               <?php endif; ?>

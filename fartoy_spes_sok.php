@@ -289,7 +289,7 @@
         <?php endif; ?>
 
         <?php if ($rows): ?>
-        <table class="table table-striped table-sm" border="1" cellspacing="0" cellpadding="4" style="width:100%;">
+        <table class="table table-striped table-sm" border: 1 cellspacing="0" cellpadding="4" style="width:100%;">
             <thead>
                 <tr>
                     <th>Navn</th>
@@ -322,7 +322,7 @@
                         <?php $objId  = (int)val($r,'FartObj_ID',0); ?>
                         <?php $navnId = (int)val($r,'FartNavn_ID',0); ?>
                         <?php if ($objId > 0 && $navnId > 0): ?>
-                            <a class="btn" href="fartoydetaljer.php?obj_id=<?= $objId ?>&navn_id=<?= $navnId ?>">Vis</a>
+                            <a class="btn-small" href="fartoydetaljer.php?obj_id=<?= $objId ?>&navn_id=<?= $navnId ?>">Vis</a>
                         <?php else: ?>
                             <span class="muted">–</span>
                         <?php endif; ?>
