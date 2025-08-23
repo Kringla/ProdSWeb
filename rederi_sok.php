@@ -164,7 +164,7 @@ if ($q !== '' && mb_strlen($q) >= 2) {
     <?php else: ?>
       <div id="rederiliste" class="card centered-card" style="overflow-x:auto;">
           <div class="table-wrap center">
-            <table class="table tight fit">
+            <div class="table-wrap outline-brand"><table class="table tight fit">
             <thead>
               <tr>
                 <th>Rederi</th>
@@ -183,6 +183,7 @@ if ($q !== '' && mb_strlen($q) >= 2) {
               <?php endforeach; ?>
             </tbody>
           </table>
+</div>
         </div>
       </div>
 
@@ -193,7 +194,7 @@ if ($q !== '' && mb_strlen($q) >= 2) {
       <?php else: ?>
         <div id="fartoyer" class="card centered-card" style="overflow-x:auto;">
           <div class="table-wrap center">
-            <table class="table tight fit">
+            <div class="table-wrap outline-brand"><table class="table tight fit">
               <thead>
                 <tr>
                   <th>Navn</th>
@@ -237,6 +238,7 @@ if ($q !== '' && mb_strlen($q) >= 2) {
                 <?php endforeach; ?>
               </tbody>
             </table>
+</div>
           </div>
         </div>
       <?php endif; ?>

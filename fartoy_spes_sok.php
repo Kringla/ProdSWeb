@@ -289,7 +289,7 @@
         <?php endif; ?>
 
         <?php if ($rows): ?>
-        <table class="table table-striped table-sm" border: 1 cellspacing="0" cellpadding="4" style="width:100%;">
+        <div class="table-wrap outline-brand"><table class="table table-striped table-sm" border: 1 cellspacing="0" cellpadding="4" style="width:100%;">
             <thead>
                 <tr>
                     <th>Navn</th>
@@ -331,6 +331,7 @@
             <?php endforeach; ?>
             </tbody>
         </table>
+</div>
         <?php elseif ($doSearch): ?>
             <p>Ingen treff.</p>
         <?php else: ?>

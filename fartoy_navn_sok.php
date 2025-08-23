@@ -139,7 +139,7 @@
         <label for="q">Søk på del av fartøynavn:&nbsp;</label>
         <input type="text" id="q" name="q" value="<?= h($q) ?>" />
         &nbsp;&nbsp;
-        <label for="nasjon_id">Nasjon</label>
+        <label for="nasjon_id">fra nasjon</label>
         <select name="nasjon_id" id="nasjon_id">
           <option value="0"<?= $nasjonId === 0 ? ' selected' : '' ?>>Alle nasjoner</option>
           <?php foreach ($nasjoner as $r): ?>
@@ -157,50 +157,52 @@
       <?php endif; ?>
 
       <?php if ($rows): ?>
-      <table class="table table-striped table-sm" border: 1 cellspacing="0" cellpadding="4">
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>Navn</th>
-            <th>Reg.havn</th>
-            <th>Flaggstat</th>
-            <th>Bygget</th>
-            <th>Kallesignal</th>
-            <th>Rederi/Eier</th>
-            <th>Vis</th>
-          </tr>
-        </thead>
-        <tbody>
-        <?php foreach ($rows as $r): ?>
-          <tr>
-            <td><?= h(val($r,'TypeFork')) ?></td>
-            <td>
-              <?= h(val($r,'FartNavn')) ?>
-              <?php if ((int)val($r,'IsOriginalNow',0) === 1): ?>
-                <span title="Navnet tilhører opprinnelig fartøy">•</span>
-              <?php endif; ?>
-            </td>
-            <td><?= h(val($r,'RegHavn')) ?></td>
-            <td><?= h(val($r,'Nasjon')) ?></td>
-            <td><?= h(val($r,'Bygget')) ?></td>
-            <td><?= h(val($r,'Kallesignal')) ?></td>
-            <td><?= h(val($r,'Rederi')) ?></td>
-            <td>
-              <?php $id = (int)val($r,'FartObj_ID',0); ?>
-              <?php if ($id > 0): ?>
-                <a class="btn-small" href="fartoydetaljer.php?obj_id=<?= (int)$r['FartObj_ID'] ?>&navn_id=<?= (int)$r['FartNavn_ID'] ?>">Vis</a>
-              <?php else: ?>
-                <span class="muted">–</span>
-              <?php endif; ?>
-            </td>
-          </tr>
-        <?php endforeach; ?>
-        </tbody>
-      </table>
+        <div class="table-wrap outline-brand">
+          <table class="table table-striped table-sm" border: 1 cellspacing="0" cellpadding="4">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Navn</th>
+                <th>Reg.havn</th>
+                <th>Flaggstat</th>
+                <th>Bygget</th>
+                <th>Kallesignal</th>
+                <th>Rederi/Eier</th>
+                <th>Vis</th>
+              </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($rows as $r): ?>
+              <tr>
+                <td><?= h(val($r,'TypeFork')) ?></td>
+                <td>
+                  <?= h(val($r,'FartNavn')) ?>
+                  <?php if ((int)val($r,'IsOriginalNow',0) === 1): ?>
+                    <span title="Navnet tilhører opprinnelig fartøy">•</span>
+                  <?php endif; ?>
+                </td>
+                <td><?= h(val($r,'RegHavn')) ?></td>
+                <td><?= h(val($r,'Nasjon')) ?></td>
+                <td><?= h(val($r,'Bygget')) ?></td>
+                <td><?= h(val($r,'Kallesignal')) ?></td>
+                <td><?= h(val($r,'Rederi')) ?></td>
+                <td>
+                  <?php $id = (int)val($r,'FartObj_ID',0); ?>
+                  <?php if ($id > 0): ?>
+                    <a class="btn-small" href="fartoydetaljer.php?obj_id=<?= (int)$r['FartObj_ID'] ?>&navn_id=<?= (int)$r['FartNavn_ID'] ?>">Vis</a>
+                  <?php else: ?>
+                    <span class="muted">–</span>
+                  <?php endif; ?>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div> 
       <?php elseif ($doSearch): ?>
         <p>Ingen treff.</p>
       <?php else: ?>
-        <p>Velg nasjon og/eller skriv del av navn for å søke.</p>
+        <p>Skriv del av navn for å søke. Du kan også bruke nasjon som filter.</p>
       <?php endif; ?>
     </div>
 

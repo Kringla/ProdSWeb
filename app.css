@@ -15,10 +15,9 @@
   --bg: #f5f9fc; /* Nesten hvit bakgrunn med et hint av blått */
   --fg: #14213d; /* Mørk blågrå tekstfarge for god kontrast */
   --muted: #6b7280;
-  --border: #ff3300;
+  --border:  #e5e7eb;
   --radius: 12px;
-  --shadow: #00cc00;
-  /* --shadow: 0 2px 10px rgba(0,0,0,.04); */
+  --shadow: 0 2px 10px rgba(0,0,0,.04);
   /* Nye variabler for aksent- og sekundærfarger */
   --accent: #e2e8f0; /* Lys gråblå for paneler og hover */
   --access: #0078D4;
@@ -42,6 +41,7 @@ html, body{
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 14px;
+  text-align: center;
 }
 
 /* ---------------------- Headings ---------------------- */
@@ -142,7 +142,7 @@ h3{ font-size: 14px; }
   padding:2px 6px;
   font-size:0.85rem;
   line-height:1.2;
-  border:1px solid var(--primary, #1f6feb);
+  border:1px solid var(--primary, #1f6feb); 
   border-radius:4px;
   background-color:var(--primary, #1f6feb);
   color:#fff;
@@ -154,7 +154,7 @@ h3{ font-size: 14px; }
 .btn-small:hover { filter: brightness(.92); }
 
 .table.tight th,
-.table.tight td { padding:.25rem .5rem; border-bottom:3px solid #00CC00; }
+.table.tight td { padding:.25rem .5rem; border-bottom:1px solid #ff3300; }
 
 
 /* ---------------------- Forms ---------------------- */
@@ -433,3 +433,10 @@ h3{ font-size: 14px; }
 }
 
 .results-card { border: 2px solid #94a3b8; }
+
+/* Ytre outline-wrapper for tabeller – kun ytre kant i brand-600, 3px */
+.table-wrap.outline-brand{
+  border: 2px solid var(--brand-600);
+  border-radius: 12px;
+  padding: 6px;
+}

@@ -240,7 +240,7 @@ $stmt = $conn->prepare(
 
         <!-- Navnehistorikk-boks -->
         <h3 style="margin:.25rem 0;">Navnehistorikk</h3>
-        <table class="table" style="width:100%; border-collapse:collapse;">
+        <div class="table-wrap outline-brand"><table class="table" style="width:100%; border-collapse:collapse;">
             <thead>
                 <tr>
                     <th style="text-align:left; padding:.35rem .5rem;">Tidspunkt</th>
@@ -267,11 +267,12 @@ $stmt = $conn->prepare(
             <?php endforeach; ?>
             </tbody>
         </table>
+</div>
 
         <!-- Lenkelister-boks (alltid viser overskriftene) -->
         <div class="card" style="padding:1rem; margin-bottom:1rem;">
             <h3 style="margin:4rem 0 0;">Lenker til bilder i Digitalt Museum</h3>
-            <table class="table" style="width:100%; border-collapse:collapse; margin-bottom:.75rem;">
+            <div class="table-wrap outline-brand"><table class="table" style="width:100%; border-collapse:collapse; margin-bottom:.75rem;">
                 <thead>
                     <tr>
                         <th style="text-align:left; padding:.35rem .5rem;">Kode</th>
@@ -293,9 +294,10 @@ $stmt = $conn->prepare(
                 <?php endforeach; ?>
                 </tbody>
             </table>
+</div>
 
             <h3 style="margin:2rem 0 0;">Andre lenker</h3>
-            <table class="table" style="width:100%; border-collapse:collapse;">
+            <div class="table-wrap outline-brand"><table class="table" style="width:100%; border-collapse:collapse;">
                 <thead>
                     <tr>
                         <th style="text-align:left; padding:.35rem .5rem;">Type / innhold</th>
@@ -317,6 +319,7 @@ $stmt = $conn->prepare(
                 <?php endforeach; ?>
                 </tbody>
             </table>
+</div>
         </div>
 
         <!-- Tekniske data: UNDER Lenkelister, midtstilt, med BASE_URL -->

@@ -203,7 +203,7 @@ if ($q !== '' && mb_strlen($q) >= 2) {
     <?php else: ?>
       <div id="verftliste" class="card centered-card" style="overflow-x:auto;">
           <div class="table-wrap center">
-            <table class="table tight fit">
+            <div class="table-wrap outline-brand"><table class="table tight fit">
             <thead>
               <tr>
                 <th>Verft</th>
@@ -225,6 +225,7 @@ if ($q !== '' && mb_strlen($q) >= 2) {
               <?php endforeach; ?>
             </tbody>
           </table>
+</div>
         </div>
       </div>
 
@@ -235,7 +236,7 @@ if ($q !== '' && mb_strlen($q) >= 2) {
       <?php else: ?>
         <div id="leveranser" class="card centered-card" style="overflow-x:auto;">
           <div class="table-wrap center">
-            <table class="table tight fit">
+            <div class="table-wrap outline-brand"><table class="table tight fit">
               <thead>
                 <tr>
                   <th>Byggenr</th>
@@ -284,6 +285,7 @@ if ($q !== '' && mb_strlen($q) >= 2) {
                 <?php endforeach; ?>
               </tbody>
             </table>
+</div>
           </div>
         </div>
       <?php endif; ?>
@@ -295,7 +297,7 @@ if ($q !== '' && mb_strlen($q) >= 2) {
       <?php else: ?>
         <div id="skrogleveranser" class="card centered-card" style="overflow-x:auto;">
           <div class="table-wrap center">
-            <table class="table tight fit">
+            <div class="table-wrap outline-brand"><table class="table tight fit">
               <thead>
                 <tr>
                   <th>Byggenr</th>
@@ -343,6 +345,7 @@ if ($q !== '' && mb_strlen($q) >= 2) {
                 <?php endforeach; ?>
               </tbody>
             </table>
+</div>
           </div>
         </div>
       <?php endif; ?>
