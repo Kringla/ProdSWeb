@@ -15,7 +15,7 @@
   --bg: #f5f9fc; /* Nesten hvit bakgrunn med et hint av blått */
   --fg: #14213d; /* Mørk blågrå tekstfarge for god kontrast */
   --muted: #6b7280;
-  --border:  #e5e7eb;
+  --border: transparent; /*  #e5e7eb; ,*/
   --radius: 12px;
   --shadow: 0 2px 10px rgba(0,0,0,.04);
   /* Nye variabler for aksent- og sekundærfarger */

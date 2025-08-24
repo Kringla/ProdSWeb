@@ -203,7 +203,8 @@ if ($q !== '' && mb_strlen($q) >= 2) {
     <?php else: ?>
       <div id="verftliste" class="card centered-card" style="overflow-x:auto;">
           <div class="table-wrap center">
-            <div class="table-wrap outline-brand"><table class="table tight fit">
+            <div class="table-wrap outline-brand">
+            <table class="table tight fit">
             <thead>
               <tr>
                 <th>Verft</th>

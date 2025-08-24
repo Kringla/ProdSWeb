@@ -177,7 +177,7 @@ if ($q !== '' && mb_strlen($q) >= 2) {
                 <tr <?php if (isset($selectedName) && $navn === $selectedName): ?> style="background:var(--accent);"<?php endif; ?>>
                   <td><?= h($navn) ?></td>
                   <td>
-                    <a class="btn-small" href="?q=<?= urlencode($q) ?>&rederi=<?= urlencode($navn) ?>#rederiliste" title="Velg">☑</a>
+                    <a class="btn-small" href="?q=<?= urlencode($q) ?>&rederi=<?= urlencode($navn) ?>#rederiliste" title="Velg">Vis</a>
                   </td>
                 </tr>
               <?php endforeach; ?>
@@ -194,7 +194,8 @@ if ($q !== '' && mb_strlen($q) >= 2) {
       <?php else: ?>
         <div id="fartoyer" class="card centered-card" style="overflow-x:auto;">
           <div class="table-wrap center">
-            <div class="table-wrap outline-brand"><table class="table tight fit">
+            <div class="table-wrap outline-brand">
+              <table class="table tight fit">
               <thead>
                 <tr>
                   <th>Navn</th>
@@ -229,7 +230,7 @@ if ($q !== '' && mb_strlen($q) >= 2) {
                         $navnId = isset($r['FartNavn_ID']) ? (int)$r['FartNavn_ID'] : 0;
                       ?>
                       <?php if ($objId > 0 && $navnId > 0): ?>
-                        <a class="btn-small" href="fartoydetaljer.php?obj_id=<?= $objId ?>&navn_id=<?= $navnId ?>#fartoyliste" title="Velg">☑</a>
+                        <a class="btn-small" href="fartoydetaljer.php?obj_id=<?= $objId ?>&navn_id=<?= $navnId ?>#fartoyliste" title="Velg">Velg</a>
                       <?php else: ?>
                         <span class="muted">–</span>
                       <?php endif; ?>
