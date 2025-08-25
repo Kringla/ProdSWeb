@@ -206,4 +206,9 @@
       <?php endif; ?>
     </div>
 
+  <!-- Tilbake-knapp nederst: midtstilt -->
+    <div class="actions" style="margin:1rem 0 2rem; text-align:center;">
+      <a class="btn" href="#" onclick="if(history.length>1){history.back();return false;}" title="Tilbake">← Tilbake</a>
+    </div>
+    
     <?php include __DIR__ . '/../includes/footer.php'; ?>

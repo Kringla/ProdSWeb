@@ -12,6 +12,10 @@
      * fartoydetaljer.php.
      */
 
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+
     require_once __DIR__ . '/../includes/bootstrap.php';
     require_once __DIR__ . '/../includes/auth.php'; // for meny/rolle
 
@@ -160,10 +164,19 @@
         if (!$stmt->execute()) {
             die('Execute feilet: ' . $stmt->error);
         }
-        $result = $stmt->get_result();
-        if ($result) {
-            $rows = $result->fetch_all(MYSQLI_ASSOC);
-            $result->free();
+        $stmt->execute();
+        $stmt->store_result();
+        $rows = [];
+        $meta  = $stmt->result_metadata();
+        $fields = $meta->fetch_fields();
+        $row = [];
+        $bind = [];
+        foreach ($fields as $field) {
+            $bind[] = &$row[$field->name];
+        }
+        call_user_func_array([$stmt, 'bind_result'], $bind);
+        while ($stmt->fetch()) {
+            $rows[] = array_map(fn($v) => $v, $row);
         }
         $stmt->close();
     }
@@ -173,6 +186,7 @@
 ?>
 <?php include __DIR__ . '/../includes/header.php'; ?>
 <?php include __DIR__ . '/../includes/menu.php'; ?>
+
 
    <!-- Responsive image box (contain, no crop) -->
     <div class="container" style="display:flex; justify-content:center;">
@@ -332,12 +346,16 @@
             <?php endforeach; ?>
             </tbody>
         </table>
-</div>
+        </div>
         <?php elseif ($doSearch): ?>
             <p>Ingen treff.</p>
         <?php else: ?>
             <p>Velg ett eller flere filtre for å søke i spesifikasjonene.</p>
         <?php endif; ?>
+    </div>
+    <!-- Tilbake-knapp nederst: midtstilt -->
+    <div class="actions" style="margin:1rem 0 2rem; text-align:center;">
+    <a class="btn" href="#" onclick="if(history.length>1){history.back();return false;}" title="Tilbake">← Tilbake</a>
     </div>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

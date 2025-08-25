@@ -59,14 +59,13 @@ $heroUrls = array_map(fn($p) => $BASE . '/assets/img/hero/' . basename($p), $fil
       </ul>
       <p>Felles for alle listete fartøyene er at tilgjengelige data, historie, spesifikasjoner og linker til andre kilder kan vises. Fartøyenes <em>CV (historikk)</em> finnes for ca. 60&nbsp;% av fartøyene i databasen.</p>
       <p> Databasens tilgjengelige data om det enkelte fartøyene i basen varierer. For flere detaljer kan en finne de i databaser som er bedre vedrørende fartøyers detaljer og 
-        tekniske spesifikasjoner.</p>
-      <p>For gode, detaljerte beskrivelser av fartøyer vises det til f.eks. 
+        tekniske spesifikasjoner.For gode, detaljerte beskrivelser av fartøyer vises det til f.eks. 
         <a href="https://www.sjohistorie.no/no" target="_blank" rel="noopener">sjøhistorie.no</a>,
         en svært godt utviklet (og mye større) database. Ellers kan du prøve Norsk Skipsfarthistorisk Selskaps
         skipsdatabase på <a href="https://skipshistorie.net/" target="_blank" rel="noopener">skipshistorie.net</a>, 
         eller Krigsseilerregisterets fartøyer på <a href=https://krigsseilerregisteret.no/skip?q target="_blank" rel="noopener">krigsseilerregisteret.no</a>.
       </p>
-      <p>Bildene som vises i båndet over, er private eller hentet fra Digitalt  Museums 'frie' bilder.</p>
+      <p>Bildene som vises i båndet over, er enten private eller hentet fra Digitalt  Museums 'frie' bilder.</p>
 	    <p>Lykke til med å finne det fartøyet du er på jakt etter.</p>
     </div>
   </div>

@@ -13,6 +13,10 @@
  * escapes med htmlspecialchars() via helperfunksjonen h().
  */
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require_once __DIR__ . '/../includes/bootstrap.php';
 
 // Dersom bootstrap ikke laget $conn, forsøk å koble via config
@@ -96,20 +100,22 @@ if ($q !== '' && mb_strlen($q) >= 2) {
                 tid.Rederi,
                 tid.Objekt
             FROM tblfartspes fs
-            LEFT JOIN tblfartnavn fn ON fn.FartObj_ID = fs.FartObj_ID
-            LEFT JOIN tblzfarttype zt ON zt.FartType_ID = fn.FartType_ID
+            /* Finn siste tidsrad per spesifikasjon */
             LEFT JOIN (
-                SELECT t1.FartSpes_ID, t1.FartTid_ID
+                SELECT t1.*
                 FROM tblfarttid t1
                 JOIN (
                     SELECT FartSpes_ID, MAX(FartTid_ID) AS FartTid_ID
                     FROM tblfarttid
                     GROUP BY FartSpes_ID
                 ) t2 ON t2.FartSpes_ID = t1.FartSpes_ID AND t2.FartTid_ID = t1.FartTid_ID
-            ) lt ON lt.FartSpes_ID = fs.FartSpes_ID
-            LEFT JOIN tblfarttid tid ON tid.FartTid_ID = lt.FartTid_ID
+            ) tid ON tid.FartSpes_ID = fs.FartSpes_ID
+
+            /* Bind navnet entydig til tidsradens FartNavn_ID */
+            LEFT JOIN tblfartnavn  fn ON fn.FartNavn_ID = tid.FartNavn_ID
+            LEFT JOIN tblzfarttype zt ON zt.FartType_ID = fn.FartType_ID
+
             WHERE fs.Verft_ID = ?
-            GROUP BY fs.FartSpes_ID
             ORDER BY fs.YearSpes, fs.MndSpes, fn.FartNavn
             LIMIT 500
         ";
@@ -126,36 +132,39 @@ if ($q !== '' && mb_strlen($q) >= 2) {
         // 4) Skrogbyggliste: fartøyer hvor valgt verft bygget skroget, men ikke leveransen
         $sqlSkrog = "
             SELECT
-                fs.FartSpes_ID,
-                fs.FartObj_ID,
-                fs.BnrSkrog AS Byggenr,
-                fs.YearSpes,
-                fs.MndSpes,
-                fn.FartNavn_ID,
-                fn.FartNavn,
-                zt.TypeFork,
-                tid.RegHavn,
-                tid.Rederi,
-                tid.Objekt
-            FROM tblfartspes fs
-            LEFT JOIN tblfartnavn fn ON fn.FartObj_ID = fs.FartObj_ID
-            LEFT JOIN tblzfarttype zt ON zt.FartType_ID = fn.FartType_ID
-            LEFT JOIN (
-                SELECT t1.FartSpes_ID, t1.FartTid_ID
-                FROM tblfarttid t1
-                JOIN (
-                    SELECT FartSpes_ID, MAX(FartTid_ID) AS FartTid_ID
-                    FROM tblfarttid
-                    GROUP BY FartSpes_ID
-                ) t2 ON t2.FartSpes_ID = t1.FartSpes_ID AND t2.FartTid_ID = t1.FartTid_ID
-            ) lt ON lt.FartSpes_ID = fs.FartSpes_ID
-            LEFT JOIN tblfarttid tid ON tid.FartTid_ID = lt.FartTid_ID
-            WHERE fs.SkrogID = ?
-              AND fs.SkrogID IS NOT NULL
-              AND (fs.Verft_ID IS NULL OR fs.SkrogID <> fs.Verft_ID)
-            GROUP BY fs.FartSpes_ID
-            ORDER BY fs.YearSpes, fs.MndSpes, fn.FartNavn
-            LIMIT 500
+              fs.FartSpes_ID,
+              fs.FartObj_ID,
+              fs.BnrSkrog AS Byggenr,
+              fs.YearSpes,
+              fs.MndSpes,
+              fn.FartNavn_ID,
+              fn.FartNavn,
+              zt.TypeFork,
+              tid.RegHavn,
+              tid.Rederi,
+              tid.Objekt
+          FROM tblfartspes fs
+          /* Finn siste tidsrad per spesifikasjon */
+          LEFT JOIN (
+              SELECT t1.*
+              FROM tblfarttid t1
+              JOIN (
+                  SELECT FartSpes_ID, MAX(FartTid_ID) AS FartTid_ID
+                  FROM tblfarttid
+                  GROUP BY FartSpes_ID
+              ) t2 ON t2.FartSpes_ID = t1.FartSpes_ID AND t2.FartTid_ID = t1.FartTid_ID
+          ) tid ON tid.FartSpes_ID = fs.FartSpes_ID
+
+          /* Bind navnet entydig til tidsradens FartNavn_ID */
+          LEFT JOIN tblfartnavn  fn ON fn.FartNavn_ID = tid.FartNavn_ID
+          LEFT JOIN tblzfarttype zt ON zt.FartType_ID = fn.FartType_ID
+
+          WHERE fs.SkrogID = ?
+            AND fs.SkrogID IS NOT NULL
+            AND (fs.Verft_ID IS NULL OR fs.SkrogID <> fs.Verft_ID)
+
+          ORDER BY fs.YearSpes, fs.MndSpes, fn.FartNavn
+          LIMIT 500
         ";
         if ($stmt = $conn->prepare($sqlSkrog)) {
             $stmt->bind_param('i', $verftId);
@@ -353,5 +362,10 @@ if ($q !== '' && mb_strlen($q) >= 2) {
     <?php endif; ?>
   <?php endif; ?>
 </section>
+
+<!-- Tilbake-knapp nederst: midtstilt -->
+<div class="actions" style="margin:1rem 0 2rem; text-align:center;">
+  <a class="btn" href="#" onclick="if(history.length>1){history.back();return false;}" title="Tilbake">← Tilbake</a>
+</div>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

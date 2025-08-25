@@ -15,6 +15,7 @@
   --bg: #f5f9fc; /* Nesten hvit bakgrunn med et hint av blått */
   --fg: #14213d; /* Mørk blågrå tekstfarge for god kontrast */
   --muted: #6b7280;
+  --topbottom: #00529b;
   --border: transparent; /*  #e5e7eb; ,*/
   --radius: 12px;
   --shadow: 0 2px 10px rgba(0,0,0,.04);
@@ -58,8 +59,7 @@ h3{ font-size: 14px; }
 .site-header{
   border-bottom: 1px solid var(--border);
   /* Bruk lys aksentfarge i topptekst for å harmonere med ny palett */
-  /* background: var(--accent); */
-  background: var(--access);
+ background: var(--topbottom);
 }
 .site-header .brand{
   display: inline-flex;
@@ -117,16 +117,18 @@ h3{ font-size: 14px; }
   background: var(--brand);
   color: #fff;
   border: 1px solid var(--brand-600);
-  padding: 8px 12px;
   line-height: 1;
-  border-radius: var(--radius);
   box-shadow: var(--shadow);
   cursor: pointer;
   user-select: none;
+  white-space: nowrap;
+
+  /* Kombinert fra begge definisjoner */
   min-width: 20ch;
-  height: 38px;
-  font-size: 12px;
-  white-space: nowrap;       
+  height: 28px;
+  padding: 0 10px;
+  font-size: 14px;
+  border-radius: 4px;
 }
 .btn:hover{ background: var(--brand-600); }
 .btn:active{ background: var(--brand-700); transform: translateY(1px); }
@@ -260,7 +262,9 @@ h3{ font-size: 14px; }
 /* ---------------------- Footer ---------------------- */
 .site-footer{
   border-top: 1px solid var(--border);
-  color: var(--muted);
+  /* color: var(--muted); */
+  background: var(--topbottom);    /* ← ny farge */
+  color: white;                /* ← husk kontrast til teksten */
   font-size: 12.5px;
   padding: 14px 0 24px;
   margin-top: 20px;
@@ -274,21 +278,6 @@ h3{ font-size: 14px; }
 .grid{ display: grid; gap: 10px; }
 .grid-2{ grid-template-columns: 1fr 1fr; }
 
-/* Kompakte knapper (~24px) */
-.btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  height:28px;
-  padding:0 10px;      /* horisontal fyll */
-  line-height:1;       /* unngå ekstra høyde */
-  font-size:14px;      /* kan økes/lages mindre ved behov */
-  border-radius:4px;   /* behold myke hjørner */
-}
-.btn.primary,
-.btn.ghost{
-  height:24px;         /* sikre at variantene følger høyden */
-}
 
 /* --- Header logo --- */
 .site-header .brand img.logo{ height:28px; width:auto; display:block; }
@@ -359,7 +348,7 @@ h3{ font-size: 14px; }
   max-height: 100%;
   object-fit: contain; /* viktig: behold aspektforhold, ikke crop */
 }
-* Sentrer alt innhold i Hovedinfo-boks på fartoydetaljer.php */
+/* Sentrer alt innhold i Hovedinfo-boks på fartoydetaljer.php */
 .card.centered-card {
   text-align: center;           /* sentrer tekst i default flow */
 }
