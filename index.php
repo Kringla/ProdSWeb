@@ -40,20 +40,20 @@ $heroUrls = array_map(fn($p) => $BASE . '/assets/img/hero/' . basename($p), $fil
 
 <section class="container mt-3">
   <div class="card" style="padding:0 1.5rem;line-height:1.55;">
-    <h2 style="margin:0 0 .25rem 0; font-size:1.6rem">Velkommen til <span style="color:#FF5733;">SkipsWeb</span></h2>
+    <h2 style="margin:0 0 .25rem 0; font-size:1.6rem;color: Blue;">Velkommen til <span style="color:Blue;">SkipsWeb</span></h2>
     <h3>Søk fritt uten innlogging. Administrasjon og endringer av innhold krever innlogging.</h3>
     <p class="muted">“SkipsWeb” er en database som gir adgang til data for norske og utenlandske fartøyer som er omtalt i <em>Dampskipspostens</em> 125 numre, 
       og data om fartøyer samlet av <em>Ole Harald Fiske</em> gjennom mange års arbeide for <em>Norsk Maritimt Museum</em>. 
       Noen av de eksisterer i <em>Digitalt Museum</em>. Databasen er utviklet av frivillige entusiaster som bidrar til å registrere bilder av fartøyer ved Norsk Maritimt Museum.
       <br><strong>Merk:</strong> Databasen har ingen offisell status ved museet. Riktigheten av dataen er ikke verifisert.</p>
       <hr class="red-line">
-      <p class="muted">Du kan søke på:</p>
+      <p class="muted">Du kan søke etter:</p>
       <ul style="margin:.25rem 0 1rem; font-size:1.05rem;text-align: left;">
-        <li>Fritekst fartøysnavn, med ev. filter for nasjoner. Gir liste over fartøyer.</li>
-        <li style="line-height:1.25;">Fritekst rederiers navn, og lister de fartøyer det valgte rederiet har disponert.</li>
-        <li style="line-height:1.25;">Fritekst verft, og lister over de fartøyer som verftet har bygd.</li>
+        <li><span style="color:Blue;">Fartøyer direkte.</span> Med fritekst på hele eller deler av fartøysnavn, med ev. filter for nasjoner. Det gir deg en liste over fartøyer.</li>
+        <li style="line-height:1.25;"><span style="color:Blue;">Rederiers fartøy.</span> Med fritekst på hele eller deler av rederiers navn. Det gir deg en liste over de fartøyer det valgte rederiet har disponert.</li>
+        <li style="line-height:1.25;"><span style="color:Blue;">Verfts-bygde fartøy.</span> Med fritekst å hele eller deler av verfts navn. Det gir deg en liste over de fartøyer som verftet har bygd.</li>
       </ul>
-      <p class="muted">Felles for alle listete fartøyene er at tilgjengelige data, historie, spesifikasjoner og linker til andre kilder kan vises. Fartøyenes <em>CV (historikk)</em> finnes for ca. 60&nbsp;% av fartøyene i databasen.</p>
+      <p class="muted">Søket skjelner ikke mellom store og små bokstaver, og fartøysnavn skal brukes uten 'M/S', D/S' o.l. <br> Felles for alle de listete fartøyene er at tilgjengelige data, historie, spesifikasjoner og linker til andre kilder kan vises ved å velge fartøy. Fartøyenes <em>CV (historikk)</em> finnes for ca. 60&nbsp;% av fartøyene i databasen.</p>
     </div> 
       
     <div class= "card" style="padding:0 1.5rem;">
