@@ -2,7 +2,6 @@
 require_once __DIR__ . '/includes/bootstrap.php';
 include __DIR__ . '/includes/header.php';
 include __DIR__ . '/includes/menu.php';
-
 $BASE = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
 $loggedIn = !empty($_SESSION['user_id']);
 ?>
@@ -27,7 +26,6 @@ $heroUrls = array_map(fn($p) => $BASE . '/assets/img/hero/' . basename($p), $fil
   <div class="hero-overlay"></div>
   <div class="container hero-inner">
     <h1>Finn fartøy, verft og rederier</h1>
-    <h2>Søk fritt uten innlogging. Administrasjon og endringer av innhold krever innlogging.</h2>
     <div class="cta">
       <a class="btn primary" href="<?= $BASE ?>/user/fartoy_navn_sok.php">Søk fartøy</a>
       <a class="btn" href="<?= $BASE ?>/user/fartoy_spes_sok.php">Søk spesifikasjoner</a>
@@ -40,48 +38,35 @@ $heroUrls = array_map(fn($p) => $BASE . '/assets/img/hero/' . basename($p), $fil
   </div>
 </section>
 
-<section class="container mt-4">
-  <div class="card" style="padding:1.5rem 1.5rem 1.25rem;line-height:1.55;">
+<section class="container mt-3">
+  <div class="card" style="padding:0 1.5rem;line-height:1.55;">
     <h2 style="margin:0 0 .25rem 0; font-size:1.6rem">Velkommen til <span style="color:#FF5733;">SkipsWeb</span></h2>
-    <p class="muted" style="margin:.25rem 0 1rem 0; font-size:1.05rem;">
-      “SkipsWeb” er en database som gir adgang til data for norske og utenlandske fartøyer som er omtalt i <em>Dampskipspostens</em> 125 numre, 
+    <h3>Søk fritt uten innlogging. Administrasjon og endringer av innhold krever innlogging.</h3>
+    <p class="muted">“SkipsWeb” er en database som gir adgang til data for norske og utenlandske fartøyer som er omtalt i <em>Dampskipspostens</em> 125 numre, 
       og data om fartøyer samlet av <em>Ole Harald Fiske</em> gjennom mange års arbeide for <em>Norsk Maritimt Museum</em>. 
-      Noen av de eksisterer i <em>Digitalt Museum</em>. 
-      <br>Databasen er utviklet av frivillige entusiaster som bidrar til å registrere bilder av fartøyer ved Norsk Maritimt Museum.
-      <br><strong>Merk:</strong> Databasen har ingen offisell status ved museet. Riktigheten av dataen er ikke verifisert.
-    
-    <div style="line-height:1.0;">
-      <p>Du kan søke på:</p>
-      <ul style="margin:.25rem 0 1rem 1.1rem;">
+      Noen av de eksisterer i <em>Digitalt Museum</em>. Databasen er utviklet av frivillige entusiaster som bidrar til å registrere bilder av fartøyer ved Norsk Maritimt Museum.
+      <br><strong>Merk:</strong> Databasen har ingen offisell status ved museet. Riktigheten av dataen er ikke verifisert.</p>
+      <hr class="red-line">
+      <p class="muted">Du kan søke på:</p>
+      <ul style="margin:.25rem 0 1rem; font-size:1.05rem;text-align: left;">
         <li>Fritekst fartøysnavn, med ev. filter for nasjoner. Gir liste over fartøyer.</li>
-        <li>Fritekst rederiers navn, og lister de fartøyer det valgte rederiet har disponert.</li>
-        <li>Fritekst verft, og lister over de fartøyer som verftet har bygd.</li>
+        <li style="line-height:1.25;">Fritekst rederiers navn, og lister de fartøyer det valgte rederiet har disponert.</li>
+        <li style="line-height:1.25;">Fritekst verft, og lister over de fartøyer som verftet har bygd.</li>
       </ul>
-      <p>Felles for alle listete fartøyene er at tilgjengelige data, historie, spesifikasjoner og linker til andre kilder kan vises. Fartøyenes <em>CV (historikk)</em> finnes for ca. 60&nbsp;% av fartøyene i databasen.</p>
-      <p> Databasens tilgjengelige data om det enkelte fartøyene i basen varierer. For flere detaljer kan en finne de i databaser som er bedre vedrørende fartøyers detaljer og 
+      <p class="muted">Felles for alle listete fartøyene er at tilgjengelige data, historie, spesifikasjoner og linker til andre kilder kan vises. Fartøyenes <em>CV (historikk)</em> finnes for ca. 60&nbsp;% av fartøyene i databasen.</p>
+    </div> 
+      
+    <div class= "card" style="padding:0 1.5rem;">
+      <p class = "muted">Databasens tilgjengelige data om det enkelte fartøyene i basen varierer. For flere detaljer kan en finne de i databaser som er bedre vedrørende fartøyers detaljer og 
         tekniske spesifikasjoner.For gode, detaljerte beskrivelser av fartøyer vises det til f.eks. 
         <a href="https://www.sjohistorie.no/no" target="_blank" rel="noopener">sjøhistorie.no</a>,
         en svært godt utviklet (og mye større) database. Ellers kan du prøve Norsk Skipsfarthistorisk Selskaps
         skipsdatabase på <a href="https://skipshistorie.net/" target="_blank" rel="noopener">skipshistorie.net</a>, 
         eller Krigsseilerregisterets fartøyer på <a href=https://krigsseilerregisteret.no/skip?q target="_blank" rel="noopener">krigsseilerregisteret.no</a>.
       </p>
-      <p>Bildene som vises i båndet over, er enten private eller hentet fra Digitalt  Museums 'frie' bilder.</p>
-	    <p>Lykke til med å finne det fartøyet du er på jakt etter.</p>
-    </div>
-  </div>
-
-  <div class="grid cols-2 mt-3">
-    <div class="card" style="padding:1.5rem 1.5rem 1.25rem;">
-      <h3>Om søkene og dette nettstedet</h3>
-      <p class="text-center">Søkene forbedres fortløpende basert på mottatte kommentarer. Innholdet utvikles fortløpende.
-  </p>
-    <p class="text-center">Kommentarer, spørsmål og ønsker kan du sende til
-      <a href="mailto:webman@skipsweb.no">webman@skipsweb.no</a>
-	  </p>
-    </div>
-    <div class="card" style="padding:1.5rem 1.5rem 1.25rem;">
-      <h3>Innlogging?</h3>
-      <p class="text-center"; >Lesing kan gjøres uten innlogging. Redigering krever innlogging.</p>
+      <p class="muted">Bildene som vises i båndet over, er enten private eller hentet fra Digitalt  Museums 'frie' bilder.</p>
+      <p class="muted">Søkene forbedres fortløpende basert på mottatte kommentarer. Innholdet utvikles fortløpende.</p>
+	    <p class="muted">Lykke til med å finne det fartøyet du er på jakt etter!</p>
     </div>
   </div>
 </section>

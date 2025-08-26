@@ -4,7 +4,8 @@ $BASE = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
 ?>
 <footer class="site-footer">
   <div class="container">
-    <div class="muted">© <?= date('Y') ?> SkipsWeb</div>
+    <div class="muted;font-size:11px;">© <?= date('Y') ?> SkipsWeb - Kommentarer, spørsmål og ønsker kan du sende til
+      <a href="mailto:webman@skipsweb.no" style="color:yellow;">webman@skipsweb.no</a></div>
   </div>
 </footer>
 

@@ -20,11 +20,10 @@ $BASE = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title><?php echo htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8'); ?></title>
-
   <link rel="stylesheet" href="<?php echo $BASE; ?>/assets/css/app.css">
   <script defer src="<?php echo $BASE; ?>/assets/js/hero-rotator.js"></script>
 </head>
-<body class="<?php echo htmlspecialchars($body_class, ENT_QUOTES, 'UTF-8'); ?>">
+<body<?= !empty($bodyClass) ? ' class="' . htmlspecialchars($bodyClass, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
 
 <header class="site-header">
   <div class="container">
