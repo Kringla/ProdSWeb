@@ -2,6 +2,18 @@
 require_once __DIR__ . '/includes/bootstrap.php';
 include __DIR__ . '/includes/header.php';
 include __DIR__ . '/includes/menu.php';
+
+// ----------------------------------------------------------
+// Midlertidig feilsøking
+// ----------------------------------------------------------
+// Hvis du opplever at "Administrasjon"-knappen eller andre deler av siden bare viser en
+// blank side, kan du skru på PHP-feilrapportering midlertidig. Dette gjør at
+// eventuelle fatale feil skrives ut på skjermen. Husk å fjerne eller deaktivere
+// denne koden når feilen er funnet, da det ikke er lurt å vise interne feil til
+// sluttbrukerne i produksjon.
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
 $BASE = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
 $loggedIn = !empty($_SESSION['user_id']);
 ?>
@@ -32,7 +44,17 @@ $heroUrls = array_map(fn($p) => $BASE . '/assets/img/hero/' . basename($p), $fil
       <a class="btn" href="<?= $BASE ?>/user/verft_sok.php">Søk verft</a>
       <a class="btn" href="<?= $BASE ?>/user/rederi_sok.php">Søk rederi</a>
       <?php if (!$loggedIn): ?>
-        <a class="btn ghost" href="<?= $BASE ?>/login.php">Administrasjon</a>
+        <!-- Administrasjon-knappen sender brukeren til innlogging med redirect til admin-siden.
+             Vi sender et rent relativt sti-argument uten urlencoding. Slashes i stien må bevares
+             for at login.php skal kunne tolke destinasjonen korrekt. -->
+        <?php 
+        /*
+         * Destinasjonsstien skal begynne med en skråstrek. Vi peker nå på vår egen innloggingsside
+         * (auth_login.php) for å unngå konflikt med andre systemers login-filer. Skråstreker bevares.
+         */
+        $adminNext = '/admin/fartoy_admin.php';
+        ?>
+        <a class="btn ghost" href="<?= $BASE ?>/auth_login.php?next=<?= $adminNext ?>">Administrasjon</a>
       <?php endif; ?>
     </div>
   </div>

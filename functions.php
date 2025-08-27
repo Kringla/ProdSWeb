@@ -11,7 +11,7 @@ function isAdmin() {
 
 /**
  * URL-helper som respekterer BASE_URL.
- * Eksempel: url('user/fartoy_nat.php')
+ * Eksempel: url('user/fartoy_navn_sok.php')
  */
 function url(string $path = ''): string {
     $base = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';

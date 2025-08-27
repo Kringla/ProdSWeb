@@ -7,8 +7,11 @@ $loggedIn = !empty($_SESSION['user_id']);
   <a href="<?= $BASE ?>/">Home</a>
   <?php if ($loggedIn): ?>
     <a href="<?= $BASE ?>/dashboard.php">Dashboard</a>
+    <?php if (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
+      <a href="<?= $BASE ?>/admin/fartoy_admin.php">Administrer fartøyer</a>
+    <?php endif; ?>
     <a href="<?= $BASE ?>/logout.php">Logg ut</a>
   <?php else: ?>
-    <a href="<?= $BASE ?>/login.php">Logg inn</a>
+    <a href="<?= $BASE ?>/auth_login.php">Logg inn</a>
   <?php endif; ?>
 </nav>

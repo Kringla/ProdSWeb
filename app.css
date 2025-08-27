@@ -441,3 +441,21 @@ h3{ font-size: 14px; }
   height: 2px;
   border: none;
 }
+
+/* --- Administrator-skjemaer --- */
+/* Enkel input-stil som brukes i admin-skjemaer (fartoy_edit/new) */
+.input {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.2;
+  margin-bottom: 8px;
+  box-sizing: border-box;
+}
+.input:focus {
+  outline: 2px solid #cde3f8;
+  border-color: #bcd7f4;
+}
