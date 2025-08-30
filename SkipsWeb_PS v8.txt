@@ -47,8 +47,8 @@ skipsweb/
 │   ├── dashboard.php               	# Navigasjon (dashboard)
 │   ├── fartoy_admin.php           		# Fartøyssøk
 │   ├── fartoy_delete.php           	# Sletting
-│   ├── fartoy_edit.php           		# Endring
-│   ├── fartoy_new.php           		# Nytt fartøy
+│   ├── fartoy_edit.php           		# Endring (ikke implementert)
+│   ├── fartoy_nytt.php           		# Nytt fartøy (under utarbeidelse)
 │   └── users.php        				# Brukere
 │
 ├── assets/
