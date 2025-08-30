@@ -113,7 +113,6 @@ CREATE TABLE `tblfarttid` (
   `Navning` tinyint(1) DEFAULT NULL,
   `Eierskifte` tinyint(1) DEFAULT NULL,
   `Annet` tinyint(1) DEFAULT NULL,
-  `Hendelse` varchar(255) DEFAULT NULL,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
