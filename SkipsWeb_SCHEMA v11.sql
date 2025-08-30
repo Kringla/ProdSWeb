@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: 19. Aug, 2025 20:22 PM
+-- Generation Time: 30. Aug, 2025 16:39 PM
 -- Tjener-versjon: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -100,8 +100,8 @@ CREATE TABLE `tblfarttid` (
   `MndTid` tinyint(4) DEFAULT NULL,
   `FartObj_ID` int(11) DEFAULT NULL,
   `FartSpes_ID` int(11) DEFAULT NULL,
-  `FartNavn` varchar(50) DEFAULT NULL,
-  `FartType_ID` int(11) DEFAULT NULL,
+  `FartNavn` varchar(50) NOT NULL,
+  `FartType_ID` int(11) NOT NULL,
   `PennantTiln` varchar(50) DEFAULT NULL,
   `Objekt` tinyint(1) DEFAULT NULL,
   `Rederi` varchar(255) DEFAULT NULL,
@@ -113,6 +113,7 @@ CREATE TABLE `tblfarttid` (
   `Navning` tinyint(1) DEFAULT NULL,
   `Eierskifte` tinyint(1) DEFAULT NULL,
   `Annet` tinyint(1) DEFAULT NULL,
+  `Hendelse` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -142,8 +143,8 @@ CREATE TABLE `tblverft` (
 CREATE TABLE `tblxdigmuseum` (
   `ID` int(11) NOT NULL,
   `FartTid_ID` int(11) NOT NULL,
-  `DIMUkode` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL
-  `Motiv` varchar(255) DEFAULT NULL,
+  `DIMUkode` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Motiv` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -154,7 +155,7 @@ CREATE TABLE `tblxdigmuseum` (
 
 CREATE TABLE `tblxfartlink` (
   `FartLk_ID` int(11) NOT NULL,
-  `FartTid_ID` int(11) NOT NULL DEFAULT 1,
+  `FartTid_ID` int(11) NOT NULL,
   `LinkType_ID` int(11) DEFAULT NULL,
   `LinkType` varchar(50) DEFAULT NULL,
   `LinkInnh` varchar(50) DEFAULT NULL,
@@ -170,7 +171,7 @@ CREATE TABLE `tblxfartlink` (
 
 CREATE TABLE `tblxnmmfoto` (
   `ID` int(11) NOT NULL,
-  `FartTid_ID` int(11) DEFAULT NULL,
+  `FartTid_ID` int(11) NOT NULL,
   `Bilde_Fil` varchar(50) DEFAULT NULL,
   `URL_Bane` varchar(255) NOT NULL DEFAULT '/assets/img/skip/',
   `PrimusNavn` varchar(255) DEFAULT NULL,
@@ -363,16 +364,6 @@ CREATE TABLE `tblzuser` (
 --
 
 --
--- Indexes for table `tblfartnavn`
---
-ALTER TABLE `tblfartnavn`
-  ADD KEY `FartNavn_ID` (`FartNavn_ID`),
-  ADD KEY `FartObj_ID` (`FartObj_ID`),
-  ADD KEY `FartTypeNavn` (`FartType_ID`),
-  ADD KEY `ix_FartNavn_FartNavn` (`FartNavn`),
-  ADD KEY `FartoyNavnObjektID` (`FartNavn`,`FartObj_ID`);
-
---
 -- Indexes for table `tblfartobj`
 --
 ALTER TABLE `tblfartobj`
@@ -388,7 +379,6 @@ ALTER TABLE `tblfartspes`
   ADD PRIMARY KEY (`FartSpes_ID`),
   ADD KEY `FartObj_ID` (`FartObj_ID`),
   ADD KEY `Verft_ID` (`Verft_ID`),
-  ADD KEY `SkrogID` (`SkrogID`),
   ADD KEY `FartTypeSpes` (`FartType_ID`),
   ADD KEY `VerftObj` (`Verft_ID`,`FartObj_ID`);
 
@@ -398,14 +388,11 @@ ALTER TABLE `tblfartspes`
 ALTER TABLE `tblfarttid`
   ADD PRIMARY KEY (`FartTid_ID`),
   ADD KEY `FartObj_ID` (`FartObj_ID`),
-  ADD KEY `FartNavn_ID` (`FartNavn_ID`),
   ADD KEY `FartSpes_ID` (`FartSpes_ID`),
   ADD KEY `Nasjon_ID` (`Nasjon_ID`),
-  ADD KEY `ix_FartTid_Navn_Tid` (`FartNavn_ID`,`YearTid`,`MndTid`,`FartTid_ID`),
-  ADD KEY `ix_FartTid_Navn_Obj` (`FartNavn_ID`,`Objekt`,`FartObj_ID`),
-  ADD KEY `ix_FartTid_Nasjon` (`Nasjon_ID`),
   ADD KEY `RederiObj` (`Rederi`,`FartObj_ID`),
-  ADD KEY `ObjTidID` (`FartObj_ID`,`FartTid_ID`);
+  ADD KEY `ObjTidID` (`FartObj_ID`,`FartTid_ID`),
+  ADD KEY `ix_FartTid_Navn_Obj` (`Objekt`,`FartObj_ID`) USING BTREE;
 
 --
 -- Indexes for table `tblverft`
@@ -420,14 +407,14 @@ ALTER TABLE `tblverft`
 --
 ALTER TABLE `tblxdigmuseum`
   ADD PRIMARY KEY (`ID`),
-  ADD KEY `FartNavnDIMU` (`FartNavn_ID`);
+  ADD KEY `FartIDTid` (`FartTid_ID`);
 
 --
 -- Indexes for table `tblxfartlink`
 --
 ALTER TABLE `tblxfartlink`
   ADD PRIMARY KEY (`FartLk_ID`) USING BTREE,
-  ADD KEY `FartID` (`FartNavn_ID`);
+  ADD KEY `FartTid` (`FartTid_ID`);
 
 --
 -- Indexes for table `tblxnmmfoto`
@@ -525,12 +512,6 @@ ALTER TABLE `tblzuser`
 --
 -- AUTO_INCREMENT for dumped tables
 --
-
---
--- AUTO_INCREMENT for table `tblfartnavn`
---
-ALTER TABLE `tblfartnavn`
-  MODIFY `FartNavn_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `tblfartobj`
@@ -663,13 +644,6 @@ ALTER TABLE `tblzuser`
 --
 
 --
--- Begrensninger for tabell `tblfartnavn`
---
-ALTER TABLE `tblfartnavn`
-  ADD CONSTRAINT `FartTypeNavn` FOREIGN KEY (`FartType_ID`) REFERENCES `tblzfarttype` (`FartType_ID`),
-  ADD CONSTRAINT `ObjID` FOREIGN KEY (`FartObj_ID`) REFERENCES `tblfartobj` (`FartObj_ID`);
-
---
 -- Begrensninger for tabell `tblfartobj`
 --
 ALTER TABLE `tblfartobj`
@@ -680,14 +654,12 @@ ALTER TABLE `tblfartobj`
 --
 ALTER TABLE `tblfartspes`
   ADD CONSTRAINT `FartTypeSpes` FOREIGN KEY (`FartType_ID`) REFERENCES `tblzfarttype` (`FartType_ID`),
-  ADD CONSTRAINT `SkrogSpes` FOREIGN KEY (`SkrogID`) REFERENCES `tblverft` (`Verft_ID`),
   ADD CONSTRAINT `VerftSpes` FOREIGN KEY (`Verft_ID`) REFERENCES `tblverft` (`Verft_ID`);
 
 --
 -- Begrensninger for tabell `tblfarttid`
 --
 ALTER TABLE `tblfarttid`
-  ADD CONSTRAINT `FartIDTid` FOREIGN KEY (`FartNavn_ID`) REFERENCES `tblfartnavn` (`FartNavn_ID`),
   ADD CONSTRAINT `NasjonIDTid` FOREIGN KEY (`Nasjon_ID`) REFERENCES `tblznasjon` (`Nasjon_ID`),
   ADD CONSTRAINT `ObjIDTid` FOREIGN KEY (`FartObj_ID`) REFERENCES `tblfartobj` (`FartObj_ID`),
   ADD CONSTRAINT `SpesIDTid` FOREIGN KEY (`FartSpes_ID`) REFERENCES `tblfartspes` (`FartSpes_ID`);
@@ -697,6 +669,18 @@ ALTER TABLE `tblfarttid`
 --
 ALTER TABLE `tblverft`
   ADD CONSTRAINT `NasjonIDVerft` FOREIGN KEY (`Nasjon_ID`) REFERENCES `tblznasjon` (`Nasjon_ID`);
+
+--
+-- Begrensninger for tabell `tblxdigmuseum`
+--
+ALTER TABLE `tblxdigmuseum`
+  ADD CONSTRAINT `FartIDTid` FOREIGN KEY (`FartTid_ID`) REFERENCES `tblfarttid` (`FartTid_ID`);
+
+--
+-- Begrensninger for tabell `tblxfartlink`
+--
+ALTER TABLE `tblxfartlink`
+  ADD CONSTRAINT `TidFraLenke` FOREIGN KEY (`FartTid_ID`) REFERENCES `tblfarttid` (`FartTid_ID`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
