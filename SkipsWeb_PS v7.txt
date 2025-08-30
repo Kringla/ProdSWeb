@@ -43,9 +43,13 @@ skipsweb/
 ├── logout.php               			# Utlogging
 ├── register.php             			# Brukerregistrering
 │
-├── admin/
-│   └── dashboard.php           		# Hoveddashboard
-│   └── users.php      					# ?
+├── admin/      			
+│   ├── dashboard.php               	# Navigasjon (dashboard)
+│   ├── fartoy_admin.php           		# Fartøyssøk
+│   ├── fartoy_delete.php           	# Sletting
+│   ├── fartoy_edit.php           		# Endring
+│   ├── fartoy_new.php           		# Nytt fartøy
+│   └── users.php        				# Brukere
 │
 ├── assets/
 │   ├── css/          			

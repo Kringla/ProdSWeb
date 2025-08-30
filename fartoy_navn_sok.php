@@ -35,45 +35,47 @@
     // Resultater
     $rows = [];
     if ($doSearch) {
+        // Bygg spørring. Vi henter seneste registrering per FartObj_ID og FartNavn direkte fra tblfarttid,
+        // og joiner til parametertabeller for type, nasjon og objekt.
         $sql = "
         SELECT
-          fn.FartNavn_ID,
+          latest.FartTid_ID      AS FartTid_ID,
+          latest.FartObj_ID      AS FartObj_ID,
+          latest.FartNavn        AS FartNavn,
+          latest.FartType_ID     AS FartType_ID,
+          latest.PennantTiln     AS PennantTiln,
           ft.TypeFork,
-          fn.FartNavn,
-          fn.FartType_ID,
-          fn.PennantTiln,
-          curr.FartTid_ID,
-          curr.FartObj_ID              AS FartObj_ID,
-          curr.YearTid,
-          curr.MndTid,
-          curr.Rederi,
-          curr.RegHavn,
-          curr.Kallesignal,
-          curr.Nasjon_ID               AS TNat,
+          latest.YearTid,
+          latest.MndTid,
+          latest.Rederi,
+          latest.RegHavn,
+          latest.Kallesignal,
+          latest.Nasjon_ID       AS TNat,
           n.Nasjon,
-          curr.Objekt                  AS IsOriginalNow,
-          o.Bygget                     AS Bygget
-        FROM tblfartnavn AS fn
-        LEFT JOIN tblzfarttype AS ft
-          ON ft.FartType_ID = fn.FartType_ID
-        LEFT JOIN tblfarttid AS curr
-          ON curr.FartTid_ID = (
-             SELECT t2.FartTid_ID
-             FROM tblfarttid t2
-             WHERE t2.FartNavn_ID = fn.FartNavn_ID
-             ORDER BY t2.YearTid DESC, t2.MndTid DESC, t2.FartTid_ID DESC
-             LIMIT 1
-          )
-        LEFT JOIN tblznasjon AS n
-          ON n.Nasjon_ID = curr.Nasjon_ID
-        LEFT JOIN tblfarttid AS ot
-          ON ot.FartNavn_ID = fn.FartNavn_ID AND ot.Objekt = 1
-        LEFT JOIN tblfartobj AS o
-          ON o.FartObj_ID = ot.FartObj_ID
-        WHERE curr.FartTid_ID IS NOT NULL
-          AND (? = 0 OR curr.Nasjon_ID = ?)
-          AND (? = '' OR fn.FartNavn LIKE CONCAT('%', ?, '%'))
-        ORDER BY fn.FartNavn ASC
+          CASE WHEN orig.FartTid_ID IS NOT NULL THEN 1 ELSE 0 END AS IsOriginalNow,
+          o.Bygget               AS Bygget
+        FROM (
+            SELECT t.*
+            FROM tblfarttid t
+            INNER JOIN (
+                SELECT FartObj_ID, FartNavn, MAX(FartTid_ID) AS max_id
+                FROM tblfarttid
+                WHERE COALESCE(FartNavn, '') <> ''
+                GROUP BY FartObj_ID, FartNavn
+            ) m ON m.FartObj_ID = t.FartObj_ID AND m.FartNavn = t.FartNavn AND m.max_id = t.FartTid_ID
+        ) AS latest
+        LEFT JOIN tblzfarttype AS ft ON ft.FartType_ID = latest.FartType_ID
+        LEFT JOIN tblznasjon  AS n  ON n.Nasjon_ID  = latest.Nasjon_ID
+        LEFT JOIN tblfartobj  AS o  ON o.FartObj_ID = latest.FartObj_ID
+        LEFT JOIN (
+            SELECT FartObj_ID, FartNavn, MAX(FartTid_ID) AS FartTid_ID
+            FROM tblfarttid
+            WHERE Objekt = 1
+            GROUP BY FartObj_ID, FartNavn
+        ) AS orig ON orig.FartObj_ID = latest.FartObj_ID AND orig.FartNavn = latest.FartNavn
+        WHERE (? = 0 OR latest.Nasjon_ID = ?)
+          AND (? = '' OR latest.FartNavn LIKE CONCAT('%', ?, '%'))
+        ORDER BY latest.FartNavn ASC
         LIMIT 200
         ";
 
@@ -189,7 +191,8 @@
                 <td>
                   <?php $id = (int)val($r,'FartObj_ID',0); ?>
                   <?php if ($id > 0): ?>
-                    <a class="btn-small" href="fartoydetaljer.php?obj_id=<?= (int)$r['FartObj_ID'] ?>&navn_id=<?= (int)$r['FartNavn_ID'] ?>">Vis</a>
+                    <?php $tid = (int)val($r, 'FartTid_ID', 0); ?>
+                    <a class="btn-small" href="fartoydetaljer.php?obj_id=<?= (int)$r['FartObj_ID'] ?>&tid_id=<?= $tid ?>">Vis</a>
                   <?php else: ?>
                     <span class="muted">–</span>
                   <?php endif; ?>

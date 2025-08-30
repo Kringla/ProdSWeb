@@ -90,7 +90,7 @@
     $listFartDrift  = getParamList($conn, 'tblzfartdrift',  'FartDrift_ID',  'DriftMiddel');
     $listFartMotor  = getParamList($conn, 'tblzfartmotor',  'FartMotor_ID',  'MotorDetalj');
     $listFartRigg   = getParamList($conn, 'tblzfartrigg',   'FartRigg_ID',   'RiggDetalj');
-    $listFartKlasse = getParamList($conn, 'tblzfartklasse', 'FartKlasse_ID', 'KlasseNavn');  // bruker KlasseNavn fra schema v6
+    $listFartKlasse = getParamList($conn, 'tblzfartklasse', 'FartKlasse_ID', 'KlasseNavn');  // bruker KlasseNavn fra schema v9
 
     // --- Kjør søk ved behov
     $rows = [];
@@ -100,11 +100,8 @@
             SELECT
               fs.FartSpes_ID,
               fs.FartObj_ID,
-              fs.Lengde,
-              fs.Bredde,
-              fs.Dypg,
-              fn.FartNavn,
-              curr.FartNavn_ID AS FartNavn_ID,
+              curr.FartNavn AS FartNavn,
+              curr.FartTid_ID AS FartTid_ID,
               zft.FartType     AS FartType,
               zff.TypeFunksjon AS FartFunk,
               zfs.TypeSkrog    AS FartSkrog,
@@ -131,7 +128,6 @@
                          t2.FartTid_ID DESC
                 LIMIT 1
             )
-            LEFT JOIN tblfartnavn AS fn ON fn.FartNavn_ID = curr.FartNavn_ID
             WHERE 1=1
               AND (? = 0 OR fs.FartMat_ID    = ?)
               AND (? = 0 OR fs.FartType_ID   = ?)
@@ -141,7 +137,7 @@
               AND (? = 0 OR fs.FartMotor_ID  = ?)
               AND (? = 0 OR fs.FartRigg_ID   = ?)
               AND (? = 0 OR fs.FartKlasse_ID = ?)
-            ORDER BY fn.FartNavn ASC, fs.FartSpes_ID ASC
+            ORDER BY curr.FartNavn ASC, fs.FartSpes_ID ASC
             LIMIT 200
         ";
         $stmt = $conn->prepare($sql);
@@ -225,76 +221,91 @@
     </div>
     <div class="container">
         <h1 style="text-align:center;">Søk fartøyspesifikasjoner</h1>
-        <form method="get" class="form-inline" style="margin-bottom:1rem; display:flex; flex-wrap:wrap; gap:0.5rem; justify-content:flex-start;">
-            <!-- FartMat (Materiale) -->
-            <label for="fartmat_id">Materiale</label>
-            <select id="fartmat_id" name="fartmat_id">
-                <option value="0"<?= $fartMatId === 0 ? ' selected' : '' ?>>Alle</option>
-                <?php foreach ($listFartMat as $r): ?>
-                    <option value="<?= (int)$r['id'] ?>"<?= $fartMatId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
-                <?php endforeach; ?>
-            </select>
-            <!-- FartType (Type) -->
-            <label for="farttype_id">Type</label>
-            <select id="farttype_id" name="farttype_id">
-                <option value="0"<?= $fartTypeId === 0 ? ' selected' : '' ?>>Alle</option>
-                <?php foreach ($listFartType as $r): ?>
-                    <option value="<?= (int)$r['id'] ?>"<?= $fartTypeId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
-                <?php endforeach; ?>
-            </select>
-            <!-- FartFunk (Funksjon) -->
-            <label for="fartfunk_id">Funksjon</label>
-            <select id="fartfunk_id" name="fartfunk_id">
-                <option value="0"<?= $fartFunkId === 0 ? ' selected' : '' ?>>Alle</option>
-                <?php foreach ($listFartFunk as $r): ?>
-                    <option value="<?= (int)$r['id'] ?>"<?= $fartFunkId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
-                <?php endforeach; ?>
-            </select>
-            <!-- FartSkrog -->
-            <label for="fartskrog_id">Skrog</label>
-            <select id="fartskrog_id" name="fartskrog_id">
-                <option value="0"<?= $fartSkrogId === 0 ? ' selected' : '' ?>>Alle</option>
-                <?php foreach ($listFartSkrog as $r): ?>
-                    <option value="<?= (int)$r['id'] ?>"<?= $fartSkrogId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
-                <?php endforeach; ?>
-            </select>
-            <!-- FartDrift -->
-            <label for="fartdrift_id">Driftmiddel</label>
-            <select id="fartdrift_id" name="fartdrift_id">
-                <option value="0"<?= $fartDriftId === 0 ? ' selected' : '' ?>>Alle</option>
-                <?php foreach ($listFartDrift as $r): ?>
-                    <option value="<?= (int)$r['id'] ?>"<?= $fartDriftId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
-                <?php endforeach; ?>
-            </select>
-            <!-- FartMotor -->
-            <label for="fartmotor_id">Motor</label>
-            <select id="fartmotor_id" name="fartmotor_id">
-                <option value="0"<?= $fartMotorId === 0 ? ' selected' : '' ?>>Alle</option>
-                <?php foreach ($listFartMotor as $r): ?>
-                    <option value="<?= (int)$r['id'] ?>"<?= $fartMotorId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
-                <?php endforeach; ?>
-            </select>
-            <!-- FartRigg -->
-            <label for="fartrigg_id">Rigg</label>
-            <select id="fartrigg_id" name="fartrigg_id">
-                <option value="0"<?= $fartRiggId === 0 ? ' selected' : '' ?>>Alle</option>
-                <?php foreach ($listFartRigg as $r): ?>
-                    <option value="<?= (int)$r['id'] ?>"<?= $fartRiggId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
-                <?php endforeach; ?>
-            </select>
-            <!-- FartKlasse -->
-            <label for="fartklasse_id">Klasse</label>
-            <select id="fartklasse_id" name="fartklasse_id">
-                <option value="0"<?= $fartKlasseId === 0 ? ' selected' : '' ?>>Alle</option>
-                <?php foreach ($listFartKlasse as $r): ?>
-                    <option value="<?= (int)$r['id'] ?>"<?= $fartKlasseId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
-                <?php endforeach; ?>
-            </select>
-            <!-- FartObj_ID og FartSpes_ID er ikke søkbare og vises derfor ikke. -->
-            <!-- Avsluttende knapper -->
-            <div style="flex-basis:100%; text-align:center; margin-top:0.75rem;">
-                <button type="submit" class="btn" style="margin-right:1rem;">Søk</button>
-                <button type="button" class="btn" onclick="window.location.href='<?= h($currentFile) ?>';">Nullstill filtre</button>
+        <form method="get" class="form-inline">
+            <div class="filters-wrap">
+                <div class="row-center">
+                    <div class="form-field">
+                        <label for="farttype_id">Type</label>
+                        <select id="farttype_id" name="farttype_id">
+                            <option value="0"<?= $fartTypeId === 0 ? ' selected' : '' ?>>Alle</option>
+                            <?php foreach ($listFartType as $r): ?>
+                                <option value="<?= (int)$r['id'] ?>"<?= $fartTypeId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label for="fartfunk_id">Funksjon</label>
+                        <select id="fartfunk_id" name="fartfunk_id">
+                            <option value="0"<?= $fartFunkId === 0 ? ' selected' : '' ?>>Alle</option>
+                            <?php foreach ($listFartFunk as $r): ?>
+                                <option value="<?= (int)$r['id'] ?>"<?= $fartFunkId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="search-grid"><div class="form-field">
+                    <label for="fartdrift_id">Driftsmiddel</label>
+                    <select id="fartdrift_id" name="fartdrift_id">
+                        <option value="0"<?= $fartDriftId === 0 ? ' selected' : '' ?>>Alle</option>
+                    <?php foreach ($listFartDrift as $r): ?>
+                        <option value="<?= (int)$r['id'] ?>"<?= $fartDriftId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="fartrigg_id">Rigg</label>
+                    <select id="fartrigg_id" name="fartrigg_id">
+                        <option value="0"<?= $fartRiggId === 0 ? ' selected' : '' ?>>Alle</option>
+                        <?php foreach ($listFartRigg as $r): ?>
+                            <option value="<?= (int)$r['id'] ?>"<?= $fartRiggId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?>
+                        </option><?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="fartmotor_id">Motor</label>
+                    <select id="fartmotor_id" name="fartmotor_id">
+                        <option value="0"<?= $fartMotorId === 0 ? ' selected' : '' ?>>Alle</option>
+                        <?php foreach ($listFartMotor as $r): ?>
+                            <option value="<?= (int)$r['id'] ?>"<?= $fartMotorId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
+                            <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <div class="row-center">
+                <div class="form-field">
+                    <label for="fartskrog_id">Skrog</label>
+                    <select id="fartskrog_id" name="fartskrog_id">
+                        <option value="0"<?= $fartSkrogId === 0 ? ' selected' : '' ?>>Alle</option>
+                        <?php foreach ($listFartSkrog as $r): ?>
+                            <option value="<?= (int)$r['id'] ?>"<?= $fartSkrogId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="fartmat_id">Materiale</label>
+                    <select id="fartmat_id" name="fartmat_id">
+                        <option value="0"<?= $fartMatId === 0 ? ' selected' : '' ?>>Alle</option>
+                        <?php foreach ($listFartMat as $r): ?>
+                            <option value="<?= (int)$r['id'] ?>"<?= $fartMatId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <div class="row-center">
+                <div class="form-field center-col">
+                    <label for="fartklasse_id">Klasse</label>
+                    <select id="fartklasse_id" name="fartklasse_id">
+                        <option value="0"<?= $fartKlasseId === 0 ? ' selected' : '' ?>>Alle</option>
+                        <?php foreach ($listFartKlasse as $r): ?>
+                            <option value="<?= (int)$r['id'] ?>"<?= $fartKlasseId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="actions actions-compact">
+                    <button type="submit" class="btn">Søk</button>
+                    <button type="button" class="btn" onclick="window.location.href='<?= h($currentFile) ?>';">Nullstill filtre</button>
+                </div>
             </div>
         </form>
 
@@ -312,11 +323,7 @@
                     <th>Funksjon</th>
                     <th>Skrog</th>
                     <th>Drift</th>
-                    <th>Motor</th>
                     <th>Rigg</th>
-                    <th>Lengde</th>
-                    <th>Bredde</th>
-                    <th>Dypg</th>
                     <th>Vis</th>
                 </tr>
             </thead>
@@ -328,16 +335,12 @@
                     <td><?= h(val($r,'FartFunk','')) ?></td>
                     <td><?= h(val($r,'FartSkrog','')) ?></td>
                     <td><?= h(val($r,'FartDrift','')) ?></td>
-                    <td><?= h(val($r,'FartMotor','')) ?></td>
                     <td><?= h(val($r,'FartRigg','')) ?></td>
-                    <td><?= h(val($r,'Lengde','')) ?></td>
-                    <td><?= h(val($r,'Bredde','')) ?></td>
-                    <td><?= h(val($r,'Dypg','')) ?></td>
                     <td>
                         <?php $objId  = (int)val($r,'FartObj_ID',0); ?>
-                        <?php $navnId = (int)val($r,'FartNavn_ID',0); ?>
-                        <?php if ($objId > 0 && $navnId > 0): ?>
-                            <a class="btn-small" href="fartoydetaljer.php?obj_id=<?= $objId ?>&navn_id=<?= $navnId ?>">Vis</a>
+                        <?php $tidId  = (int)val($r,'FartTid_ID',0); ?>
+                        <?php if ($objId > 0 && $tidId > 0): ?>
+                            <a class="btn-small" href="fartoydetaljer.php?obj_id=<?= $objId ?>&tid_id=<?= $tidId ?>">Vis</a>
                         <?php else: ?>
                             <span class="muted">–</span>
                         <?php endif; ?>

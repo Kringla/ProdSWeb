@@ -66,10 +66,26 @@
     // Hent spes + oppslag + (seneste) navn
     $sql = "
     SELECT
-      fs.FartSpes_ID, fs.FartObj_ID, fs.YearSpes, fs.MndSpes, fs.Byggenr, fs.BnrSkrog, fs.Kapasitet,
-      fs.MotorDetalj AS MotorDetalj_free, fs.MotorEff, fs.MaxFart, fs.Lengde, fs.Bredde, fs.Dypg,
-      fs.Tonnasje, fs.Drektigh, fs.Objekt,
-      fs.FartType_ID AS FartTypeSpes_ID, fs.FunkDetalj, fs.Fartklasse, fs.Rigg,
+      fs.FartSpes_ID,
+      fs.FartObj_ID,
+      fs.YearSpes,
+      fs.MndSpes,
+      fs.Byggenr,
+      fo.BnrSkrog AS BnrSkrog,
+      fs.Kapasitet,
+      fs.MotorDetalj AS MotorDetalj_free,
+      fs.MotorEff,
+      fs.MaxFart,
+      fs.Lengde,
+      fs.Bredde,
+      fs.Dypg,
+      fs.Tonnasje,
+      fs.Drektigh,
+      fs.Objekt,
+      fs.FartType_ID AS FartTypeSpes_ID,
+      fs.FunkDetalj,
+      fs.Fartklasse,
+      fs.Rigg,
       CONCAT_WS(', ', vb.VerftNavn, vb.Sted) AS Byggeverft,
       CONCAT_WS(', ', vs.VerftNavn, vs.Sted) AS Skrogverft,
       zmat.MatFork AS Materiale,
@@ -80,12 +96,13 @@
       zf.TypeFunksjon AS Funksjon,
       zk.KlasseNavn AS KlasseNavn,
       zt.TonnFork AS TonnEnh,
-      fn.FartNavn,
+      tn.FartNavn,
       -- Hent TypeFork fra tblzfarttype. Hvis ingen rad, kan vi falle tilbake til FartType_ID men det håndteres i PHP
       t.TypeFork AS TypeFork
     FROM tblfartspes fs
+    LEFT JOIN tblfartobj fo          ON fo.FartObj_ID       = fs.FartObj_ID
     LEFT JOIN tblverft vb            ON vb.Verft_ID         = fs.Verft_ID
-    LEFT JOIN tblverft vs            ON vs.Verft_ID         = fs.SkrogID
+    LEFT JOIN tblverft vs            ON vs.Verft_ID         = fo.SkrogID
     LEFT JOIN tblzfartmat zmat       ON zmat.FartMat_ID     = fs.FartMat_ID
     LEFT JOIN tblzfartskrog zskrog   ON zskrog.FartSkrog_ID = fs.FartSkrog_ID
     LEFT JOIN tblzfartdrift zd       ON zd.FartDrift_ID     = fs.FartDrift_ID
@@ -94,16 +111,16 @@
     LEFT JOIN tblzfartfunk zf        ON zf.FartFunk_ID      = fs.FartFunk_ID
     LEFT JOIN tblzfartklasse zk      ON zk.FartKlasse_ID    = fs.FartKlasse_ID
     LEFT JOIN tblztonnenh zt         ON zt.TonnEnh_ID       = fs.TonnEnh_ID
-    LEFT JOIN (  -- seneste navn pr objekt
-      SELECT fn.FartObj_ID, fn.FartNavn, fn.FartType_ID
-      FROM tblfartnavn fn
+    LEFT JOIN (  -- seneste navneoppføring pr objekt basert på tblfarttid
+      SELECT t2.FartObj_ID, t2.FartNavn, t2.FartType_ID
+      FROM tblfarttid t2
       INNER JOIN (
-        SELECT FartObj_ID, MAX(FartNavn_ID) AS max_id
-        FROM tblfartnavn
+        SELECT FartObj_ID, MAX(FartTid_ID) AS max_id
+        FROM tblfarttid
         GROUP BY FartObj_ID
-      ) m ON m.FartObj_ID = fn.FartObj_ID AND fn.FartNavn_ID = m.max_id
-    ) fn ON fn.FartObj_ID = fs.FartObj_ID
-    LEFT JOIN tblzfarttype t ON t.FartType_ID = COALESCE(fs.FartType_ID, fn.FartType_ID)
+      ) m2 ON m2.FartObj_ID = t2.FartObj_ID AND t2.FartTid_ID = m2.max_id
+    ) tn ON tn.FartObj_ID = fs.FartObj_ID
+    LEFT JOIN tblzfarttype t ON t.FartType_ID = COALESCE(fs.FartType_ID, tn.FartType_ID)
     WHERE fs.FartSpes_ID = ?
     LIMIT 1
     ";
@@ -120,16 +137,16 @@
       exit;
     }
 
-    // --- Dynamisk bilde basert på FartObj_ID via tblxnmmfoto
+    // --- Dynamisk bilde basert på FartObj_ID via tblxnmmfoto og seneste FartTid_ID
     // Standard fallback-bilde
     $imageSrc = '/assets/img/skip/placeholder.jpg';
-    // Finn seneste FartNavn_ID for objektet via tblfartnavn (høyeste ID per objekt)
-    $latestNavnId = 0;
+    // Finn seneste FartTid_ID for objektet via tblfarttid (høyeste ID per objekt)
+    $latestTidId = 0;
     $fid = (int)($row['FartObj_ID'] ?? 0);
     if ($fid > 0) {
         $stmt = $conn->prepare(
-            "SELECT MAX(FartNavn_ID) AS max_id
-             FROM tblfartnavn
+            "SELECT MAX(FartTid_ID) AS max_id
+             FROM tblfarttid
              WHERE FartObj_ID = ?"
         );
         if ($stmt) {
@@ -137,26 +154,26 @@
             $stmt->execute();
             $resN = $stmt->get_result();
             if ($resN) {
-                $navnRow = $resN->fetch_assoc();
-                if ($navnRow && $navnRow['max_id'] !== null) {
-                    $latestNavnId = (int)$navnRow['max_id'];
+                $tidRow = $resN->fetch_assoc();
+                if ($tidRow && $tidRow['max_id'] !== null) {
+                    $latestTidId = (int)$tidRow['max_id'];
                 }
                 $resN->free();
             }
             $stmt->close();
         }
     }
-    // Hvis vi har et navn-id, slå opp bildet i tblxnmmfoto
-    if ($latestNavnId > 0) {
+    // Hvis vi har et FartTid_ID, slå opp bildet i tblxnmmfoto
+    if ($latestTidId > 0) {
         $stmt = $conn->prepare(
             "SELECT URL_Bane, Bilde_Fil
              FROM tblxnmmfoto
-             WHERE FartNavn_ID = ? AND COALESCE(Bilde_Fil,'') <> ''
+             WHERE FartTid_ID = ? AND COALESCE(Bilde_Fil,'') <> ''
              ORDER BY ID DESC
              LIMIT 1"
         );
         if ($stmt) {
-            $stmt->bind_param('i', $latestNavnId);
+            $stmt->bind_param('i', $latestTidId);
             $stmt->execute();
             $resImg = $stmt->get_result();
             if ($resImg) {

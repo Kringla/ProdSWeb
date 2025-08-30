@@ -11,74 +11,90 @@
 
     // Parametre
     $obj_id  = isset($_GET['obj_id'])  ? (int)$_GET['obj_id']  : 0;
-    $navn_id = isset($_GET['navn_id']) ? (int)$_GET['navn_id'] : 0;
+    // I nytt schema identifiseres navneoppføringen med FartTid_ID.
+    // For bakoverkompatibilitet støttes fremdeles 'navn_id' som alias hvis 'tid_id' ikke finnes.
+    $tid_id = 0;
+    if (isset($_GET['tid_id'])) {
+        $tid_id = (int)$_GET['tid_id'];
+    } elseif (isset($_GET['navn_id'])) {
+        // bruk navn_id som fallback for tid_id dersom parameteren kommer fra eldre lenker
+        $tid_id = (int)$_GET['navn_id'];
+    }
 
-    if ($obj_id <= 0 || $navn_id <= 0) {
+    if ($obj_id <= 0 || $tid_id <= 0) {
         http_response_code(400);
-        echo "Mangler eller ugyldige parametre: obj_id og navn_id må være > 0.";
+        echo "Mangler eller ugyldige parametre: obj_id og tid_id må være > 0.";
         exit;
     }
 
-    // --- Hent hovedrad (seneste) for valgt objekt+navn
+    // --- Hent hovedrad for valgt FartTid_ID. Vi henter også TypeFork direkte fra zfarttype basert på FartType_ID.
     $main = null;
     $stmt = $conn->prepare(
-        "SELECT t.*, fn.FartNavn,
-                z.Nasjon AS NasjonNavn
+        "SELECT t.*, zft.TypeFork, z.Nasjon AS NasjonNavn
          FROM tblfarttid t
-         LEFT JOIN tblfartnavn fn ON fn.FartNavn_ID = t.FartNavn_ID
+         LEFT JOIN tblzfarttype zft ON zft.FartType_ID = t.FartType_ID
          LEFT JOIN tblznasjon z   ON z.Nasjon_ID    = t.Nasjon_ID
-         WHERE t.FartObj_ID = ? AND t.FartNavn_ID = ?
-         ORDER BY COALESCE(t.YearTid,0) DESC, COALESCE(t.MndTid,0) DESC, t.FartTid_ID DESC
-         LIMIT 1"
-    );
-    $stmt->bind_param("ii", $obj_id, $navn_id);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    $main = $res->fetch_assoc();
-    $stmt->close();
-
-    if (!$main) {
-        echo "Fant ingen detaljer for angitt objekt/navn.";
-        exit;
-    }
-
-    // --- Hent TypeFork (fartøytypeforkortelse) tilhørende denne navneoppføringen via fartspes og farttype.
-    $typeFork = '';
-    $stmt = $conn->prepare(
-        "SELECT zft.TypeFork
-         FROM tblfarttid t
-         LEFT JOIN tblfartspes fs ON fs.FartSpes_ID = t.FartSpes_ID
-         LEFT JOIN tblzfarttype zft ON zft.FartType_ID = fs.FartType_ID
-         WHERE t.FartObj_ID = ? AND t.FartNavn_ID = ?
+         WHERE t.FartTid_ID = ?
          LIMIT 1"
     );
     if ($stmt) {
-        $stmt->bind_param('ii', $obj_id, $navn_id);
+        $stmt->bind_param("i", $tid_id);
         $stmt->execute();
-        $resTF = $stmt->get_result();
-        if ($resTF) {
-            $tfRow = $resTF->fetch_assoc();
-            if ($tfRow && isset($tfRow['TypeFork'])) {
-                $typeFork = trim((string)$tfRow['TypeFork']);
-            }
-            $resTF->free();
-        }
+        $res = $stmt->get_result();
+        $main = $res->fetch_assoc();
         $stmt->close();
     }
 
-    // --- Hent bildet til valgt FartNavn_ID fra tblxnmmfoto
+    if (!$main) {
+        echo "Fant ingen detaljer for angitt objekt/tid.";
+        exit;
+    }
+
+    // --- Hent TypeFork fra hovedraden (allerede joinet inn). Om den mangler, prøv å hente via fartspes.
+    $typeFork = '';
+    if (isset($main['TypeFork'])) {
+        $typeFork = trim((string)$main['TypeFork']);
+    }
+    // fallback via fartspes hvis TypeFork fortsatt mangler
+    if ($typeFork === '') {
+        $stmt = $conn->prepare(
+            "SELECT zft.TypeFork
+             FROM tblfarttid t
+             LEFT JOIN tblfartspes fs ON fs.FartSpes_ID = t.FartSpes_ID
+             LEFT JOIN tblzfarttype zft ON zft.FartType_ID = fs.FartType_ID
+             WHERE t.FartTid_ID = ?
+             LIMIT 1"
+        );
+        if ($stmt) {
+            $stmt->bind_param('i', $tid_id);
+            $stmt->execute();
+            $resTF = $stmt->get_result();
+            if ($resTF) {
+                $tfRow = $resTF->fetch_assoc();
+                if ($tfRow && isset($tfRow['TypeFork'])) {
+                    $typeFork = trim((string)$tfRow['TypeFork']);
+                }
+                $resTF->free();
+            }
+            $stmt->close();
+        }
+    }
+
+    // --- FartNavn_ID er erstattet med FartTid_ID i foto/lenke-tabeller i nytt schema, så vi kan slå opp direkte på FartTid_ID.
+
+    // --- Hent bildet til valgt navneoppføring via FartTid_ID fra tblxnmmfoto
     // Standard fallback‑bilde dersom ingen oppføring finnes eller Bilde_Fil er tomt.
     // URL_Bane i tabellen peker til rot (typisk «/assets/img/skip/»), så vi kan bruke den direkte.
     $imageSrc = '/assets/img/skip/fartoydetaljer_1.jpg';
     $stmt = $conn->prepare(
         "SELECT URL_Bane, Bilde_Fil
          FROM tblxnmmfoto
-         WHERE FartNavn_ID = ? AND COALESCE(Bilde_Fil,'') <> ''
+         WHERE FartTid_ID = ? AND COALESCE(Bilde_Fil,'') <> ''
          ORDER BY ID DESC
          LIMIT 1"
     );
     if ($stmt) {
-        $stmt->bind_param('i', $navn_id);
+        $stmt->bind_param('i', $tid_id);
         $stmt->execute();
         $resImg = $stmt->get_result();
         if ($resImg) {
@@ -98,64 +114,67 @@
     // må vi gå ett nivå opp dersom $imageSrc starter med '/'.
     $imageSrcRel = (substr($imageSrc, 0, 1) === '/') ? ('..' . $imageSrc) : $imageSrc;
 
-    // --- DigitaltMuseum-lenker (ALLE for FartNavn_ID)
+    // --- DigitaltMuseum-lenker (alle for denne navneoppføringen)
     $dimuList = [];
     $stmt = $conn->prepare(
         "SELECT DIMUkode, COALESCE(Motiv,'') AS Motiv
          FROM tblxdigmuseum
-         WHERE FartNavn_ID = ? AND COALESCE(DIMUkode,'') <> ''
+         WHERE FartTid_ID = ? AND COALESCE(DIMUkode,'') <> ''
          ORDER BY ID DESC"
     );
-    $stmt->bind_param("i", $navn_id);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    while ($row = $res->fetch_assoc()) {
-        $kode  = trim((string)$row['DIMUkode']);
-        $motiv = (string)$row['Motiv'];
-        $dimuList[] = [
-            'kode'  => $kode,
-            'motiv' => $motiv,
-            'url'   => 'https://digitaltmuseum.no/' . $kode
-        ];
+    if ($stmt) {
+        $stmt->bind_param("i", $tid_id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        while ($row = $res->fetch_assoc()) {
+            $kode  = trim((string)$row['DIMUkode']);
+            $motiv = (string)$row['Motiv'];
+            $dimuList[] = [
+                'kode'  => $kode,
+                'motiv' => $motiv,
+                'url'   => 'https://digitaltmuseum.no/' . $kode
+            ];
+        }
+        $stmt->close();
     }
-    $stmt->close();
 
     // --- Navnehistorikk (for hele objektet), med TypeFork + FartNavn og Year/Mnd (MM)
-$navnehist = [];
-$stmt = $conn->prepare(
-    "SELECT t.FartTid_ID,
-            t.YearTid,
-            t.MndTid,
-            fn.FartNavn,
-            zft.TypeFork,
-            t.Rederi,
-            t.RegHavn,
-            zn.Nasjon
-     FROM tblfarttid t
-     LEFT JOIN tblfartnavn  fn ON fn.FartNavn_ID  = t.FartNavn_ID
-     LEFT JOIN tblfartspes  fs ON fs.FartSpes_ID  = t.FartSpes_ID
-     LEFT JOIN tblzfarttype zft ON zft.FartType_ID = fs.FartType_ID
-     LEFT JOIN tblznasjon   zn ON zn.Nasjon_ID    = t.Nasjon_ID
-     WHERE t.FartObj_ID = ?
-     ORDER BY COALESCE(t.YearTid,0),
-              COALESCE(t.MndTid,0),
-              t.FartTid_ID"
-);
-    
-    $stmt->bind_param("i", $obj_id);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    while ($r = $res->fetch_assoc()) {
-        $mm  = (int)$r['MndTid'];
-        $mmS = $mm > 0 ? str_pad((string)$mm, 2, '0', STR_PAD_LEFT) : '00';
-        $r['Tidspunkt'] = (string)val($r, 'YearTid', '') . '/' . $mmS;
-        $prefix = trim((string)val($r,'TypeFork',''));
-        $r['NavnKomp'] = ($prefix !== '' ? $prefix.' ' : '') . trim((string)val($r,'FartNavn',''));
-        $navnehist[] = $r;
+    $navnehist = [];
+    $stmt = $conn->prepare(
+        "SELECT t.FartTid_ID,
+                t.YearTid,
+                t.MndTid,
+                t.FartNavn,
+                COALESCE(t.FartType_ID, fs.FartType_ID) AS FartType_ID,
+                zft.TypeFork,
+                t.Rederi,
+                t.RegHavn,
+                zn.Nasjon
+         FROM tblfarttid t
+         LEFT JOIN tblfartspes  fs ON fs.FartSpes_ID  = t.FartSpes_ID
+         LEFT JOIN tblzfarttype zft ON zft.FartType_ID = COALESCE(t.FartType_ID, fs.FartType_ID)
+         LEFT JOIN tblznasjon   zn ON zn.Nasjon_ID    = t.Nasjon_ID
+         WHERE t.FartObj_ID = ?
+         ORDER BY COALESCE(t.YearTid,0),
+                  COALESCE(t.MndTid,0),
+                  t.FartTid_ID"
+    );
+    if ($stmt) {
+        $stmt->bind_param("i", $obj_id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        while ($r = $res->fetch_assoc()) {
+            $mm  = (int)$r['MndTid'];
+            $mmS = $mm > 0 ? str_pad((string)$mm, 2, '0', STR_PAD_LEFT) : '00';
+            $r['Tidspunkt'] = (string)val($r, 'YearTid', '') . '/' . $mmS;
+            $prefix = trim((string)val($r,'TypeFork',''));
+            $r['NavnKomp'] = ($prefix !== '' ? $prefix.' ' : '') . trim((string)val($r,'FartNavn',''));
+            $navnehist[] = $r;
+        }
+        $stmt->close();
     }
-    $stmt->close();
 
-    // --- Øvrige lenker (tblxfartlink) via FartNavn_ID
+    // --- Øvrige lenker (tblxfartlink) via FartTid_ID
     $fartLinks = [];
     $stmt = $conn->prepare(
         "SELECT COALESCE(LinkType,'') AS LinkType,
@@ -163,16 +182,18 @@ $stmt = $conn->prepare(
                 Link,
                 COALESCE(SerNo, 9999) AS SortNo
          FROM tblxfartlink
-         WHERE FartNavn_ID = ? AND COALESCE(Link,'') <> ''
+         WHERE FartTid_ID = ? AND COALESCE(Link,'') <> ''
          ORDER BY SortNo, LinkType, LinkInnh"
     );
-    $stmt->bind_param("i", $navn_id);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    while ($row = $res->fetch_assoc()) {
-        $fartLinks[] = $row;
+    if ($stmt) {
+        $stmt->bind_param("i", $tid_id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        while ($row = $res->fetch_assoc()) {
+            $fartLinks[] = $row;
+        }
+        $stmt->close();
     }
-    $stmt->close();
 
 ?>
 <?php include __DIR__ . '/../includes/header.php'; ?>

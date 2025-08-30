@@ -24,22 +24,6 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Tabellstruktur for tabell `tblfartnavn`
---
-
-CREATE TABLE `tblfartnavn` (
-  `FartNavn_ID` int(11) NOT NULL,
-  `FartObj_ID` int(11) NOT NULL DEFAULT 1,
-  `FartNavn` varchar(100) DEFAULT NULL,
-  `FartType_ID` int(11) DEFAULT NULL,
-  `PennantTiln` varchar(50) DEFAULT NULL,
-  `TidlNavn` varchar(255) DEFAULT NULL,
-  `FartNotater` mediumtext DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Tabellstruktur for tabell `tblfartobj`
 --
 
@@ -54,8 +38,9 @@ CREATE TABLE `tblfartobj` (
   `Levert` varchar(255) DEFAULT NULL,
   `Bygget` varchar(255) DEFAULT NULL,
   `LeverID` int(11) DEFAULT 1,
+  `ByggeNr` varchar(50) DEFAULT NULL,
   `SkrogID` int(11) DEFAULT 1,
-  `BnrSkrog` varchar(255) DEFAULT NULL,
+  `BnrSkrog` varchar(50) DEFAULT NULL,
   `StroketYear` smallint(6) DEFAULT NULL,
   `StroketID` int(11) DEFAULT NULL,
   `Historikk` text DEFAULT NULL,
@@ -76,8 +61,6 @@ CREATE TABLE `tblfartspes` (
   `MndSpes` tinyint(4) DEFAULT NULL,
   `Verft_ID` int(11) DEFAULT NULL,
   `Byggenr` varchar(255) DEFAULT NULL,
-  `SkrogID` int(11) DEFAULT NULL,
-  `BnrSkrog` varchar(255) DEFAULT NULL,
   `Materiale` varchar(255) DEFAULT NULL,
   `FartMat_ID` int(11) DEFAULT NULL,
   `FartType_ID` int(11) DEFAULT NULL,
@@ -99,8 +82,9 @@ CREATE TABLE `tblfartspes` (
   `Bredde` smallint(6) DEFAULT NULL,
   `Dypg` smallint(6) DEFAULT NULL,
   `Tonnasje` varchar(255) DEFAULT NULL,
-  `Drektigh` varchar(255) DEFAULT NULL,
   `TonnEnh_ID` int(11) DEFAULT NULL,
+  `Drektigh` varchar(255) DEFAULT NULL,
+  `DrektEnh_ID` int(11) DEFAULT NULL,
   `Objekt` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -115,8 +99,10 @@ CREATE TABLE `tblfarttid` (
   `YearTid` smallint(6) DEFAULT NULL,
   `MndTid` tinyint(4) DEFAULT NULL,
   `FartObj_ID` int(11) DEFAULT NULL,
-  `FartNavn_ID` int(11) DEFAULT NULL,
   `FartSpes_ID` int(11) DEFAULT NULL,
+  `FartNavn` varchar(50) DEFAULT NULL,
+  `FartType_ID` int(11) DEFAULT NULL,
+  `PennantTiln` varchar(50) DEFAULT NULL,
   `Objekt` tinyint(1) DEFAULT NULL,
   `Rederi` varchar(255) DEFAULT NULL,
   `Nasjon_ID` int(11) DEFAULT NULL,
@@ -128,7 +114,6 @@ CREATE TABLE `tblfarttid` (
   `Eierskifte` tinyint(1) DEFAULT NULL,
   `Annet` tinyint(1) DEFAULT NULL,
   `Hendelse` varchar(255) DEFAULT NULL,
-  `Historie` mediumtext DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -157,7 +142,7 @@ CREATE TABLE `tblverft` (
 
 CREATE TABLE `tblxdigmuseum` (
   `ID` int(11) NOT NULL,
-  `FartNavn_ID` int(11) NOT NULL,
+  `FartTid_ID` int(11) NOT NULL,
   `DIMUkode` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL
   `Motiv` varchar(255) DEFAULT NULL,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -170,7 +155,7 @@ CREATE TABLE `tblxdigmuseum` (
 
 CREATE TABLE `tblxfartlink` (
   `FartLk_ID` int(11) NOT NULL,
-  `FartNavn_ID` int(11) NOT NULL DEFAULT 1,
+  `FartTid_ID` int(11) NOT NULL DEFAULT 1,
   `LinkType_ID` int(11) DEFAULT NULL,
   `LinkType` varchar(50) DEFAULT NULL,
   `LinkInnh` varchar(50) DEFAULT NULL,
@@ -186,7 +171,7 @@ CREATE TABLE `tblxfartlink` (
 
 CREATE TABLE `tblxnmmfoto` (
   `ID` int(11) NOT NULL,
-  `FartNavn_ID` int(11) DEFAULT NULL,
+  `FartTid_ID` int(11) DEFAULT NULL,
   `Bilde_Fil` varchar(50) DEFAULT NULL,
   `URL_Bane` varchar(255) NOT NULL DEFAULT '/assets/img/skip/',
   `PrimusNavn` varchar(255) DEFAULT NULL,
