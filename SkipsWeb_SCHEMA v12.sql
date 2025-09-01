@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: 30. Aug, 2025 16:39 PM
+-- Generation Time: 01. Sep, 2025 11:32 AM
 -- Tjener-versjon: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -70,7 +70,6 @@ CREATE TABLE `tblfartspes` (
   `FunkDetalj` varchar(255) DEFAULT NULL,
   `TeknDetalj` varchar(255) DEFAULT NULL,
   `FartKlasse_ID` int(11) DEFAULT 1,
-  `Fartklasse` varchar(255) DEFAULT NULL,
   `Kapasitet` varchar(255) DEFAULT NULL,
   `Rigg` varchar(50) DEFAULT NULL,
   `FartRigg_ID` int(11) DEFAULT 1,
@@ -82,9 +81,9 @@ CREATE TABLE `tblfartspes` (
   `Bredde` smallint(6) DEFAULT NULL,
   `Dypg` smallint(6) DEFAULT NULL,
   `Tonnasje` varchar(255) DEFAULT NULL,
-  `TonnEnh_ID` int(11) DEFAULT NULL,
+  `TonnEnh_ID` int(11) DEFAULT 1,
   `Drektigh` varchar(255) DEFAULT NULL,
-  `DrektEnh_ID` int(11) DEFAULT NULL,
+  `DrektEnh_ID` int(11) DEFAULT 1,
   `Objekt` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -112,8 +111,7 @@ CREATE TABLE `tblfarttid` (
   `Fiskerinr` varchar(255) DEFAULT NULL,
   `Navning` tinyint(1) DEFAULT NULL,
   `Eierskifte` tinyint(1) DEFAULT NULL,
-  `Annet` tinyint(1) DEFAULT NULL,
-  `Hendelse` varchar(255) DEFAULT NULL
+  `Annet` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -200,6 +198,18 @@ CREATE TABLE `tblxverftlink` (
   `LinkType` varchar(50) DEFAULT NULL,
   `LinkInnh` varchar(50) DEFAULT NULL,
   `Link` mediumtext DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellstruktur for tabell `tblzdrektenh`
+--
+
+CREATE TABLE `tblzdrektenh` (
+  `DrektEnh_ID` int(11) NOT NULL,
+  `DrektFork` varchar(5) DEFAULT NULL,
+  `DrektDetalj` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -380,7 +390,16 @@ ALTER TABLE `tblfartspes`
   ADD KEY `FartObj_ID` (`FartObj_ID`),
   ADD KEY `Verft_ID` (`Verft_ID`),
   ADD KEY `FartTypeSpes` (`FartType_ID`),
-  ADD KEY `VerftObj` (`Verft_ID`,`FartObj_ID`);
+  ADD KEY `VerftObj` (`Verft_ID`,`FartObj_ID`),
+  ADD KEY `TonnEnh_ID` (`TonnEnh_ID`),
+  ADD KEY `DrektEnh_ID` (`DrektEnh_ID`),
+  ADD KEY `FartMat_ID` (`FartMat_ID`),
+  ADD KEY `FartFunk_ID` (`FartFunk_ID`),
+  ADD KEY `FartSkrog_ID` (`FartSkrog_ID`),
+  ADD KEY `FartDrift_ID` (`FartDrift_ID`),
+  ADD KEY `FartRigg_ID` (`FartRigg_ID`),
+  ADD KEY `FartMotor_ID` (`FartMotor_ID`),
+  ADD KEY `FartKlasse_ID` (`FartKlasse_ID`);
 
 --
 -- Indexes for table `tblfarttid`
@@ -428,6 +447,13 @@ ALTER TABLE `tblxnmmfoto`
 ALTER TABLE `tblxverftlink`
   ADD PRIMARY KEY (`VerftLk_ID`),
   ADD KEY `Verft_ID` (`Verft_ID`);
+
+--
+-- Indexes for table `tblzdrektenh`
+--
+ALTER TABLE `tblzdrektenh`
+  ADD PRIMARY KEY (`DrektEnh_ID`),
+  ADD UNIQUE KEY `TonnFork` (`DrektFork`);
 
 --
 -- Indexes for table `tblzfartdrift`
@@ -562,6 +588,12 @@ ALTER TABLE `tblxverftlink`
   MODIFY `VerftLk_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `tblzdrektenh`
+--
+ALTER TABLE `tblzdrektenh`
+  MODIFY `DrektEnh_ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `tblzfartdrift`
 --
 ALTER TABLE `tblzfartdrift`
@@ -653,7 +685,9 @@ ALTER TABLE `tblfartobj`
 -- Begrensninger for tabell `tblfartspes`
 --
 ALTER TABLE `tblfartspes`
+  ADD CONSTRAINT `DrektLink` FOREIGN KEY (`DrektEnh_ID`) REFERENCES `tblzdrektenh` (`DrektEnh_ID`),
   ADD CONSTRAINT `FartTypeSpes` FOREIGN KEY (`FartType_ID`) REFERENCES `tblzfarttype` (`FartType_ID`),
+  ADD CONSTRAINT `TonnLink` FOREIGN KEY (`TonnEnh_ID`) REFERENCES `tblztonnenh` (`TonnEnh_ID`),
   ADD CONSTRAINT `VerftSpes` FOREIGN KEY (`Verft_ID`) REFERENCES `tblverft` (`Verft_ID`);
 
 --

@@ -6,6 +6,7 @@ Prosjektets styrende filer er:
 "SkipsWeb_PRD v*.txt" 			Overordnete krav og utviklingsplan (v* er versjonsnummer)
 "SkipsWeb_PS v*.txt" 			Prosjektets styrende strukturer (v* er versjonsnummer)
 "SkipsWeb_SCHEMA v*.sql"  		Schema til SkipsDb (v* er versjonsnummer)
+"SkipsWeb_Fields v*.txt			Angivelse av feltlenger for bruk i Forms i filer med to-kolonne tabeller (som i fartoy_edit.php, fartoy_nytt.php)
 
 De produserte filene, sammen med SISTE VERSJON av de overnevnte filene, finnes på  https://github.com/Kringla/ProdSWeb NB! Der finnes de i ett directory, uten subdirectories!
 Siste versjon skal ALLTID brukes!

@@ -1,0 +1,194 @@
+TABLE `tblfartobj`
+  `FartObj_ID` width=6 cols
+  `NavnObj` width=48 cols
+  `FartType_ID` width=6 cols
+  `IMO` width=12 cols
+  `Kontrahert` width=12 cols
+  `Kjolstrukket` width=12 cols
+  `Sjosatt` width=12 cols
+  `Levert` width=12 cols
+  `Bygget` width=6 cols
+  `LeverID` width=6 cols
+  `ByggeNr` width=12 cols
+  `SkrogID` width=6 cols
+  `BnrSkrog` width=12 cols
+  `StroketYear` width=6 cols
+  `StroketID` width=6 cols
+  `Historikk` width= max cols
+  `ObjNotater` width=max cols
+  `IngenData` checkbox
+
+TABLE `tblfartspes`
+  `FartSpes_ID` width=6 cols
+  `FartObj_ID` width=6 cols
+  `YearSpes` width=6 cols
+  `MndSpes` width=3 cols
+  `Verft_ID` width=6 cols
+  `Byggenr` width=12 cols
+  `Materiale` width=24 cols
+  `FartMat_ID` width=6 cols
+  `FartType_ID` width=6 cols
+  `FartFunk_ID` width=6 cols
+  `FartSkrog_ID` width=6 cols
+  `FartDrift_ID` width=6 cols
+  `FunkDetalj` width=60 cols
+  `TeknDetalj` width=60 cols
+  `FartKlasse_ID` width=6 cols
+  `Kapasitet` width=120 cols
+  `Rigg` width=24 cols
+  `FartRigg_ID` width=6 cols
+  `FartMotor_ID` width=6 cols
+  `MotorDetalj` width=60 cols
+  `MotorEff` width=12 cols
+  `MaxFart` width=6 cols
+  `Lengde` width=6 cols
+  `Bredde` width=6 cols
+  `Dypg` width=6 cols
+  `Tonnasje` width=12 cols
+  `TonnEnh_ID` width=6 cols
+  `Drektigh` width=12 cols
+  `DrektEnh_ID` width=6 cols
+  `Objekt` checkbox
+  
+  TABLE `tblfarttid`
+  `FartTid_ID` width=6 cols
+  `YearTid` width=6 cols
+  `MndTid` width=3 cols
+  `FartObj_ID` width=6 cols
+  `FartSpes_ID` width=6 cols
+  `FartNavn` width=48 cols
+  `FartType_ID` width=6 cols
+  `PennantTiln` width=24 cols
+  `Objekt` checkbox
+  `Rederi` width=255 cols
+  `Nasjon_ID` width=6 cols
+  `RegHavn` width=60 cols
+  `MMSI` width=12 cols
+  `Kallesignal` width=18 cols
+  `Fiskerinr` width=18 cols
+  `Navning` checkbox
+  `Eierskifte` checkbox
+  `Annet` checkbox
+  
+  TABLE `tblverft`
+  `Verft_ID` width=6 cols
+  `VerftNavn` width=255 cols
+  `Sted` width=48 cols
+  `Nasjon_ID` width=6 cols
+  `TidlID` width=6 cols
+  `Etablert` width=6 cols
+  `Nedlagt` width=6 cols
+  `EtterID` width=6 cols
+  `Merknad` width=255 cols
+  
+  TABLE `tblxdigmuseum`
+  `ID` width=6 cols
+  `FartTid_ID` width=6 cols
+  `DIMUkode` width=18 cols
+  `Motiv` width=255 cols 
+  
+  TABLE `tblxfartlink`
+  `FartLk_ID` width=6 cols
+  `FartTid_ID` 
+  `LinkType_ID` width=6 cols
+  `LinkType` width=48 cols
+  `LinkInnh` width=48 cols
+  `Link` width=255 cols
+  `SerNo` width=6 cols
+  
+  TABLE `tblxnmmfoto`
+  `ID` width=6 cols
+  `FartTid_ID` width=6 cols
+  `Bilde_Fil` width=48 cols
+  `URL_Bane` width=255 cols
+  `PrimusNavn` width=24 cols
+  `Motiv` width=255 cols
+  `Fotograf` width=60 cols
+  `FotoFirma` width=60 cols
+  `Samling` width=120 cols
+  `FotoTid` width=12 cols
+  `FotoSted` width=60 cols
+  `SvartFarge` width=24 cols
+  `Referanse` width=24 cols
+  `TekstFoto` width=255 cols
+  `FriKopi` checkbox
+  
+  TABLE `tblxverftlink` 
+  `VerftLk_ID` width=6 cols
+  `Verft_ID` width=6 cols
+  `LinkType_ID` width=6 cols
+  `LinkType` width=48 cols
+  `LinkInnh` width=48 cols
+  `Link` width=255 cols
+  
+  TABLE `tblzdrektenh` 
+  `DrektEnh_ID` width=6 cols
+  `DrektFork` width=6 cols
+  `DrektDetalj` width=48 cols
+  
+  TABLE `tblzfartdrift`
+  `FartDrift_ID` width=6 cols
+  `DriftMiddel` width=60 cols
+  
+  TABLE `tblzfartfunk` 
+  `FartFunk_ID` width=6 cols
+  `TypeFunksjon` width=60 cols
+  `FunkDet` checkbox
+  
+  TABLE `tblzfartklasse` 
+  `FartKlasse_ID` width=6 cols
+  `KlasseNavn` width=60 cols
+  `TypeKlasse` width=60 cols
+  `Klasse` checkbox
+  
+  TABLE `tblzfartmat`
+  `FartMat_ID` width=6 cols
+  `MatFork` width=18 cols
+  `Materiale` width=60 cols 
+  
+  TABLE `tblzfartmotor` 
+  `FartMotor_ID` width=6 cols
+  `MotorFork` width=18 cols
+  `MotorDetalj` width=120 cols
+  
+  TABLE `tblzfartrigg` 
+  `FartRigg_ID` width=6 cols
+  `RiggFork` width=18 cols
+  `RiggDetalj` width=120 cols
+  
+  TABLE `tblzfartskrog` 
+  `FartSkrog_ID` width=6 cols
+  `TypeSkrog` width=48 cols
+  
+  TABLE `tblzfarttype`
+  `FartType_ID` width=6 cols
+  `TypeFork` width=6 cols
+  `FartType` width=48 cols
+  
+  TABLE `tblzlinktype` 
+  `LinkType_ID` width=6 cols
+  `LinkType` width=48 cols
+  
+  TABLE `tblznasjon` 
+  `Nasjon_ID` width=6 cols
+  `Nasjon` width=60 cols
+  
+  TABLE `tblzstroket` 
+  `Stroket_ID` width=6 cols
+  `Strok` width=18 cols
+  `StrokDetalj` width=60 cols
+  
+  TABLE `tblztonnenh` 
+  `TonnEnh_ID` width=6 cols
+  `TonnFork` width=6 cols
+  `TonnDetalj` width=48 cols
+  
+  TABLE `tblzuser`
+  `user_id` width=6 cols
+  `email` width=120 cols
+  `password` width=24 cols
+  `role` enum('admin','user') width=12 cols
+  `created_at` width=24 cols
+  `IsActive` checkbox
+  `LastUsed` width=24 cols
+  
