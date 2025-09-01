@@ -32,9 +32,9 @@ if ($objId <= 0 || $navnId <= 0) {
 
 // Hent rad for å avgjøre om dette er objektnavn
 $stmt = $conn->prepare(
-    "SELECT t.FartTid_ID, t.Objekt, fn.FartNavn
+    "SELECT t.FartTid_ID, t.Objekt, t.FartNavn
      FROM tblfarttid t
-     LEFT JOIN tblfartnavn fn ON fn.FartNavn_ID = t.FartNavn_ID
+     LEFT JOIN tblfartnavn fn ON t.FartNavn_ID = t.FartNavn_ID
      WHERE t.FartObj_ID = ? AND t.FartNavn_ID = ?
      ORDER BY COALESCE(t.YearTid,0) DESC, COALESCE(t.MndTid,0) DESC, t.FartTid_ID DESC
      LIMIT 1"
@@ -106,6 +106,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm']) && $_POST[
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu.php';
 ?>
+<!-- Responsive image box (contain, no crop) -->
+    <div class="container" style="display:flex; justify-content:center;">
+      <div class="image-box">
+        <?php
+          // 1) Velg tryggt bilde (DB -> fallback). Bruk basename()+h() for sikkerhet.
+          $imgCandidate = null;
+
+          // Hvis du i denne siden har en $imgRow fra tblxnmmfoto:
+          if (isset($imgRow) && is_array($imgRow) && !empty($imgRow['Bilde_Fil'])) {
+              $base = rtrim((string)($imgRow['URL_Bane'] ?? '/assets/img'), '/');
+              $file = basename((string)$imgRow['Bilde_Fil']); // dropp path-fragmenter
+              $imgCandidate = $base . '/' . $file;
+          }
+          // Alternativ kilde: $main['Bilde_Fil'] dersom du bruker den i siden:
+          elseif (!empty($main['Bilde_Fil'])) {
+              $imgCandidate = '/assets/img/' . basename((string)$main['Bilde_Fil']);
+          }
+          // 2) Garantert fallback:
+          if (!$imgCandidate) {
+              $imgCandidate = '/assets/img/placeholder.jpg';
+          }
+
+          // 3) Relativ URL hvis siden ligger i /user/
+          $imgRel = (substr($imgCandidate, 0, 1) === '/') ? ('..' . $imgCandidate) : $imgCandidate;
+
+          // 4) Alt‑tekst (prøv å bruke type + navn hvis det finnes)
+          $altText = trim(
+            (string)($main['TypeFork'] ?? ($main['FartType'] ?? '')) . ' ' .
+            (string)($main['FartNavn'] ?? 'Fartøy')
+          );
+          if ($altText === '') { $altText = 'Fartøybilde'; }
+        ?>
+        <img src="<?= h($imgRel) ?>" alt="<?= h($altText) ?>">
+      </div>
+    </div>
 <div class="container mt-3">
   <h1>Slett fartøy</h1>
   <div class="card" style="padding:1rem; max-width:600px; margin:0 auto;">

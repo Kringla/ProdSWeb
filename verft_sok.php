@@ -93,8 +93,7 @@ if ($q !== '' && mb_strlen($q) >= 2) {
                 fs.Byggenr,
                 fs.YearSpes,
                 fs.MndSpes,
-                fn.FartNavn_ID,
-                fn.FartNavn,
+                tid.FartNavn,
                 zt.TypeFork,
                 tid.RegHavn,
                 tid.Rederi,
@@ -111,12 +110,11 @@ if ($q !== '' && mb_strlen($q) >= 2) {
                 ) t2 ON t2.FartSpes_ID = t1.FartSpes_ID AND t2.FartTid_ID = t1.FartTid_ID
             ) tid ON tid.FartSpes_ID = fs.FartSpes_ID
 
-            /* Bind navnet entydig til tidsradens FartNavn_ID */
-            LEFT JOIN tblfartnavn  fn ON fn.FartNavn_ID = tid.FartNavn_ID
-            LEFT JOIN tblzfarttype zt ON zt.FartType_ID = fn.FartType_ID
+            /* Bind navnet entydig til tidsradens FartType_ID */
+            LEFT JOIN tblzfarttype zt ON zt.FartType_ID = tid.FartType_ID
 
             WHERE fs.Verft_ID = ?
-            ORDER BY fs.YearSpes, fs.MndSpes, fn.FartNavn
+            ORDER BY fs.YearSpes, fs.MndSpes, tid.FartNavn
             LIMIT 500
         ";
         if ($stmt = $conn->prepare($sqlLev)) {
@@ -137,8 +135,7 @@ if ($q !== '' && mb_strlen($q) >= 2) {
               fs.BnrSkrog AS Byggenr,
               fs.YearSpes,
               fs.MndSpes,
-              fn.FartNavn_ID,
-              fn.FartNavn,
+              tid.FartNavn,
               zt.TypeFork,
               tid.RegHavn,
               tid.Rederi,
@@ -156,14 +153,13 @@ if ($q !== '' && mb_strlen($q) >= 2) {
           ) tid ON tid.FartSpes_ID = fs.FartSpes_ID
 
           /* Bind navnet entydig til tidsradens FartNavn_ID */
-          LEFT JOIN tblfartnavn  fn ON fn.FartNavn_ID = tid.FartNavn_ID
-          LEFT JOIN tblzfarttype zt ON zt.FartType_ID = fn.FartType_ID
+          LEFT JOIN tblzfarttype zt ON zt.FartType_ID = tid.FartType_ID
 
           WHERE fs.SkrogID = ?
             AND fs.SkrogID IS NOT NULL
             AND (fs.Verft_ID IS NULL OR fs.SkrogID <> fs.Verft_ID)
 
-          ORDER BY fs.YearSpes, fs.MndSpes, fn.FartNavn
+          ORDER BY fs.YearSpes, fs.MndSpes, tid.FartNavn
           LIMIT 500
         ";
         if ($stmt = $conn->prepare($sqlSkrog)) {

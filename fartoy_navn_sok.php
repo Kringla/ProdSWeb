@@ -103,17 +103,17 @@
 
           // Hvis du i denne siden har en $imgRow fra tblxnmmfoto:
           if (isset($imgRow) && is_array($imgRow) && !empty($imgRow['Bilde_Fil'])) {
-              $base = rtrim((string)($imgRow['URL_Bane'] ?? '/assets/img/skip'), '/');
+              $base = rtrim((string)($imgRow['URL_Bane'] ?? '/assets/img'), '/');
               $file = basename((string)$imgRow['Bilde_Fil']); // dropp path-fragmenter
               $imgCandidate = $base . '/' . $file;
           }
           // Alternativ kilde: $main['Bilde_Fil'] dersom du bruker den i siden:
           elseif (!empty($main['Bilde_Fil'])) {
-              $imgCandidate = '/assets/img/skip/' . basename((string)$main['Bilde_Fil']);
+              $imgCandidate = '/assets/img/' . basename((string)$main['Bilde_Fil']);
           }
           // 2) Garantert fallback:
           if (!$imgCandidate) {
-              $imgCandidate = '/assets/img/skip/placeholder.jpg';
+              $imgCandidate = '/assets/img/placeholder2.jpg';
           }
 
           // 3) Relativ URL hvis siden ligger i /user/

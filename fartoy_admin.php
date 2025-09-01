@@ -79,6 +79,41 @@ if ($doSearch) {
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/menu.php';
 ?>
+<!-- Responsive image box (contain, no crop) -->
+    <div class="container" style="display:flex; justify-content:center;">
+      <div class="image-box">
+        <?php
+          // 1) Velg tryggt bilde (DB -> fallback). Bruk basename()+h() for sikkerhet.
+          $imgCandidate = null;
+
+          // Hvis du i denne siden har en $imgRow fra tblxnmmfoto:
+          if (isset($imgRow) && is_array($imgRow) && !empty($imgRow['Bilde_Fil'])) {
+              $base = rtrim((string)($imgRow['URL_Bane'] ?? '/assets/img'), '/');
+              $file = basename((string)$imgRow['Bilde_Fil']); // dropp path-fragmenter
+              $imgCandidate = $base . '/' . $file;
+          }
+          // Alternativ kilde: $main['Bilde_Fil'] dersom du bruker den i siden:
+          elseif (!empty($main['Bilde_Fil'])) {
+              $imgCandidate = '/assets/img/' . basename((string)$main['Bilde_Fil']);
+          }
+          // 2) Garantert fallback:
+          if (!$imgCandidate) {
+              $imgCandidate = '/assets/img/placeholder2.jpg';
+          }
+
+          // 3) Relativ URL hvis siden ligger i /user/
+          $imgRel = (substr($imgCandidate, 0, 1) === '/') ? ('..' . $imgCandidate) : $imgCandidate;
+
+          // 4) Alt‑tekst (prøv å bruke type + navn hvis det finnes)
+          $altText = trim(
+            (string)($main['TypeFork'] ?? ($main['FartType'] ?? '')) . ' ' .
+            (string)($main['FartNavn'] ?? 'Fartøy')
+          );
+          if ($altText === '') { $altText = 'Fartøybilde'; }
+        ?>
+        <img src="<?= h($imgRel) ?>" alt="<?= h($altText) ?>">
+      </div>
+    </div>
 <div class="container mt-3">
   <h1>Administrer fartøyer</h1>
   <p class="muted" style="text-align:center;">Søk etter fartøy, rediger eller slett, eller opprett et nytt fartøy.</p>
@@ -95,7 +130,7 @@ include __DIR__ . '/../includes/menu.php';
     </select>
     <button type="submit" class="btn">Søk</button>
     <?php $base = defined('BASE_URL') ? rtrim(BASE_URL, '/') : ''; ?>
-    <a href="<?= h($base . '/admin/fartoy_new.php') ?>" class="btn primary">Opprett nytt</a>
+    <a href="<?= h($base . '/admin/fartoy_nytt.php') ?>" class="btn primary">Opprett nytt</a>
   </form>
 
   <?php if ($doSearch && $rows): ?>

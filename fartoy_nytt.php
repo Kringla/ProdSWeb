@@ -623,7 +623,7 @@ include __DIR__ . '/../includes/menu.php';
                     $results = searchObjects($conn, $searchTerm);
                     if (!empty($results)) {
                         echo '<div class="table-responsive" style="max-height:300px; overflow:auto;">';
-                        echo '<table class="table table-sm table-hover">';
+                        echo '<table class="table compact table-sm table-hover">';
                         echo '<thead><tr><th>Velg</th><th>FartObj_ID</th><th>FartNavn</th></tr></thead><tbody>';
                         foreach ($results as $row) {
                             $checked = ($objId == $row['FartObj_ID']) ? 'checked' : '';
@@ -671,7 +671,7 @@ include __DIR__ . '/../includes/menu.php';
             <!-- (a1) Skjema for nytt objekt -->
             <?php if ($newObj == 1): ?>
             <h2 class="h4 mt-4">Data for nytt fartøysobjekt</h2>
-            <table class="table table-sm table-borderless align-middle">
+            <table class="table compact table-sm table-borderless align-middle">
                 <tbody>
                     <tr>
                         <th class="text-end" style="width:30%">Navn gitt ved bygging</th>
@@ -809,7 +809,7 @@ include __DIR__ . '/../includes/menu.php';
                 }
             ?>
             <div id="spec-container" <?= ($newObj == 1 || $changeSpec == 1) ? '' : 'style="display:none"' ?> >
-                <table class="table table-sm table-borderless align-middle">
+                <table class="table compact table-sm table-borderless align-middle">
                     <tbody>
                         <tr>
                             <th class="text-end" style="width:30%">År spes.</th>
@@ -1035,7 +1035,7 @@ include __DIR__ . '/../includes/menu.php';
             <?php endif; ?>
             <!-- Skjema for FartTid (generelle opplysninger) -->
             <h2 class="h4 mt-5">Navn, eier og øvrige opplysninger</h2>
-            <table class="table table-sm table-bordered align-middle">
+            <table class="table compact table-sm table-bordered align-middle">
                 <tbody>
                     <tr>
                         <th class="text-end" style="width:30%">År</th>

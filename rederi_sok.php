@@ -103,19 +103,18 @@ if ($q !== '' && mb_strlen($q) >= 2) {
             SELECT
                 ft.FartTid_ID,
                 ft.FartObj_ID,
-                ft.FartNavn_ID,
+                ft.FartType_ID,
+                ft.FartNavn,
                 ft.YearTid,
                 ft.MndTid,
                 ft.RegHavn,
                 ft.Rederi,
                 ft.Objekt,
-                fn.FartNavn,
                 zt.TypeFork
             FROM tblfarttid ft
-            JOIN tblfartnavn fn ON fn.FartNavn_ID = ft.FartNavn_ID
-            LEFT JOIN tblzfarttype zt ON zt.FartType_ID = fn.FartType_ID
+            LEFT JOIN tblzfarttype zt ON zt.FartType_ID = ft.FartType_ID
             WHERE $REDE_TI_TRIM_FT = ?
-            ORDER BY ft.YearTid, ft.MndTid, fn.FartNavn
+            ORDER BY ft.YearTid, ft.MndTid, ft.FartNavn
             LIMIT 500
         ";
         if ($stmt = $conn->prepare($sqlFart)) {
