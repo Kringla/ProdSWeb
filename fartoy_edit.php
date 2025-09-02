@@ -98,12 +98,16 @@
     $nasjoner     = getOptions($conn, 'tblznasjon',    'Nasjon_ID',   'Nasjon');
     $fartTyper    = getOptions($conn, 'tblzfarttype',  'FartType_ID', 'FartType');
     $tonnEnheter  = getOptions($conn, 'tblztonnenh',   'TonnEnh_ID',  'TonnFork');
-    $drektEnheter = $tonnEnheter; // samme liste brukes for DrektEnh_ID
+    // Hent drektighetsenheter fra egen tabell i schema v12. Denne tabellen erstatter tidligere
+    // gjenbruk av tonnasjenheter for drektighet. Vi bruker forkortelsen (DrektFork) som
+    // visningsfelt, analogt med hvordan tonnasjenheter bruker TonnFork.
+    $drektEnheter = getOptions($conn, 'tblzdrektenh', 'DrektEnh_ID', 'DrektFork');
     $fartMat      = getOptions($conn, 'tblzfartmat',   'FartMat_ID',  'Materiale');
     $fartFunk     = getOptions($conn, 'tblzfartfunk',  'FartFunk_ID', 'TypeFunksjon');
     $fartSkrog    = getOptions($conn, 'tblzfartskrog', 'FartSkrog_ID','TypeSkrog');
     $fartDrift    = getOptions($conn, 'tblzfartdrift','FartDrift_ID','DriftMiddel');
-    $fartKlasse   = getOptions($conn, 'tblzfartklasse','FartKlasse_ID','KlasseNavn');
+    // FartKlasse-tabellen er fjernet i schema v12. Bruk tom liste for klassifisering.
+    $fartKlasse   = [];
     $fartRigg     = getOptions($conn, 'tblzfartrigg', 'FartRigg_ID', 'RiggDetalj');
     $fartMotor    = getOptions($conn, 'tblzfartmotor','FartMotor_ID','MotorDetalj');
     $linkTyper    = getOptions($conn, 'tblzlinktype', 'LinkType_ID', 'LinkType');
@@ -228,8 +232,6 @@
                 'FartDrift_ID' => (val($_POST, 'FartDrift_ID', '') !== '' ? (int)val($_POST, 'FartDrift_ID') : null),
                 'FunkDetalj'   => trim((string)val($_POST, 'FunkDetalj', '')),
                 'TeknDetalj'   => trim((string)val($_POST, 'TeknDetalj', '')),
-                'FartKlasse_ID'=> (val($_POST, 'FartKlasse_ID', '') !== '' ? (int)val($_POST, 'FartKlasse_ID') : null),
-                'Fartklasse'   => trim((string)val($_POST, 'Fartklasse', '')),
                 'Kapasitet'    => trim((string)val($_POST, 'Kapasitet', '')),
                 'Rigg'         => trim((string)val($_POST, 'Rigg', '')),
                 'FartRigg_ID'  => (val($_POST, 'FartRigg_ID', '') !== '' ? (int)val($_POST, 'FartRigg_ID') : null),
@@ -326,8 +328,7 @@
                 $sqlSpes = "UPDATE tblfartspes SET
                         YearSpes = ?, MndSpes = ?, Verft_ID = ?, Byggenr = ?, Materiale = ?,
                         FartMat_ID = ?, FartType_ID = ?, FartFunk_ID = ?, FartSkrog_ID = ?,
-                        FartDrift_ID = ?, FunkDetalj = ?, TeknDetalj = ?, FartKlasse_ID = ?,
-                        Fartklasse = ?, Kapasitet = ?, Rigg = ?, FartRigg_ID = ?,
+                        FartDrift_ID = ?, FunkDetalj = ?, TeknDetalj = ?, Kapasitet = ?, Rigg = ?, FartRigg_ID = ?,
                         FartMotor_ID = ?, MotorDetalj = ?, MotorEff = ?, MaxFart = ?,
                         Lengde = ?, Bredde = ?, Dypg = ?, Tonnasje = ?, TonnEnh_ID = ?,
                         Drektigh = ?, DrektEnh_ID = ?
@@ -350,8 +351,6 @@
                     $specData['FartDrift_ID'],
                     $specData['FunkDetalj'],
                     $specData['TeknDetalj'],
-                    $specData['FartKlasse_ID'],
-                    $specData['Fartklasse'],
                     $specData['Kapasitet'],
                     $specData['Rigg'],
                     $specData['FartRigg_ID'],
@@ -842,21 +841,7 @@
                 <th class="text-end">Tekniske detaljer</th>
                 <td><input type="text" class="form-control" name="TeknDetalj" value="<?= h($spesRow['TeknDetalj'] ?? '') ?>"></td>
               </tr>
-              <tr>
-                <th class="text-end">Klassifikasjon</th>
-                <td>
-                  <select class="form-select" name="FartKlasse_ID">
-                    <option value="">-- Velg --</option>
-                    <?php foreach ($fartKlasse as $c): ?>
-                      <option value="<?= $c['id'] ?>" <?= (int)($spesRow['FartKlasse_ID'] ?? 0) === (int)$c['id'] ? 'selected' : '' ?>><?= h($c['name']) ?></option>
-                    <?php endforeach; ?>
-                  </select>
-                </td>
-              </tr>
-              <tr>
-                <th class="text-end">Klassenavn</th>
-                <td><input type="text" class="form-control" name="Fartklasse" value="<?= h($spesRow['Fartklasse'] ?? '') ?>"></td>
-              </tr>
+              <!-- Klassifikasjon og klassenavn fjernet (schema v12) -->
               <tr>
                 <th class="text-end">Kapasitet</th>
                 <td><input type="text" class="form-control" name="Kapasitet" value="<?= h($spesRow['Kapasitet'] ?? '') ?>"></td>

@@ -84,7 +84,7 @@
       fs.Objekt,
       fs.FartType_ID AS FartTypeSpes_ID,
       fs.FunkDetalj,
-      fs.Fartklasse,
+      fs.Fartklasse_ID,
       fs.Rigg,
       CONCAT_WS(', ', vb.VerftNavn, vb.Sted) AS Byggeverft,
       CONCAT_WS(', ', vs.VerftNavn, vs.Sted) AS Skrogverft,

@@ -101,7 +101,7 @@ $fartMotor    = getOptions($conn, 'tblzfartmotor', 'FartMotor_ID', 'MotorDetalj'
 $linkTyper    = getOptions($conn, 'tblzlinktype', 'LinkType_ID', 'LinkType');
 $stroker      = getOptions($conn, 'tblzstroket', 'Stroket_ID', 'Strok');
 
-// Hent verftliste (navn + sted i ett felt)
+// Hent verftliste (navn  sted i ett felt)
 $verft = [];
 $sqlVerft = "SELECT Verft_ID AS id, CONCAT_WS(', ', VerftNavn, Sted) AS name FROM tblverft ORDER BY name";
 if ($res = $conn->query($sqlVerft)) {
@@ -512,7 +512,7 @@ if ($phase === 'save' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $linkInnhArr = $_POST['LinkInnh'];
             $linkUrlArr  = $_POST['Link'];
             $serialNo    = 1;
-            for ($i = 0; $i < count($linkTypeArr); $i++) {
+            for ($i = 0; $i < count($linkTypeArr); $i) {
                 $ltId   = $linkTypeArr[$i] !== '' ? (int)$linkTypeArr[$i] : null;
                 $ltInnh = trim((string)$linkInnhArr[$i]);
                 $ltLink = trim((string)$linkUrlArr[$i]);
@@ -524,7 +524,7 @@ if ($phase === 'save' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmtL->bind_param('iisis', $createdTidId, $ltId, $ltInnh, $ltLink, $serialNo);
                     $stmtL->execute();
                     $stmtL->close();
-                    $serialNo++;
+                    $serialNo;
                 }
             }
         }
@@ -554,7 +554,7 @@ include __DIR__ . '/../includes/menu.php';
     <div class="container" style="display:flex; justify-content:center;">
       <div class="image-box">
         <?php
-          // 1) Velg tryggt bilde (DB -> fallback). Bruk basename()+h() for sikkerhet.
+          // 1) Velg tryggt bilde (DB -> fallback). Bruk basename()h() for sikkerhet.
           $imgCandidate = null;
 
           // Hvis du i denne siden har en $imgRow fra tblxnmmfoto:
@@ -575,7 +575,7 @@ include __DIR__ . '/../includes/menu.php';
           // 3) Relativ URL hvis siden ligger i /user/
           $imgRel = (substr($imgCandidate, 0, 1) === '/') ? ('..' . $imgCandidate) : $imgCandidate;
 
-          // 4) Alt‑tekst (prøv å bruke type + navn hvis det finnes)
+          // 4) Alt‑tekst (prøv å bruke type  navn hvis det finnes)
           $altText = trim(
             (string)($main['TypeFork'] ?? ($main['FartType'] ?? '')) . ' ' .
             (string)($main['FartNavn'] ?? 'Fartøy')
@@ -597,19 +597,18 @@ include __DIR__ . '/../includes/menu.php';
                 <input type="hidden" name="phase" value="initial">
                 <div class="mb-3">
                     <label class="form-label">Er dette et nytt fartøysobjekt?</label><br><br>
-                <!-- Plasser radio-knappene over sine respektive valgknapper -->
-                <div class="d-flex gap-4">
-                    <div class="text-center">
-                        <input type="radio" name="newObj" id="newObj1" value="1" <?= $newObj === 1 ? 'checked' : '' ?>>
-                        <br>
-                        <label class="btn btn-outline-primary mt-1" for="newObj1">Ja</label>
-                    </div>
-                    <div class="text-center">
-                        <input type="radio" name="newObj" id="newObj0" value="0" <?= $newObj === 0 ? 'checked' : '' ?>>
-                        <br>
-                        <label class="btn btn-outline-primary mt-1" for="newObj0">Nei</label>
-                    </div>
-                </div>
+                    <div class="d-flex gap-4">
+                     <div class="text-center">
+                     <input type="radio" name="newObj" id="newObj1" value="1" <?= $newObj === 1 ? 'checked' : '' ?>>
+                     <br>
+                     <label class="btn btn-outline-primary mt-1" for="newObj1">Ja</label>
+                     </div>
+                     <div class="text-center">
+                     <input type="radio" name="newObj" id="newObj0" value="0" <?= $newObj === 0 ? 'checked' : '' ?>>
+                     <br>
+                     <label class="btn btn-outline-primary mt-1" for="newObj0">Nei</label>
+                     </div>
+                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Fortsett</button>
             <?php elseif ($phase === 'select'): ?>
@@ -623,7 +622,7 @@ include __DIR__ . '/../includes/menu.php';
                     $results = searchObjects($conn, $searchTerm);
                     if (!empty($results)) {
                         echo '<div class="table-responsive" style="max-height:300px; overflow:auto;">';
-                        echo '<table class="table compact table-sm table-hover">';
+                        echo '<table class="table table-sm table-hover">';
                         echo '<thead><tr><th>Velg</th><th>FartObj_ID</th><th>FartNavn</th></tr></thead><tbody>';
                         foreach ($results as $row) {
                             $checked = ($objId == $row['FartObj_ID']) ? 'checked' : '';
@@ -653,25 +652,18 @@ include __DIR__ . '/../includes/menu.php';
             <?php if ($newObj == 0): ?>
                 <div class="mb-3">
                     <label class="form-label">Skal du endre teknisk spesifikasjon?</label><br>
-                    <!-- Vis radioer over sine knapper for å tydeliggjøre valget -->
-                    <div class="d-flex gap-4">
-                        <div class="text-center">
-                            <input type="radio" name="changeSpec" id="changeSpec1" value="1" <?= $changeSpec === 1 ? 'checked' : '' ?>>
-                            <br>
-                            <label class="btn btn-outline-primary mt-1" for="changeSpec1">Ja</label>
-                        </div>
-                        <div class="text-center">
-                            <input type="radio" name="changeSpec" id="changeSpec0" value="0" <?= $changeSpec === 0 ? 'checked' : '' ?>>
-                            <br>
-                            <label class="btn btn-outline-primary mt-1" for="changeSpec0">Nei</label>
-                        </div>
+                    <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="changeSpec" id="changeSpec1" value="1" autocomplete="off" <?= $changeSpec === 1 ? 'checked' : '' ?>>
+                        <label class="btn btn-outline-primary" for="changeSpec1">Ja</label>
+                        <input type="radio" class="btn-check" name="changeSpec" id="changeSpec0" value="0" autocomplete="off" <?= $changeSpec === 0 ? 'checked' : '' ?>>
+                        <label class="btn btn-outline-primary" for="changeSpec0">Nei</label>
                     </div>
                 </div>
             <?php endif; ?>
             <!-- (a1) Skjema for nytt objekt -->
             <?php if ($newObj == 1): ?>
             <h2 class="h4 mt-4">Data for nytt fartøysobjekt</h2>
-            <table class="table compact table-sm table-borderless align-middle">
+            <table class="table table-sm table-borderless align-middle">
                 <tbody>
                     <tr>
                         <th class="text-end" style="width:30%">Navn gitt ved bygging</th>
@@ -759,11 +751,11 @@ include __DIR__ . '/../includes/menu.php';
                     </tr>
                     <tr>
                         <th class="text-end">Historikk</th>
-                        <td><textarea class="form-control" id="Historikk" name="Historikk" rows="3" style="width:100%"><?= h(val($_POST, 'Historikk', '')) ?></textarea></td>
+                        <td><textarea class="form-control" id="Historikk" name="Historikk" rows="2"><?= h(val($_POST, 'Historikk', '')) ?></textarea></td>
                     </tr>
                     <tr>
                         <th class="text-end">Objektnotater</th>
-                        <td><textarea class="form-control" id="ObjNotater" name="ObjNotater" rows="3" style="width:100%"><?= h(val($_POST, 'ObjNotater', '')) ?></textarea></td>
+                        <td><textarea class="form-control" id="ObjNotater" name="ObjNotater" rows="2"><?= h(val($_POST, 'ObjNotater', '')) ?></textarea></td>
                     </tr>
                     <tr>
                         <th class="text-end">Ingen data</th>
@@ -778,11 +770,11 @@ include __DIR__ . '/../includes/menu.php';
                     <tr><th class="text-end" colspan="2"><h6 class="mt-4">Legg til nytt verft (frivillig)</h6></th></tr>
                     <tr>
                         <th class="text-end">Verftnavn</th>
-                        <td><input type="text" class="form-control" id="ObjVerftNavn" name="ObjVerftNavn" value="<?= h(val($_POST, 'ObjVerftNavn', '')) ?>" style="width:100%"></td>
+                        <td><input type="text" class="form-control" id="ObjVerftNavn" name="ObjVerftNavn" value="<?= h(val($_POST, 'ObjVerftNavn', '')) ?>"></td>
                     </tr>
                     <tr>
                         <th class="text-end">Sted</th>
-                        <td><input type="text" class="form-control" id="ObjVerftSted" name="ObjVerftSted" value="<?= h(val($_POST, 'ObjVerftSted', '')) ?>" style="width:100%"></td>
+                        <td><input type="text" class="form-control" id="ObjVerftSted" name="ObjVerftSted" value="<?= h(val($_POST, 'ObjVerftSted', '')) ?>"></td>
                     </tr>
                     <tr>
                         <th class="text-end">Nasjon</th>
@@ -808,234 +800,204 @@ include __DIR__ . '/../includes/menu.php';
                     $defaultSpes = getLastSpes($conn, $objId) ?: [];
                 }
             ?>
-            <div id="spec-container" <?= ($newObj == 1 || $changeSpec == 1) ? '' : 'style="display:none"' ?> >
-                <table class="table compact table-sm table-borderless align-middle">
-                    <tbody>
-                        <tr>
-                            <th class="text-end" style="width:30%">År spes.</th>
-                            <td style="width:70%"><input type="number" class="form-control" id="YearSpes" name="YearSpes" value="<?= h(val($_POST, 'YearSpes', val($defaultSpes, 'YearSpes', ''))) ?>"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Måned spes.</th>
-                            <td><input type="number" class="form-control" id="MndSpes" name="MndSpes" value="<?= h(val($_POST, 'MndSpes', val($defaultSpes, 'MndSpes', ''))) ?>" min="1" max="12"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Verft</th>
-                            <td>
-                                <select class="form-select" id="Verft_ID" name="Verft_ID">
-                                    <option value="">-- Velg --</option>
-                                    <?php foreach ($verft as $v): ?>
-                                        <option value="<?= $v['id'] ?>" <?= (int)val($_POST, 'Verft_ID', val($defaultSpes, 'Verft_ID', '')) === (int)$v['id'] ? 'selected' : '' ?>><?= h($v['name']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <div class="form-text">Velg verft eller legg til nytt under.</div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Byggenummer</th>
-                            <td><input type="text" class="form-control" id="SpesByggenr" name="SpesByggenr" value="<?= h(val($_POST, 'SpesByggenr', val($defaultSpes, 'Byggenr', ''))) ?>"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Materiale</th>
-                            <td><input type="text" class="form-control" id="Materiale" name="Materiale" value="<?= h(val($_POST, 'Materiale', val($defaultSpes, 'Materiale', ''))) ?>"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Materiale (kode)</th>
-                            <td>
-                                <select class="form-select" id="FartMat_ID" name="FartMat_ID">
-                                    <option value="">-- Velg --</option>
-                                    <?php foreach ($fartMat as $m): ?>
-                                        <option value="<?= $m['id'] ?>" <?= (int)val($_POST, 'FartMat_ID', val($defaultSpes, 'FartMat_ID', '')) === (int)$m['id'] ? 'selected' : '' ?>><?= h($m['name']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Fartøystype</th>
-                            <td>
-                                <select class="form-select" id="FartTypeSpes" name="FartTypeSpes">
-                                    <option value="">-- Velg --</option>
-                                    <?php foreach ($fartTyper as $ft): ?>
-                                        <option value="<?= $ft['id'] ?>" <?= (int)val($_POST, 'FartTypeSpes', val($defaultSpes, 'FartType_ID', '')) === (int)$ft['id'] ? 'selected' : '' ?>><?= h($ft['name']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Hovedfunksjon</th>
-                            <td>
-                                <select class="form-select" id="FartFunk_ID" name="FartFunk_ID">
-                                    <option value="">-- Velg --</option>
-                                    <?php foreach ($fartFunk as $f): ?>
-                                        <option value="<?= $f['id'] ?>" <?= (int)val($_POST, 'FartFunk_ID', val($defaultSpes, 'FartFunk_ID', '')) === (int)$f['id'] ? 'selected' : '' ?>><?= h($f['name']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Skrogtype</th>
-                            <td>
-                                <select class="form-select" id="FartSkrog_ID" name="FartSkrog_ID">
-                                    <option value="">-- Velg --</option>
-                                    <?php foreach ($fartSkrog as $sk): ?>
-                                        <option value="<?= $sk['id'] ?>" <?= (int)val($_POST, 'FartSkrog_ID', val($defaultSpes, 'FartSkrog_ID', '')) === (int)$sk['id'] ? 'selected' : '' ?>><?= h($sk['name']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Driftsform</th>
-                            <td>
-                                <select class="form-select" id="FartDrift_ID" name="FartDrift_ID">
-                                    <option value="">-- Velg --</option>
-                                    <?php foreach ($fartDrift as $dr): ?>
-                                        <option value="<?= $dr['id'] ?>" <?= (int)val($_POST, 'FartDrift_ID', val($defaultSpes, 'FartDrift_ID', '')) === (int)$dr['id'] ? 'selected' : '' ?>><?= h($dr['name']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Funksjonsdetalj</th>
-                            <td><input type="text" class="form-control" id="FunkDetalj" name="FunkDetalj" value="<?= h(val($_POST, 'FunkDetalj', val($defaultSpes, 'FunkDetalj', ''))) ?>"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Tekniske detaljer</th>
-                            <td><input type="text" class="form-control" id="TeknDetalj" name="TeknDetalj" value="<?= h(val($_POST, 'TeknDetalj', val($defaultSpes, 'TeknDetalj', ''))) ?>"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Klassekode</th>
-                            <td>
-                                <select class="form-select" id="FartKlasse_ID" name="FartKlasse_ID">
-                                    <option value="">-- Velg --</option>
-                                    <?php foreach ($fartKlasse as $fk): ?>
-                                        <option value="<?= $fk['id'] ?>" <?= (int)val($_POST, 'FartKlasse_ID', val($defaultSpes, 'FartKlasse_ID', '')) === (int)$fk['id'] ? 'selected' : '' ?>><?= h($fk['name']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Klassenavn</th>
-                            <td><input type="text" class="form-control" id="FartKlasse" name="FartKlasse" value="<?= h(val($_POST, 'FartKlasse', val($defaultSpes, 'Fartklasse', ''))) ?>"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Kapasitet</th>
-                            <td><input type="text" class="form-control" id="Kapasitet" name="Kapasitet" value="<?= h(val($_POST, 'Kapasitet', val($defaultSpes, 'Kapasitet', ''))) ?>"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Rigg</th>
-                            <td><input type="text" class="form-control" id="Rigg" name="Rigg" value="<?= h(val($_POST, 'Rigg', val($defaultSpes, 'Rigg', ''))) ?>"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Riggkode</th>
-                            <td>
-                                <select class="form-select" id="FartRigg_ID" name="FartRigg_ID">
-                                    <option value="">-- Velg --</option>
-                                    <?php foreach ($fartRigg as $fr): ?>
-                                        <option value="<?= $fr['id'] ?>" <?= (int)val($_POST, 'FartRigg_ID', val($defaultSpes, 'FartRigg_ID', '')) === (int)$fr['id'] ? 'selected' : '' ?>><?= h($fr['name']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Motorkode</th>
-                            <td>
-                                <select class="form-select" id="FartMotor_ID" name="FartMotor_ID">
-                                    <option value="">-- Velg --</option>
-                                    <?php foreach ($fartMotor as $fm): ?>
-                                        <option value="<?= $fm['id'] ?>" <?= (int)val($_POST, 'FartMotor_ID', val($defaultSpes, 'FartMotor_ID', '')) === (int)$fm['id'] ? 'selected' : '' ?>><?= h($fm['name']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Motordetalj</th>
-                            <td><input type="text" class="form-control" id="MotorDetalj" name="MotorDetalj" value="<?= h(val($_POST, 'MotorDetalj', val($defaultSpes, 'MotorDetalj', ''))) ?>"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Motoreffekt</th>
-                            <td><input type="text" class="form-control" id="MotorEff" name="MotorEff" value="<?= h(val($_POST, 'MotorEff', val($defaultSpes, 'MotorEff', ''))) ?>"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Max fart</th>
-                            <td><input type="number" class="form-control" id="MaxFart" name="MaxFart" value="<?= h(val($_POST, 'MaxFart', val($defaultSpes, 'MaxFart', ''))) ?>"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Lengde</th>
-                            <td><input type="number" class="form-control" id="Lengde" name="Lengde" value="<?= h(val($_POST, 'Lengde', val($defaultSpes, 'Lengde', ''))) ?>"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Bredde</th>
-                            <td><input type="number" class="form-control" id="Bredde" name="Bredde" value="<?= h(val($_POST, 'Bredde', val($defaultSpes, 'Bredde', ''))) ?>"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Dypgående</th>
-                            <td><input type="number" class="form-control" id="Dypg" name="Dypg" value="<?= h(val($_POST, 'Dypg', val($defaultSpes, 'Dypg', ''))) ?>"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Tonnasje / enhet</th>
-                            <td>
-                                <div class="row g-2">
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" id="Tonnasje" name="Tonnasje" value="<?= h(val($_POST, 'Tonnasje', val($defaultSpes, 'Tonnasje', ''))) ?>">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <select class="form-select" id="TonnEnh_ID" name="TonnEnh_ID">
-                                            <option value="">-- Velg --</option>
-                                            <?php foreach ($tonnEnheter as $te): ?>
-                                                <option value="<?= $te['id'] ?>" <?= (int)val($_POST, 'TonnEnh_ID', val($defaultSpes, 'TonnEnh_ID', '')) === (int)$te['id'] ? 'selected' : '' ?>><?= h($te['name']) ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Drektighet / enhet</th>
-                            <td>
-                                <div class="row g-2">
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" id="Drektigh" name="Drektigh" value="<?= h(val($_POST, 'Drektigh', val($defaultSpes, 'Drektigh', ''))) ?>">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <select class="form-select" id="DrektEnh_ID" name="DrektEnh_ID">
-                                            <option value="">-- Velg --</option>
-                                            <?php foreach ($drektEnheter as $de): ?>
-                                                <option value="<?= $de['id'] ?>" <?= (int)val($_POST, 'DrektEnh_ID', val($defaultSpes, 'DrektEnh_ID', '')) === (int)$de['id'] ? 'selected' : '' ?>><?= h($de['name']) ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="text-end" colspan="2"><h6 class="mt-4">Legg til nytt verft for spesifikasjon (frivillig)</h6></th>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Verftnavn</th>
-                            <td><input type="text" class="form-control" id="SpesVerftNavn" name="SpesVerftNavn" value="<?= h(val($_POST, 'SpesVerftNavn', '')) ?>" style="width:100%"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Sted</th>
-                            <td><input type="text" class="form-control" id="SpesVerftSted" name="SpesVerftSted" value="<?= h(val($_POST, 'SpesVerftSted', '')) ?>" style="width:100%"></td>
-                        </tr>
-                        <tr>
-                            <th class="text-end">Nasjon</th>
-                            <td>
-                                <select class="form-select" id="SpesVerftNasjon" name="SpesVerftNasjon" style="width:100%">
-                                    <option value="">-- Velg --</option>
-                                    <?php foreach ($nasjoner as $n): ?>
-                                        <option value="<?= $n['id'] ?>" <?= (int)val($_POST, 'SpesVerftNasjon') === (int)$n['id'] ? 'selected' : '' ?>><?= h($n['name']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div id="spec-container" class="row g-3" <?= ($newObj == 1 || $changeSpec == 1) ? '' : 'style="display:none"' ?> >
+                <div class="col-md-3">
+                    <label class="form-label" for="YearSpes">År spes.</label>
+                    <input type="number" class="form-control" id="YearSpes" name="YearSpes" value="<?= h(val($_POST, 'YearSpes', val($defaultSpes, 'YearSpes', ''))) ?>">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="MndSpes">Måned spes.</label>
+                    <input type="number" class="form-control" id="MndSpes" name="MndSpes" value="<?= h(val($_POST, 'MndSpes', val($defaultSpes, 'MndSpes', ''))) ?>" min="0" max="12">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="Verft_ID">Verft</label>
+                    <select class="form-select" id="Verft_ID" name="Verft_ID">
+                        <option value="">-- Velg --</option>
+                        <?php foreach ($verft as $v): ?>
+                            <option value="<?= $v['id'] ?>" <?= (int)val($_POST, 'Verft_ID', val($defaultSpes, 'Verft_ID', '')) === (int)$v['id'] ? 'selected' : '' ?>><?= h($v['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="form-text">Velg verft eller legg til nytt under.</div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="SpesByggenr">Byggenummer</label>
+                    <input type="text" class="form-control" id="SpesByggenr" name="SpesByggenr" value="<?= h(val($_POST, 'SpesByggenr', val($defaultSpes, 'Byggenr', ''))) ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="Materiale">Materiale</label>
+                    <input type="text" class="form-control" id="Materiale" name="Materiale" value="<?= h(val($_POST, 'Materiale', val($defaultSpes, 'Materiale', ''))) ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="FartMat_ID">Materiale (kode)</label>
+                    <select class="form-select" id="FartMat_ID" name="FartMat_ID">
+                        <option value="">-- Velg --</option>
+                        <?php foreach ($fartMat as $m): ?>
+                            <option value="<?= $m['id'] ?>" <?= (int)val($_POST, 'FartMat_ID', val($defaultSpes, 'FartMat_ID', '')) === (int)$m['id'] ? 'selected' : '' ?>><?= h($m['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="FartTypeSpes">Fartøystype</label>
+                    <select class="form-select" id="FartTypeSpes" name="FartTypeSpes">
+                        <option value="">-- Velg --</option>
+                        <?php foreach ($fartTyper as $ft): ?>
+                            <option value="<?= $ft['id'] ?>" <?= (int)val($_POST, 'FartTypeSpes', val($defaultSpes, 'FartType_ID', '')) === (int)$ft['id'] ? 'selected' : '' ?>><?= h($ft['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="form-text">Endring av fartøystype krever ny spesifikasjon【788094624802379†L41-L47】.</div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="FartFunk_ID">Hovedfunksjon</label>
+                    <select class="form-select" id="FartFunk_ID" name="FartFunk_ID">
+                        <option value="">-- Velg --</option>
+                        <?php foreach ($fartFunk as $f): ?>
+                            <option value="<?= $f['id'] ?>" <?= (int)val($_POST, 'FartFunk_ID', val($defaultSpes, 'FartFunk_ID', '')) === (int)$f['id'] ? 'selected' : '' ?>><?= h($f['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="FartSkrog_ID">Skrogtype</label>
+                    <select class="form-select" id="FartSkrog_ID" name="FartSkrog_ID">
+                        <option value="">-- Velg --</option>
+                        <?php foreach ($fartSkrog as $sk): ?>
+                            <option value="<?= $sk['id'] ?>" <?= (int)val($_POST, 'FartSkrog_ID', val($defaultSpes, 'FartSkrog_ID', '')) === (int)$sk['id'] ? 'selected' : '' ?>><?= h($sk['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="FartDrift_ID">Driftsform</label>
+                    <select class="form-select" id="FartDrift_ID" name="FartDrift_ID">
+                        <option value="">-- Velg --</option>
+                        <?php foreach ($fartDrift as $dr): ?>
+                            <option value="<?= $dr['id'] ?>" <?= (int)val($_POST, 'FartDrift_ID', val($defaultSpes, 'FartDrift_ID', '')) === (int)$dr['id'] ? 'selected' : '' ?>><?= h($dr['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="FunkDetalj">Funksjonsdetalj</label>
+                    <input type="text" class="form-control" id="FunkDetalj" name="FunkDetalj" value="<?= h(val($_POST, 'FunkDetalj', val($defaultSpes, 'FunkDetalj', ''))) ?>">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="TeknDetalj">Tekniske detaljer</label>
+                    <input type="text" class="form-control" id="TeknDetalj" name="TeknDetalj" value="<?= h(val($_POST, 'TeknDetalj', val($defaultSpes, 'TeknDetalj', ''))) ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="FartKlasse_ID">Klassekode</label>
+                    <select class="form-select" id="FartKlasse_ID" name="FartKlasse_ID">
+                        <option value="">-- Velg --</option>
+                        <?php foreach ($fartKlasse as $fk): ?>
+                            <option value="<?= $fk['id'] ?>" <?= (int)val($_POST, 'FartKlasse_ID', val($defaultSpes, 'FartKlasse_ID', '')) === (int)$fk['id'] ? 'selected' : '' ?>><?= h($fk['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="FartKlasse">Klassenavn</label>
+                    <input type="text" class="form-control" id="FartKlasse" name="FartKlasse" value="<?= h(val($_POST, 'FartKlasse', val($defaultSpes, 'Fartklasse', ''))) ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="Kapasitet">Kapasitet</label>
+                    <input type="text" class="form-control" id="Kapasitet" name="Kapasitet" value="<?= h(val($_POST, 'Kapasitet', val($defaultSpes, 'Kapasitet', ''))) ?>">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="Rigg">Rigg</label>
+                    <input type="text" class="form-control" id="Rigg" name="Rigg" value="<?= h(val($_POST, 'Rigg', val($defaultSpes, 'Rigg', ''))) ?>">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="FartRigg_ID">Riggkode</label>
+                    <select class="form-select" id="FartRigg_ID" name="FartRigg_ID">
+                        <option value="">-- Velg --</option>
+                        <?php foreach ($fartRigg as $fr): ?>
+                            <option value="<?= $fr['id'] ?>" <?= (int)val($_POST, 'FartRigg_ID', val($defaultSpes, 'FartRigg_ID', '')) === (int)$fr['id'] ? 'selected' : '' ?>><?= h($fr['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="FartMotor_ID">Motorkode</label>
+                    <select class="form-select" id="FartMotor_ID" name="FartMotor_ID">
+                        <option value="">-- Velg --</option>
+                        <?php foreach ($fartMotor as $fm): ?>
+                            <option value="<?= $fm['id'] ?>" <?= (int)val($_POST, 'FartMotor_ID', val($defaultSpes, 'FartMotor_ID', '')) === (int)$fm['id'] ? 'selected' : '' ?>><?= h($fm['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="MotorDetalj">Motordetalj</label>
+                    <input type="text" class="form-control" id="MotorDetalj" name="MotorDetalj" value="<?= h(val($_POST, 'MotorDetalj', val($defaultSpes, 'MotorDetalj', ''))) ?>">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="MotorEff">Motoreffekt</label>
+                    <input type="text" class="form-control" id="MotorEff" name="MotorEff" value="<?= h(val($_POST, 'MotorEff', val($defaultSpes, 'MotorEff', ''))) ?>">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="MaxFart">Max fart</label>
+                    <input type="number" class="form-control" id="MaxFart" name="MaxFart" value="<?= h(val($_POST, 'MaxFart', val($defaultSpes, 'MaxFart', ''))) ?>">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="Lengde">Lengde</label>
+                    <input type="number" class="form-control" id="Lengde" name="Lengde" value="<?= h(val($_POST, 'Lengde', val($defaultSpes, 'Lengde', ''))) ?>">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="Bredde">Bredde</label>
+                    <input type="number" class="form-control" id="Bredde" name="Bredde" value="<?= h(val($_POST, 'Bredde', val($defaultSpes, 'Bredde', ''))) ?>">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="Dypg">Dypgående</label>
+                    <input type="number" class="form-control" id="Dypg" name="Dypg" value="<?= h(val($_POST, 'Dypg', val($defaultSpes, 'Dypg', ''))) ?>">
+                </div>
+                <!-- Tonnasje og TonnEnh_ID side-om-side【788094624802379†L48-L49】 -->
+                <div class="col-md-6">
+                    <label class="form-label" for="Tonnasje">Tonnasje</label>
+                    <input type="text" class="form-control" id="Tonnasje" name="Tonnasje" value="<?= h(val($_POST, 'Tonnasje', val($defaultSpes, 'Tonnasje', ''))) ?>">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="TonnEnh_ID">Tonn-enhet</label>
+                    <select class="form-select" id="TonnEnh_ID" name="TonnEnh_ID">
+                        <option value="">-- Velg --</option>
+                        <?php foreach ($tonnEnheter as $te): ?>
+                            <option value="<?= $te['id'] ?>" <?= (int)val($_POST, 'TonnEnh_ID', val($defaultSpes, 'TonnEnh_ID', '')) === (int)$te['id'] ? 'selected' : '' ?>><?= h($te['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <!-- Drektigh og DrektEnh_ID side-om-side -->
+                <div class="col-md-6">
+                    <label class="form-label" for="Drektigh">Drektighet</label>
+                    <input type="text" class="form-control" id="Drektigh" name="Drektigh" value="<?= h(val($_POST, 'Drektigh', val($defaultSpes, 'Drektigh', ''))) ?>">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="DrektEnh_ID">Drekt-enhet</label>
+                    <select class="form-select" id="DrektEnh_ID" name="DrektEnh_ID">
+                        <option value="">-- Velg --</option>
+                        <?php foreach ($drektEnheter as $de): ?>
+                            <option value="<?= $de['id'] ?>" <?= (int)val($_POST, 'DrektEnh_ID', val($defaultSpes, 'DrektEnh_ID', '')) === (int)$de['id'] ? 'selected' : '' ?>><?= h($de['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <!-- Nytt verft for spesifikasjon (kan være annet enn objekt-verft) -->
+                <div class="col-12">
+                    <h6 class="mt-4">Legg til nytt verft for spesifikasjon (frivillig)</h6>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="SpesVerftNavn">Verftnavn</label>
+                    <input type="text" class="form-control" id="SpesVerftNavn" name="SpesVerftNavn" value="<?= h(val($_POST, 'SpesVerftNavn', '')) ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="SpesVerftSted">Sted</label>
+                    <input type="text" class="form-control" id="SpesVerftSted" name="SpesVerftSted" value="<?= h(val($_POST, 'SpesVerftSted', '')) ?>">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="SpesVerftNasjon">Nasjon</label>
+                    <select class="form-select" id="SpesVerftNasjon" name="SpesVerftNasjon">
+                        <option value="">-- Velg --</option>
+                        <?php foreach ($nasjoner as $n): ?>
+                            <option value="<?= $n['id'] ?>" <?= (int)val($_POST, 'SpesVerftNasjon') === (int)$n['id'] ? 'selected' : '' ?>><?= h($n['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             </div>
             <?php endif; ?>
             <!-- Skjema for FartTid (generelle opplysninger) -->
             <h2 class="h4 mt-5">Navn, eier og øvrige opplysninger</h2>
-            <table class="table compact table-sm table-bordered align-middle">
+            <table class="table table-sm table-bordered align-middle">
                 <tbody>
                     <tr>
                         <th class="text-end" style="width:30%">År</th>
@@ -1043,7 +1005,7 @@ include __DIR__ . '/../includes/menu.php';
                     </tr>
                     <tr>
                         <th class="text-end">Måned</th>
-                        <td><input type="number" class="form-control" id="MndTid" name="MndTid" value="<?= h(val($_POST, 'MndTid', '')) ?>" min="1" max="12"></td>
+                        <td><input type="number" class="form-control" id="MndTid" name="MndTid" value="<?= h(val($_POST, 'MndTid', '')) ?>" min="0" max="12"></td>
                     </tr>
                     <tr>
                         <th class="text-end">Fartøysnavn</th>
@@ -1119,33 +1081,17 @@ include __DIR__ . '/../includes/menu.php';
             </table>
             <!-- Lenker -->
             <h2 class="h4 mt-5">Lenker</h2>
-            <!-- Inline CSS to center and align link fields -->
-            <style>
-            .link-row {
-                display: flex;
-                justify-content: center;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-            }
-            .link-row > div {
-                flex: 0 0 auto;
-            }
-            .link-row select,
-            .link-row input {
-                min-width: 150px;
-            }
-            </style>
             <div id="links-section">
                 <?php
                 // Vis eventuelle eksisterende lenker fra POST
                 $linkCount = max(1, isset($_POST['LinkType_ID']) && is_array($_POST['LinkType_ID']) ? count($_POST['LinkType_ID']) : 1);
-                for ($i = 0; $i < $linkCount; $i++):
+                for ($i = 0; $i < $linkCount; $i):
                     $ltId   = isset($_POST['LinkType_ID'][$i]) ? $_POST['LinkType_ID'][$i] : '';
                     $ltInnh = isset($_POST['LinkInnh'][$i]) ? $_POST['LinkInnh'][$i] : '';
                     $ltLink = isset($_POST['Link'][$i]) ? $_POST['Link'][$i] : '';
                 ?>
-                <div class="link-row mb-2">
-                    <div>
+                <div class="row g-3 mb-2 link-row">
+                    <div class="col-md-3">
                         <label class="form-label">Type</label>
                         <select class="form-select" name="LinkType_ID[]">
                             <option value="">-- Velg --</option>
@@ -1154,15 +1100,16 @@ include __DIR__ . '/../includes/menu.php';
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div>
-                        <label class="form-label">Innhold</label>
+                    <div class="col-md-3">
+                        <label class="form-label">Innho ld</label>
                         <input type="text" class="form-control" name="LinkInnh[]" value="<?= h($ltInnh) ?>">
                     </div>
-                    <div>
+                    <div class="col-md-4">
                         <label class="form-label">URL</label>
                         <input type="url" class="form-control" name="Link[]" value="<?= h($ltLink) ?>">
                     </div>
-                    <div class="d-flex align-items-end">
+                    <div class="col-md-2 d-flex align-items-end">
+                        <!-- Remove button; dynamic js will remove row -->
                         <button type="button" class="btn btn-outline-danger remove-link">Fjern</button>
                     </div>
                 </div>
@@ -1179,9 +1126,9 @@ include __DIR__ . '/../includes/menu.php';
         document.getElementById('add-link').addEventListener('click', function() {
             const linksSection = document.getElementById('links-section');
             const row = document.createElement('div');
-            row.className = 'link-row mb-2';
+            row.className = 'row g-3 mb-2 link-row';
             row.innerHTML = `
-                <div>
+                <div class="col-md-3">
                     <label class="form-label">Type</label>
                     <select class="form-select" name="LinkType_ID[]">
                         <option value="">-- Velg --</option>
@@ -1190,15 +1137,15 @@ include __DIR__ . '/../includes/menu.php';
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div>
+                <div class="col-md-3">
                     <label class="form-label">Innhold</label>
                     <input type="text" class="form-control" name="LinkInnh[]">
                 </div>
-                <div>
+                <div class="col-md-4">
                     <label class="form-label">URL</label>
                     <input type="url" class="form-control" name="Link[]">
                 </div>
-                <div class="d-flex align-items-end">
+                <div class="col-md-2 d-flex align-items-end">
                     <button type="button" class="btn btn-outline-danger remove-link">Fjern</button>
                 </div>`;
             linksSection.appendChild(row);

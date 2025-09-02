@@ -226,7 +226,7 @@ if ($q !== '' && mb_strlen($q) >= 2) {
                     <td>
                       <?php
                         $objId  = isset($r['FartObj_ID']) ? (int)$r['FartObj_ID'] : 0;
-                        $navnId = isset($r['FartNavn_ID']) ? (int)$r['FartNavn_ID'] : 0;
+                        $navnId = isset($r['FartTid_ID'])  ? (int)$r['FartTid_ID']  : 0;
                       ?>
                       <?php if ($objId > 0 && $navnId > 0): ?>
                         <a class="btn-small" href="fartoydetaljer.php?obj_id=<?= $objId ?>&navn_id=<?= $navnId ?>#fartoyliste" title="Velg">Velg</a>

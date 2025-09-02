@@ -94,6 +94,7 @@ if ($q !== '' && mb_strlen($q) >= 2) {
                 fs.YearSpes,
                 fs.MndSpes,
                 tid.FartNavn,
+                tid.FartTID_ID,
                 zt.TypeFork,
                 tid.RegHavn,
                 tid.Rederi,
@@ -132,15 +133,17 @@ if ($q !== '' && mb_strlen($q) >= 2) {
             SELECT
               fs.FartSpes_ID,
               fs.FartObj_ID,
-              fs.BnrSkrog AS Byggenr,
+              fo.BnrSkrog AS Byggenr,
               fs.YearSpes,
               fs.MndSpes,
               tid.FartNavn,
+              tid.FartTID_ID,
               zt.TypeFork,
               tid.RegHavn,
               tid.Rederi,
               tid.Objekt
           FROM tblfartspes fs
+          JOIN tblfartobj fo ON fo.FartObj_ID = fs.FartObj_ID
           /* Finn siste tidsrad per spesifikasjon */
           LEFT JOIN (
               SELECT t1.*
@@ -155,9 +158,9 @@ if ($q !== '' && mb_strlen($q) >= 2) {
           /* Bind navnet entydig til tidsradens FartNavn_ID */
           LEFT JOIN tblzfarttype zt ON zt.FartType_ID = tid.FartType_ID
 
-          WHERE fs.SkrogID = ?
-            AND fs.SkrogID IS NOT NULL
-            AND (fs.Verft_ID IS NULL OR fs.SkrogID <> fs.Verft_ID)
+          WHERE fo.SkrogID = ?
+            AND fo.SkrogID IS NOT NULL
+            AND (fs.Verft_ID IS NULL OR fo.SkrogID <> fs.Verft_ID)
 
           ORDER BY fs.YearSpes, fs.MndSpes, tid.FartNavn
           LIMIT 500
@@ -278,7 +281,7 @@ if ($q !== '' && mb_strlen($q) >= 2) {
                     <td>
                       <?php
                         $objId  = isset($r['FartObj_ID']) ? (int)$r['FartObj_ID'] : 0;
-                        $navnId = isset($r['FartNavn_ID']) ? (int)$r['FartNavn_ID'] : 0;
+                        $navnId = isset($r['FartTid_ID'])  ? (int)$r['FartTid_ID']  : 0;
                       ?>
                       <?php if ($objId > 0 && $navnId > 0): ?>
                         <a class="btn-small" href="fartoydetaljer.php?obj_id=<?= $objId ?>&navn_id=<?= $navnId ?>">Vis</a>
