@@ -43,7 +43,6 @@ if ($doSearch) {
             curr.FartTid_ID,
             curr.FartObj_ID,
             curr.FartNavn,
-            curr.Rederi,
             curr.RegHavn,
             curr.Kallesignal,
             curr.Nasjon_ID   AS TNat,
@@ -115,12 +114,15 @@ include __DIR__ . '/../includes/menu.php';
       </div>
     </div>
 <div class="container mt-3">
-  <h1>Administrer fartøyer</h1>
-  <p class="muted" style="text-align:center;">Søk etter fartøy, rediger eller slett, eller opprett et nytt fartøy.</p>
-  <p style="text-align:center; margin-top:.5rem;">
+  <h1>Administrasjon av fartøyer og parametre</h1>
+  <h2>Endre, slett, lag nytt fartøy eller tabellparametre</h2>
+  <p style="text-align:center; margin-top:1rem;">
     <a class="btn" href="param_admin.php">Administrer parametertabeller</a>
   </p>
-
+  <p style="text-align:center; margin-top:1rem;">
+    <a href="<?= h($base . '/admin/fartoy_nytt.php') ?>" class="btn">Opprett nytt fartøy</a>
+  </p>
+  <p class="text-small">Skriv inn del av navn  og/eller velg nasjon for å søke etter fartøy å endre.</p>
   <form method="get" class="search-form" style="margin-bottom:1rem; text-align:center;">
     <label for="q">Søk på del av navn:&nbsp;</label>
     <input type="text" id="q" name="q" value="<?= h($q) ?>" />
@@ -133,7 +135,7 @@ include __DIR__ . '/../includes/menu.php';
     </select>
     <button type="submit" class="btn">Søk</button>
     <?php $base = defined('BASE_URL') ? rtrim(BASE_URL, '/') : ''; ?>
-    <a href="<?= h($base . '/admin/fartoy_nytt.php') ?>" class="btn primary">Opprett nytt</a>
+    
   </form>
 
   <?php if ($doSearch && $rows): ?>
@@ -147,7 +149,6 @@ include __DIR__ . '/../includes/menu.php';
             <th>Flaggstat</th>
             <th>Bygget</th>
             <th>Kallesignal</th>
-            <th>Rederi/Eier</th>
             <th>Handlinger</th>
           </tr>
         </thead>
@@ -165,7 +166,6 @@ include __DIR__ . '/../includes/menu.php';
             <td><?= h(val($r,'Nasjon')) ?></td>
             <td><?= h(val($r,'Bygget')) ?></td>
             <td><?= h(val($r,'Kallesignal')) ?></td>
-            <td><?= h(val($r,'Rederi')) ?></td>
             <td>
               <?php $objId = (int)val($r,'FartObj_ID',0); $tidId = (int)val($r,'FartTid_ID',0); ?>
               <?php if ($objId > 0 && $tidId > 0): ?>
@@ -183,7 +183,7 @@ include __DIR__ . '/../includes/menu.php';
   <?php elseif ($doSearch): ?>
     <p>Ingen treff.</p>
   <?php else: ?>
-    <p>Skriv inn del av navn for å søke etter fartøy.</p>
   <?php endif; ?>
+  
 </div>
 <?php include __DIR__ . '/../includes/footer.php'; ?>

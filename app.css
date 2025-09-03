@@ -57,8 +57,8 @@ h1, h2, h3{
   margin: 10px 0 12px;
   font-weight: 600;
 }
-h1{ font-size: 16px; }
-h2{ font-size: 15px; }
+h1{ font-size: 24px; }
+h2{ font-size: 18px; }
 h3{ font-size: 14px; }
 
 /* ---------------------- Header / Navbar ---------------------- */
@@ -160,6 +160,10 @@ h3{ font-size: 14px; }
   vertical-align:middle;
 }
 .btn-small:hover { filter: brightness(.92); }
+
+/* Hold action-knapper i samme rad i resultattabeller */
+.table td a.btn-small { display: inline-block; }
+.table td .btn-small + .btn-small { margin-left: 6px; }
 
 .table.tight th,
 .table.tight td { padding:.25rem .5rem; border-bottom:1px solid #00529b; }
@@ -481,4 +485,8 @@ h3{ font-size: 14px; }
 
 .table.compact {
   line-height: 1.2;
+}
+.text-small {
+  font-size: 12px;
+  color:var(--secondary)
 }
