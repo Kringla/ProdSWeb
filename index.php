@@ -39,10 +39,10 @@ $heroUrls = array_map(fn($p) => $BASE . '/assets/img/hero/' . basename($p), $fil
   <div class="container hero-inner">
     <h1>Finn fartøy, verft og rederier</h1>
     <div class="cta">
-      <a class="btn primary" href="<?= $BASE ?>/user/fartoy_navn_sok.php">Søk fartøy</a>
+      <a class="btn" href="<?= $BASE ?>/user/fartoy_navn_sok.php">Søk fartøynavn</a>
       <a class="btn" href="<?= $BASE ?>/user/fartoy_spes_sok.php">Søk spesifikasjoner</a>
-      <a class="btn" href="<?= $BASE ?>/user/verft_sok.php">Søk verft</a>
-      <a class="btn" href="<?= $BASE ?>/user/rederi_sok.php">Søk rederi</a>
+      <a class="btn" href="<?= $BASE ?>/user/verft_sok.php">Søk verfts bygg</a>
+      <a class="btn" href="<?= $BASE ?>/user/rederi_sok.php">Søk rederiers fartøy</a>
       <?php if (!$loggedIn): ?>
         <!-- Administrasjon-knappen sender brukeren til innlogging med redirect til admin-siden.
              Vi sender et rent relativt sti-argument uten urlencoding. Slashes i stien må bevares
@@ -67,6 +67,7 @@ $heroUrls = array_map(fn($p) => $BASE . '/assets/img/hero/' . basename($p), $fil
     <p class="muted">“SkipsWeb” er en database som gir adgang til data for norske og utenlandske fartøyer som er omtalt i <em>Dampskipspostens</em> 125 numre, 
       og data om fartøyer samlet av <em>Ole Harald Fiske</em> gjennom mange års arbeide for <em>Norsk Maritimt Museum</em>. 
       Noen av de eksisterer i <em>Digitalt Museum</em>. Databasen er utviklet av frivillige entusiaster som bidrar til å registrere bilder av fartøyer ved Norsk Maritimt Museum.
+      <hr class="red-line">
       <br><strong>Merk:</strong> Databasen har ingen offisell status ved museet. Riktigheten av dataen er ikke verifisert.</p>
       <hr class="red-line">
       <p class="muted">Du kan søke etter:</p>
