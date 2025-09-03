@@ -117,6 +117,9 @@ include __DIR__ . '/../includes/menu.php';
 <div class="container mt-3">
   <h1>Administrer fartøyer</h1>
   <p class="muted" style="text-align:center;">Søk etter fartøy, rediger eller slett, eller opprett et nytt fartøy.</p>
+  <p style="text-align:center; margin-top:.5rem;">
+    <a class="btn" href="param_admin.php">Administrer parametertabeller</a>
+  </p>
 
   <form method="get" class="search-form" style="margin-bottom:1rem; text-align:center;">
     <label for="q">Søk på del av navn:&nbsp;</label>
