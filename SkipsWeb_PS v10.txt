@@ -53,7 +53,13 @@ skipsweb/
 │   └── users.php        				# Brukere
 │
 ├── assets/
-│   ├── css/          			
+│   ├── css/  
+│   │	├── v2/ 						# Rotator bilder        			
+│   │   │   ├── tokens.css      		# Design tokens (farger, typografi, spacing, radius, skygger)
+│   │   │   ├── base.css        		# Basestiler + typografi
+│   │   │   ├── components.css  		# Knapper, kort, tabeller, skjema-grid, bildebokser
+│   │   │   └── compat.css      		# Midlertidig kartlegging fra gamle klassenavn til nye stiler
+│   │   │        			
 │   │	└── app.css  					# css-fil
 │   ├── img/ 
 │   │	├── hero/ 						# Rotator bilder        			
@@ -63,7 +69,7 @@ skipsweb/
 │   │   │   ├── hero4.jpg              	# Bilde 4
 │   │   │   └── hero5.jpg              	# Bilde 5
 │   │   │
-│   │	├── skip/ 						# Bilder for fartoysdetaljer.php       			
+│   │	├── skip/ 						# Bilder for fartoysdetaljer.php og liknende fartøysspesifikke filer
 │   │   │   ├── placeholder.jpg         # Bilde Placeholder
 │   │   │   ├── aaa..jpg              	# Bilde aaa ... (Finnes ikke på det nåværende)
 │   │   │   ├── .....jpg              	# Bilde ....... (Finnes ikke på det nåværende)

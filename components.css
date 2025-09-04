@@ -1,0 +1,188 @@
+/* assets/css/v2/components.css  (Trinn 3: knapper og lenker)
+   Utvider startpakken med varianter, størrelser, ikonknapper og lenke-stil.
+   Ingen HTML-endringer er påkrevd hvis du bruker compat.css-mappingen.
+*/
+
+/* === KNAPPER (grunnstil) === */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5ch;
+  padding: .55rem 1rem;
+  background: var(--brand);
+  color: #fff;
+  border: 0;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 600;
+  line-height: 1.2;
+  transition: transform .04s ease;
+  user-select: none;
+}
+.btn:hover { background: var(--brand-600); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled,
+.btn[aria-disabled="true"] { opacity: .6; cursor: not-allowed; }
+
+/* Fokus synlig for tastaturbrukere */
+.btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* === VARIANTS === */
+.btn--secondary {
+  background: #fff;
+  color: var(--brand);
+  border: 1px solid var(--border);
+}
+.btn--quiet {
+  background: transparent;
+  color: var(--brand);
+  border: 0;
+  box-shadow: none;
+}
+.btn--danger { background: var(--accent); }
+.btn--danger:hover { filter: brightness(.95); }
+
+/* === SIZES === */
+.btn--sm { padding: .4rem .75rem; font-size: var(--fs--1); border-radius: .4rem; }
+.btn--lg { padding: .7rem 1.1rem; font-size: var(--fs-1); }
+.btn--block { display: flex; width: 100%; }
+
+/* === ICON BUTTONS === */
+.btn--icon {
+  padding: .45rem;
+  width: 2.25rem; height: 2.25rem;
+  aspect-ratio: 1;
+}
+.btn svg, .btn i { display: inline-block; width: 1em; height: 1em; }
+
+/* === LOADING STATE (valgfritt) === */
+.btn.is-loading { position: relative; pointer-events: none; }
+.btn.is-loading::after {
+  content: "";
+  width: 1em; height: 1em;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  display: inline-block;
+  margin-left: .5ch;
+  animation: spin 750ms linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* === KNAPPEGRUPPER === */
+.btn-group { display: inline-flex; gap: .5rem; flex-wrap: wrap; }
+.btn-group .btn { border-radius: .45rem; } /* jevn radius */
+
+/* === LENKER (primært tekstlenker, ikke knapper) === */
+.link {
+  color: var(--brand);
+  text-decoration: none;
+  font-weight: 600;
+  text-underline-offset: .15em;
+}
+.link:hover { text-decoration: underline; }
+.link:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; border-radius: .2rem; }
+
+/* --- Resten av komponenter (cards, tabeller, skjema) ligger fra før i denne filen.
+   De beholdes som i startpakken, eller utvides i senere trinn.
+*/
+
+.btn-center {
+  display: flex;
+  justify-content: center;
+  gap: 1rem; /* avstand mellom knapper */
+  flex-wrap: wrap; /* gjør at de bryter pent på mobil */
+}
+/* === Sticky table header – robust variant uten mask/fade === */
+.table-wrap {
+  position: relative;
+  overflow: auto;              /* scroller her */
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+/* Selve tabellen – behold gjerne resten av dine .table-regler */
+.table {
+  width: 100%;
+  border-collapse: separate;   /* viktig for sticky i th */
+  border-spacing: 0;
+  font-size: var(--fs-0);
+}
+.table th, .table td {
+  padding: .45rem .6rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  background: var(--surface);  /* nødvendig for sticky */
+}
+
+/* Sticky header på th */
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;                  /* over innholdsceller */
+  background: var(--surface);  /* egen bakgrunn */
+  /* Safari/Edge stabilitet */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  background-clip: padding-box;
+}
+
+/* Kompakt/stripe/hover – som før */
+.table--compact th, .table--compact td { padding: .35rem .5rem; }
+.table--zebra tbody tr:nth-child(odd) td { background: var(--surface-muted); }
+.table tbody tr:hover td { background: var(--surface-muted); }
+
+/* Fokusbarhet */
+.table a:focus-visible, .table button:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+/* “Lav prioritet” kolonner */
+.col--low { min-width: 120px; }
+.col--tight { white-space: nowrap; }
+
+/* Smalt vindu */
+@media (max-width: 720px) {
+  .table th, .table td { padding: .4rem .5rem; }
+}
+/* Sett egen scroller på tabellområdet */
+.table-wrap {
+  position: relative;
+  overflow: auto;              /* viktig */
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+/* Høyde-begrensning: juster 70–80vh etter behov */
+.table-wrap--scroll {
+  max-height: 72vh;
+}
+
+/* Sticky header må ha egen bakgrunn og z-index */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--fs-0);
+}
+.table th, .table td {
+  padding: .45rem .6rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  background: var(--surface);
+}
+.table thead th {
+  position: sticky;
+  top: 0;            /* fester i toppen av .table-wrap */
+  z-index: 2;
+  background: var(--surface);
+}

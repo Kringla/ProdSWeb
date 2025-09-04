@@ -38,11 +38,11 @@ $heroUrls = array_map(fn($p) => $BASE . '/assets/img/hero/' . basename($p), $fil
   <div class="hero-overlay"></div>
   <div class="container hero-inner">
     <h1>Finn fartøy, verft og rederier</h1>
-    <div class="cta">
-      <a class="btn" href="<?= $BASE ?>/user/fartoy_navn_sok.php">Søk fartøynavn</a>
-      <a class="btn" href="<?= $BASE ?>/user/fartoy_spes_sok.php">Søk spesifikasjoner</a>
-      <a class="btn" href="<?= $BASE ?>/user/verft_sok.php">Søk verfts bygg</a>
-      <a class="btn" href="<?= $BASE ?>/user/rederi_sok.php">Søk rederiers fartøy</a>
+    <div class="btn-center">
+      <a href="user/fartoy_navn_sok.php" class="btn">Fartøy etter navn</a>
+      <a href="user/fartoy_spes_sok.php" class="btn">Fartøy etter spesifikasjoner</a>
+      <a href="user/verft_sok.php" class="btn">Verfts bygde fartøy</a>
+      <a href="user/rederi_sok.php" class="btn">Rederiers fartøy</a>
       <?php if (!$loggedIn): ?>
         <!-- Administrasjon-knappen sender brukeren til innlogging med redirect til admin-siden.
              Vi sender et rent relativt sti-argument uten urlencoding. Slashes i stien må bevares

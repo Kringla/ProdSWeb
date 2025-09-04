@@ -1,0 +1,73 @@
+/* assets/css/v2/compat.css (Trinn 3: utvidet mapping av gamle klasser)
+   Hensikt: gi ny knapp/lenke-stil uten å endre eksisterende HTML.
+   Når alt ser bra ut, kan du gradvis erstatte gamle klassenavn i HTML med .btn/.link osv.
+*/
+
+/* --- Knappemapping ---
+   Justér/utvid listen under etter hvilke gamle klassenavn du faktisk bruker i prosjektet.
+*/
+.button, .btn-primary, .primary-btn, .knapp, .go-btn, .search-btn, .view-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5ch;
+  padding: .55rem 1rem;
+  background: var(--brand); color:#fff;
+  border:0; border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+  text-decoration: none; cursor: pointer;
+  font-weight: 600; line-height: 1.2;
+  transition: transform .04s ease;
+}
+.button:hover, .btn-primary:hover, .primary-btn:hover, .knapp:hover,
+.go-btn:hover, .search-btn:hover, .view-btn:hover {
+  background: var(--brand-600);
+}
+
+/* Sekundærknapper */
+.btn-secondary, .secondary-btn, .soft-btn {
+  background:#fff; color: var(--brand);
+  border:1px solid var(--border);
+  box-shadow: var(--shadow-1);
+}
+.btn-secondary:hover, .secondary-btn:hover, .soft-btn:hover { filter: brightness(.98); }
+
+/* Farlig/destruktiv handling */
+.btn-danger, .danger-btn, .delete-btn { background: var(--accent); }
+.btn-danger:hover, .danger-btn:hover, .delete-btn:hover { filter: brightness(.95); }
+
+/* Størrelser */
+.btn-sm, .small-btn { padding: .4rem .75rem; font-size: var(--fs--1); border-radius: .4rem; }
+.btn-lg, .large-btn { padding: .7rem 1.1rem; font-size: var(--fs-1); }
+
+/* Blokknapper */
+.btn-block, .full-btn { display: flex; width: 100%; }
+
+/* Ikonknapper */
+.icon-btn { padding: .45rem; width: 2.25rem; height: 2.25rem; aspect-ratio: 1; }
+
+/* Deaktiverte tilstander */
+.button:disabled, .btn-primary:disabled, .btn-secondary:disabled, .danger-btn:disabled,
+.primary-btn:disabled, .secondary-btn:disabled, .delete-btn:disabled {
+  opacity: .6; cursor: not-allowed;
+}
+
+/* --- Lenker --- */
+.text-link, .link-btn, .anchor {
+  color: var(--brand);
+  text-decoration: none;
+  font-weight: 600;
+  text-underline-offset: .15em;
+}
+.text-link:hover, .link-btn:hover, .anchor:hover { text-decoration: underline; }
+.text-link:focus-visible, .link-btn:focus-visible, .anchor:focus-visible {
+  outline: 2px solid currentColor; outline-offset: 2px; border-radius: .2rem;
+}
+/* TRINN 4 – COMPAT: hvis du har beholdere som heter .carded/.panel/.centered-card osv. */
+.centered-card .table, .carded .table, .panel .table, .outline-brand .table {
+  width: 100%;
+}
+.centered-card .table-wrap, .carded .table-wrap, .panel .table-wrap {
+  overflow: auto;
+}
+
+/* Hvis du har brukt .tight/.fit tidligere – gi de mening i v2 */
+.table.tight th, .table.tight td { padding: .3rem .45rem; }
+.table.fit { table-layout: fixed; }
