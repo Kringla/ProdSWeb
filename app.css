@@ -57,9 +57,16 @@ h1, h2, h3{
   margin: 10px 0 12px;
   font-weight: 600;
 }
-h1{ font-size: 24px; }
-h2{ font-size: 18px; }
-h3{ font-size: 14px; }
+h1{ font-size: 32px;}
+h2{ font-size: 18px;}
+h3{ font-size: 14px;}
+h4{ 
+  text-align: center;
+  margin: 4px;
+  font-weight: 400;
+  font-size: 12px; 
+  color:var(--secondary);
+}
 
 /* ---------------------- Header / Navbar ---------------------- */
 .site-header{
@@ -481,4 +488,17 @@ h3{ font-size: 14px; }
 
 .table.compact {
   line-height: 1.2;
+}
+
+/* --- Justeringer søkesider --- */
+table td {
+  text-align: left;
+}
+
+input[type="text"], select {
+  height: 34px;          /* samme høyde på begge */
+  line-height: normal;     /* tekst vertikalt sentrert tidl 34px*/
+  padding: 6 10px;       /* jevn innvendig margin tidl 0 10px*/
+  font-size: 14px;
+  box-sizing: border-box; /* inkludér padding i høyden */
 }

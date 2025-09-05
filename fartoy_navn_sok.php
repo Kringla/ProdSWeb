@@ -1,217 +1,174 @@
 <?php
-    require_once __DIR__ . '/../includes/bootstrap.php';
-    require_once __DIR__ . '/../includes/auth.php'; // ok å ha med for meny/rolle
+// /user/fartoy_navn_sok.php  (v0905A)
+require_once __DIR__ . '/../includes/bootstrap.php';
+require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/menu.php';
 
-    ini_set('display_errors', '1');
-    error_reporting(E_ALL);
+if (!function_exists('h')) {
+  function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
+}
 
-    // Små helpers
-    if (!function_exists('h')) {
-        function h($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
-    }
-    function val($arr, $key, $def='') { return isset($arr[$key]) ? $arr[$key] : $def; }
+$q        = isset($_GET['q']) ? trim((string)$_GET['q']) : '';
+$nasjonId = isset($_GET['nasjon_id']) ? (int)$_GET['nasjon_id'] : 0;
+$doSearch = ($q !== '' || $nasjonId > 0);
+$limit    = 200;
 
-    $nasjonId = isset($_GET['nasjon_id']) ? (int)$_GET['nasjon_id'] : 0; // 0 = alle
-    $q        = isset($_GET['q']) ? trim($_GET['q']) : '';
+$dbh = $db ?? ($mysqli ?? null);
+$rows = [];
+$listNasjon = [];
+$error = null;
 
-    // Nasjoner til dropdown (robust)
-    $nasjoner = [];
+// Nasjon-liste for nedtrekk
+try {
+  if ($dbh) {
+    $res = $dbh->query("SELECT Nasjon_ID, Nasjon FROM tblznasjon ORDER BY Nasjon");
+    if ($res) while ($r = $res->fetch_assoc()) $listNasjon[] = $r;
+  } else {
+    $error = "DB-tilkobling mangler (dbh=null).";
+  }
+} catch (Throwable $e) { $error = "Feil ved nasjon-oppslag: " . h($e->getMessage()); }
+
+// Søk
+if ($error === null && $doSearch) {
+  try {
     $sql = "
-        SELECT Nasjon_ID, Nasjon
-        FROM tblznasjon
-        WHERE Nasjon IS NOT NULL AND Nasjon <> ''
-        ORDER BY Nasjon
+      SELECT
+        ft.FartTid_ID, ft.FartNavn, ft.YearTid, ft.RegHavn,
+        ft.Nasjon_ID, ft.Kallesignal, ft.MMSI, ft.PennantTiln,
+        ty.FartType, ns.Nasjon
+      FROM tblfarttid ft
+      LEFT JOIN tblzfarttype ty ON ty.FartType_ID = ft.FartType_ID
+      LEFT JOIN tblznasjon   ns ON ns.Nasjon_ID   = ft.Nasjon_ID
+      WHERE 1
+        AND (? = '' OR ft.FartNavn LIKE ?)
+        AND (? = 0  OR ft.Nasjon_ID = ?)
+      ORDER BY ft.FartNavn ASC, ft.YearTid ASC
+      LIMIT {$limit}
     ";
-    if ($res = $conn->query($sql)) {
-        while ($row = $res->fetch_assoc()) {
-            $nasjoner[] = $row;
-        }
-        $res->free();
-    }
+    $stmt = $dbh->prepare($sql);
+    $like = '%' . $q . '%';
+    $stmt->bind_param('ssii', $q, $like, $nasjonId, $nasjonId);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    while ($r = $res->fetch_assoc()) $rows[] = $r;
+    $stmt->close();
+  } catch (Throwable $e) { $error = "Søk feilet: " . h($e->getMessage()); }
+}
+?>
+<div class="container">
+  <h1>Fartøysnavn – søk</h1>
 
-    // Kjør søk bare når bruker har trykket Søk (eller sendt noen parametre)
-    $doSearch = ($_GET !== []);
+  <!-- Søkeskjema: isolert styling slik at felter ALLTID vises -->
+  <form method="get" action=""
+        style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center; margin:12px 0 16px;">
+    <label for="q" style="font-weight:600;">Navn inneholder</label>
+    <input id="q" name="q" type="text" value="<?= h($q) ?>"
+      placeholder="Skriv del av navn"
+      style="display:block!important; visibility:visible!important; opacity:1!important;
+             border:1px solid #111; background:#fff; color:#000; min-width:34ch;
+             height:34px; padding:6px 10px; border-radius:6px; z-index:10; position:relative;" />
 
-    // Resultater
-    $rows = [];
-    if ($doSearch) {
-        // Bygg spørring. Vi henter seneste registrering per FartObj_ID og FartNavn direkte fra tblfarttid,
-        // og joiner til parametertabeller for type, nasjon og objekt.
-        $sql = "
-        SELECT
-          latest.FartTid_ID      AS FartTid_ID,
-          latest.FartObj_ID      AS FartObj_ID,
-          latest.FartNavn        AS FartNavn,
-          latest.FartType_ID     AS FartType_ID,
-          latest.PennantTiln     AS PennantTiln,
-          ft.TypeFork,
-          latest.YearTid,
-          latest.MndTid,
-          latest.Rederi,
-          latest.RegHavn,
-          latest.Kallesignal,
-          latest.Nasjon_ID       AS TNat,
-          n.Nasjon,
-          CASE WHEN orig.FartTid_ID IS NOT NULL THEN 1 ELSE 0 END AS IsOriginalNow,
-          o.Bygget               AS Bygget
-        FROM (
-            SELECT t.*
-            FROM tblfarttid t
-            INNER JOIN (
-                SELECT FartObj_ID, FartNavn, MAX(FartTid_ID) AS max_id
-                FROM tblfarttid
-                WHERE COALESCE(FartNavn, '') <> ''
-                GROUP BY FartObj_ID, FartNavn
-            ) m ON m.FartObj_ID = t.FartObj_ID AND m.FartNavn = t.FartNavn AND m.max_id = t.FartTid_ID
-        ) AS latest
-        LEFT JOIN tblzfarttype AS ft ON ft.FartType_ID = latest.FartType_ID
-        LEFT JOIN tblznasjon  AS n  ON n.Nasjon_ID  = latest.Nasjon_ID
-        LEFT JOIN tblfartobj  AS o  ON o.FartObj_ID = latest.FartObj_ID
-        LEFT JOIN (
-            SELECT FartObj_ID, FartNavn, MAX(FartTid_ID) AS FartTid_ID
-            FROM tblfarttid
-            WHERE Objekt = 1
-            GROUP BY FartObj_ID, FartNavn
-        ) AS orig ON orig.FartObj_ID = latest.FartObj_ID AND orig.FartNavn = latest.FartNavn
-        WHERE (? = 0 OR latest.Nasjon_ID = ?)
-          AND (? = '' OR latest.FartNavn LIKE CONCAT('%', ?, '%'))
-        ORDER BY latest.FartNavn ASC
-        LIMIT 200
-        ";
+    <label for="nasjon_id" style="font-weight:600;">Nasjon</label>
+    <select id="nasjon_id" name="nasjon_id"
+      style="display:block!important; visibility:visible!important; opacity:1!important;
+             border:1px solid #111; background:#fff; color:#000; min-width:18ch;
+             height:34px; padding:6px 8px; border-radius:6px; z-index:10; position:relative;">
+      <option value="0"<?= $nasjonId===0?' selected':'' ?>>Alle</option>
+      <?php foreach ($listNasjon as $n): ?>
+        <option value="<?= (int)$n['Nasjon_ID'] ?>"<?= $nasjonId===(int)$n['Nasjon_ID']?' selected':'' ?>>
+          <?= h($n['Nasjon']) ?>
+        </option>
+      <?php endforeach; ?>
+    </select>
 
-        $stmt = $conn->prepare($sql);
-        if (!$stmt) { die('Prepare feilet: ' . $conn->error); }
-        $stmt->bind_param('iiss', $nasjonId, $nasjonId, $q, $q);
-        if (!$stmt->execute()) { die('Execute feilet: ' . $stmt->error); }
-        $result = $stmt->get_result();
-        if ($result) {
-            $rows = $result->fetch_all(MYSQLI_ASSOC);
-            $result->free();
-        }
-        $stmt->close();
-    }
-    ?>
-    <?php include __DIR__ . '/../includes/header.php'; ?>
-    <?php include __DIR__ . '/../includes/menu.php'; ?>
+    <button type="submit"
+      style="display:inline-block!important; visibility:visible!important; opacity:1!important;
+             background:#004080; color:#fff; border:0; height:34px; padding:0 14px;
+             border-radius:6px; cursor:pointer; z-index:10; position:relative;">
+      Søk
+    </button>
+    <?php if ($q !== '' || $nasjonId>0): ?>
+      <a href="?q=&nasjon_id=0"
+        style="display:inline-block!important; visibility:visible!important; opacity:1!important;
+               background:#e5e7eb; color:#111; text-decoration:none; height:34px; line-height:34px;
+               padding:0 12px; border-radius:6px;">
+        Nullstill
+      </a>
+    <?php endif; ?>
+  </form>
+  <div id="loading" style="display:none; text-align:center; margin:10px;">
+    <img src="<?= BASE_URL ?>/assets/img/spinner.gif" alt="Søker..." style="width:24px; height:24px; vertical-align:middle;">
+    <span style="margin-left:6px;">Søker, vennligst vent…</span>
+  </div>
 
-    <!-- Responsive image box (contain, no crop) -->
-    <div class="container" style="display:flex; justify-content:center;">
-      <div class="image-box">
-        <?php
-          // 1) Velg tryggt bilde (DB -> fallback). Bruk basename()+h() for sikkerhet.
-          $imgCandidate = null;
+  <?php if ($error): ?>
+    <div style="background:#fde8e8; color:#7a0b0b; border:1px solid #f5c2c2; padding:10px; border-radius:6px; max-width:980px; margin:0 auto;">
+      <?= $error ?>
+    </div>
+  <?php endif; ?>
 
-          // Hvis du i denne siden har en $imgRow fra tblxnmmfoto:
-          if (isset($imgRow) && is_array($imgRow) && !empty($imgRow['Bilde_Fil'])) {
-              $base = rtrim((string)($imgRow['URL_Bane'] ?? '/assets/img'), '/');
-              $file = basename((string)$imgRow['Bilde_Fil']); // dropp path-fragmenter
-              $imgCandidate = $base . '/' . $file;
-          }
-          // Alternativ kilde: $main['Bilde_Fil'] dersom du bruker den i siden:
-          elseif (!empty($main['Bilde_Fil'])) {
-              $imgCandidate = '/assets/img/' . basename((string)$main['Bilde_Fil']);
-          }
-          // 2) Garantert fallback:
-          if (!$imgCandidate) {
-              $imgCandidate = '/assets/img/placeholder2.jpg';
-          }
+  <?php if ($doSearch): ?>
+    <div style="max-width:1100px; margin:10px auto 0;">
+      <h2 style="text-align:center; margin:0 0 8px;">Søkeresultat<?= $rows ? ' ('.count($rows).')' : '' ?></h2>
 
-          // 3) Relativ URL hvis siden ligger i /user/
-          $imgRel = (substr($imgCandidate, 0, 1) === '/') ? ('..' . $imgCandidate) : $imgCandidate;
-
-          // 4) Alt‑tekst (prøv å bruke type + navn hvis det finnes)
-          $altText = trim(
-            (string)($main['TypeFork'] ?? ($main['FartType'] ?? '')) . ' ' .
-            (string)($main['FartNavn'] ?? 'Fartøy')
-          );
-          if ($altText === '') { $altText = 'Fartøybilde'; }
-        ?>
-        <img src="<?= h($imgRel) ?>" alt="<?= h($altText) ?>">
+      <!-- Scroll i tabellboks + sticky thead uten ekstern CSS -->
+      <div style="position:relative; overflow:auto; max-height:72vh; border:1px solid #ddd; border-radius:8px; background:#fff;">
+        <table style="width:100%; border-collapse:separate; border-spacing:0; font-size:14px;">
+          <thead>
+            <tr style="background:#f8f9fb;">
+              <?php
+              $th = 'style="position:sticky; top:0; z-index:2; background:#fff; padding:.5rem .6rem; border-bottom:1px solid #ddd; text-align:left;"';
+              ?>
+              <th <?= $th ?>>Navn</th>
+              <th <?= $th ?>>År</th>
+              <th <?= $th ?>>Type</th>
+              <th <?= $th ?>>Reg.havn</th>
+              <th <?= $th ?>>Nasjon</th>
+              <th <?= $th ?>>Kallesignal</th>
+              <th <?= $th ?>>MMSI</th>
+              <th <?= $th ?>>Pennant/Tilnavn</th>
+              <th <?= $th ?> style="text-align:center; width:72px;">Vis</th>
+            </tr>
+          </thead>
+          <tbody>
+          <?php if (!$rows): ?>
+            <tr><td colspan="9" style="padding:.6rem;">Ingen treff.</td></tr>
+          <?php else: foreach ($rows as $r): ?>
+            <tr>
+              <td style="padding:.45rem .6rem; border-bottom:1px solid #eee;"><?= h($r['FartNavn'] ?? '') ?></td>
+              <td style="padding:.45rem .6rem; border-bottom:1px solid #eee;"><?= h($r['YearTid'] ?? '') ?></td>
+              <td style="padding:.45rem .6rem; border-bottom:1px solid #eee;"><?= h($r['FartType'] ?? '') ?></td>
+              <td style="padding:.45rem .6rem; border-bottom:1px solid #eee;"><?= h($r['RegHavn'] ?? '') ?></td>
+              <td style="padding:.45rem .6rem; border-bottom:1px solid #eee;"><?= h($r['Nasjon'] ?? '') ?></td>
+              <td style="padding:.45rem .6rem; border-bottom:1px solid #eee;"><?= h($r['Kallesignal'] ?? '') ?></td>
+              <td style="padding:.45rem .6rem; border-bottom:1px solid #eee;"><?= h($r['MMSI'] ?? '') ?></td>
+              <td style="padding:.45rem .6rem; border-bottom:1px solid #eee;"><?= h($r['PennantTiln'] ?? '') ?></td>
+              <td style="padding:.35rem .6rem; border-bottom:1px solid #eee; text-align:center;">
+                <a href="<?= BASE_URL ?>/user/fartoydetaljer.php?ft=<?= urlencode((string)($r['FartTid_ID'] ?? '')) ?>"
+                   style="display:inline-block; background:#1f6feb; color:#fff; text-decoration:none; padding:.35rem .6rem; border-radius:4px;">
+                  Vis
+                </a>
+              </td>
+            </tr>
+          <?php endforeach; endif; ?>
+          </tbody>
+        </table>
       </div>
     </div>
-
-    <div class="container">
-      <h1>Fartøy i databasen</h1>
-      <div style="margin:-0.25rem 0 0.75rem 0; font-size:0.95rem; color:#555;text-align: center;">
-        <strong>Forklaring:</strong>
-        <span title="Navnet tilhører opprinnelig fartøy" aria-hidden="true" style="font-size:1.1rem; vertical-align:baseline;">•</span>
-        = navnet tilhører <em>opprinnelig</em> fartøy (Objekt = 1).
-      </div>
-      <form method="get" class="form-inline" style="margin-bottom:1rem;text-align: center;">
-        <label for="q">Søk på del av fartøynavn:&nbsp;</label>
-        <input type="text" id="q" name="q" value="<?= h($q) ?>" />
-        &nbsp;&nbsp;
-        <label for="nasjon_id">fra nasjon</label>
-        <select name="nasjon_id" id="nasjon_id">
-          <option value="0"<?= $nasjonId === 0 ? ' selected' : '' ?>>Alle nasjoner</option>
-          <?php foreach ($nasjoner as $r): ?>
-            <option value="<?= (int)$r['Nasjon_ID'] ?>"<?= $nasjonId === (int)$r['Nasjon_ID'] ? ' selected' : '' ?>>
-              <?= h($r['Nasjon']) ?>
-            </option>
-          <?php endforeach; ?>
-        </select>
-        &nbsp;&nbsp;
-        <button type="submit" class="btn">Søk</button>
-      </form>
-
-      <?php if ($doSearch): ?>
-        <p>Antall funnet: <strong><?= count($rows) ?></strong></p>
-      <?php endif; ?>
-
-      <?php if ($rows): ?>
-        <div class="table-wrap outline-brand">
-          <table class="table tight fit">
-            <thead>
-              <tr>
-                <th>Type</th>
-                <th>Navn</th>
-                <th>Reg.havn</th>
-                <th>Flaggstat</th>
-                <th>Bygget</th>
-                <th>Kallesignal</th>
-                <th>Rederi/Eier</th>
-                <th>Vis</th>
-              </tr>
-            </thead>
-            <tbody>
-            <?php foreach ($rows as $r): ?>
-              <tr>
-                <td><?= h(val($r,'TypeFork')) ?></td>
-                <td>
-                  <?= h(val($r,'FartNavn')) ?>
-                  <?php if ((int)val($r,'IsOriginalNow',0) === 1): ?>
-                    <span title="Navnet tilhører opprinnelig fartøy">•</span>
-                  <?php endif; ?>
-                </td>
-                <td><?= h(val($r,'RegHavn')) ?></td>
-                <td><?= h(val($r,'Nasjon')) ?></td>
-                <td><?= h(val($r,'Bygget')) ?></td>
-                <td><?= h(val($r,'Kallesignal')) ?></td>
-                <td><?= h(val($r,'Rederi')) ?></td>
-                <td>
-                  <?php $id = (int)val($r,'FartObj_ID',0); ?>
-                  <?php if ($id > 0): ?>
-                    <?php $tid = (int)val($r, 'FartTid_ID', 0); ?>
-                    <a class="btn-small" href="fartoydetaljer.php?obj_id=<?= (int)$r['FartObj_ID'] ?>&tid_id=<?= $tid ?>">Vis</a>
-                  <?php else: ?>
-                    <span class="muted">–</span>
-                  <?php endif; ?>
-                </td>
-              </tr>
-            <?php endforeach; ?>
-            </tbody>
-          </table>
-        </div> 
-      <?php elseif ($doSearch): ?>
-        <p>Ingen treff.</p>
-      <?php else: ?>
-        <p>Skriv del av navn for å søke. Du kan også bruke nasjon som filter.</p>
-      <?php endif; ?>
-    </div>
-
-  <!-- Tilbake-knapp nederst: midtstilt -->
-    <div class="actions" style="margin:1rem 0 2rem; text-align:center;">
-      <a class="btn" href="#" onclick="if(history.length>1){history.back();return false;}" title="Tilbake">← Tilbake</a>
-    </div>
-    
-    <?php include __DIR__ . '/../includes/footer.php'; ?>
+  <?php else: ?>
+    <h4>Skriv del av navn (og ev. nasjon) for å søke!</h4>
+  <?php endif; ?>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const form = document.querySelector("form");
+  const loader = document.getElementById("loading");
+  if (form && loader) {
+    form.addEventListener("submit", function() {
+      loader.style.display = "block";   // vis spinner
+    });
+  }
+});
+</script>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<!-- fn_sok v0905A -->
