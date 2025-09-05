@@ -161,10 +161,6 @@ h3{ font-size: 14px; }
 }
 .btn-small:hover { filter: brightness(.92); }
 
-/* Hold action-knapper i samme rad i resultattabeller */
-.table td a.btn-small { display: inline-block; }
-.table td .btn-small + .btn-small { margin-left: 6px; }
-
 .table.tight th,
 .table.tight td { padding:.25rem .5rem; border-bottom:1px solid #00529b; }
 
@@ -485,8 +481,4 @@ h3{ font-size: 14px; }
 
 .table.compact {
   line-height: 1.2;
-}
-.text-small {
-  font-size: 12px;
-  color:var(--secondary)
 }

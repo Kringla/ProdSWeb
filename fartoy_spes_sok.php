@@ -314,8 +314,8 @@
         <?php endif; ?>
 
         <?php if ($rows): ?>
-        <div class="table-wrap table-wrap--scroll">
-            <table class="table table--compact table--zebra">
+        <div class="table-wrap outline-brand">
+            <table class="table tight fit">
             <thead>
                 <tr>
                     <th>Navn</th>

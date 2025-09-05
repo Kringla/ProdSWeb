@@ -47,6 +47,7 @@
           ft.TypeFork,
           latest.YearTid,
           latest.MndTid,
+          latest.Rederi,
           latest.RegHavn,
           latest.Kallesignal,
           latest.Nasjon_ID       AS TNat,
@@ -158,8 +159,8 @@
       <?php endif; ?>
 
       <?php if ($rows): ?>
-        <div class="table-wrap table-wrap--scroll">
-          <table class="table table--compact table--zebra">
+        <div class="table-wrap outline-brand">
+          <table class="table tight fit">
             <thead>
               <tr>
                 <th>Type</th>
@@ -168,6 +169,7 @@
                 <th>Flaggstat</th>
                 <th>Bygget</th>
                 <th>Kallesignal</th>
+                <th>Rederi/Eier</th>
                 <th>Vis</th>
               </tr>
             </thead>
@@ -185,6 +187,7 @@
                 <td><?= h(val($r,'Nasjon')) ?></td>
                 <td><?= h(val($r,'Bygget')) ?></td>
                 <td><?= h(val($r,'Kallesignal')) ?></td>
+                <td><?= h(val($r,'Rederi')) ?></td>
                 <td>
                   <?php $id = (int)val($r,'FartObj_ID',0); ?>
                   <?php if ($id > 0): ?>
