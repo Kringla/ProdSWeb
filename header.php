@@ -1,10 +1,5 @@
 <?php require_once __DIR__ . '/bootstrap.php'; ?>
 <?php
-// V2 aktiv hvis konstanten er true ELLER hvis du legger til ?theme=v2 i URL
-$themeV2 = SKIPSWEB_THEME_V2 || (isset($_GET['theme']) && $_GET['theme'] === 'v2');
-?>
-
-<?php
 
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
@@ -19,21 +14,16 @@ $page_title = isset($page_title) && is_string($page_title) ? $page_title : 'Skip
 
 $BASE = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
 ?>
-
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="no">
-  <head>
-    <!-- Alltid dagens stil -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/app.css">
-    <?php if ($themeV2): ?>
-      <!-- Ny v2-stil lastes KUN når flagget er aktivt -->
-      <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/v2/base.css">
-      <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/v2/components.css">
-      <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/v2/compat.css">
-    <?php endif; ?>
-  </head>
-<body class="<?= $themeV2 ? 'theme-v2' : '' ?>">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><?php echo htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8'); ?></title>
+  <link rel="stylesheet" href="<?php echo $BASE; ?>/assets/css/app.css">
+  <script defer src="<?php echo $BASE; ?>/assets/js/hero-rotator.js"></script>
+</head>
+<body<?= !empty($bodyClass) ? ' class="' . htmlspecialchars($bodyClass, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
 
 <header class="site-header">
   <div class="container">
