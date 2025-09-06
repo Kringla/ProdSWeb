@@ -71,3 +71,11 @@
 /* Hvis du har brukt .tight/.fit tidligere – gi de mening i v2 */
 .table.tight th, .table.tight td { padding: .3rem .45rem; }
 .table.fit { table-layout: fixed; }
+/* TRINN 5 – COMPAT: gjør eksisterende skjema-containere pene uten HTML-endring */
+.form-card, .form-panel, .admin-form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+  padding: var(--space-4);
+}

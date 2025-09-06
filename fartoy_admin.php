@@ -1,9 +1,10 @@
 <?php
 // admin/fartoy_admin.php
 // Administrasjon: søk, list og håndter fartøyer. Kun for admin-brukere.
-
 require_once __DIR__ . '/../includes/bootstrap.php';
 require_once __DIR__ . '/../includes/auth.php';
+// Sørg for BASE_URL alltid finnes lokalt
+$base = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -76,13 +77,15 @@ if ($doSearch) {
 }
 
 include __DIR__ . '/../includes/header.php';
+// Skjul "Administrer fartøyer" i menyen når vi er på akkurat denne siden
+$__HIDE_ADMIN_FANE__ = true;
 include __DIR__ . '/../includes/menu.php';
 ?>
 <!-- Responsive image box (contain, no crop) -->
     <div class="container" style="display:flex; justify-content:center;">
       <div class="image-box">
         <?php
-          // 1) Velg tryggt bilde (DB -> fallback). Bruk basename()+h() for sikkerhet.
+          // 1) Velg tryggt bilde (DB -> fallback). Bruk basename()h() for sikkerhet.
           $imgCandidate = null;
 
           // Hvis du i denne siden har en $imgRow fra tblxnmmfoto:
@@ -103,7 +106,7 @@ include __DIR__ . '/../includes/menu.php';
           // 3) Relativ URL hvis siden ligger i /user/
           $imgRel = (substr($imgCandidate, 0, 1) === '/') ? ('..' . $imgCandidate) : $imgCandidate;
 
-          // 4) Alt‑tekst (prøv å bruke type + navn hvis det finnes)
+          // 4) Alt‑tekst (prøv å bruke type  navn hvis det finnes)
           $altText = trim(
             (string)($main['TypeFork'] ?? ($main['FartType'] ?? '')) . ' ' .
             (string)($main['FartNavn'] ?? 'Fartøy')
@@ -116,11 +119,11 @@ include __DIR__ . '/../includes/menu.php';
 <div class="container mt-3">
   <h1>Administrasjon av fartøyer og parametre</h1>
   <h2>Endre, slett, lag nytt fartøy eller tabellparametre</h2>
+    <p style="text-align:center; margin-top:1rem;">
+      <a class="btn" href="<?= $base ?>/admin/param_admin.php">Administrer parametertabeller</a>
+    </p>
   <p style="text-align:center; margin-top:1rem;">
-    <a class="btn" href="param_admin.php">Administrer parametertabeller</a>
-  </p>
-  <p style="text-align:center; margin-top:1rem;">
-    <a href="<?= h($base . '/admin/fartoy_nytt.php') ?>" class="btn">Opprett nytt fartøy</a>
+        <a href="<?= $base ?>/admin/fartoy_nytt.php" class="btn">Opprett nytt fartøy</a>
   </p>
   <p class="text-small">Skriv inn del av navn  og/eller velg nasjon for å søke etter fartøy å endre.</p>
   <form method="get" class="search-form" style="margin-bottom:1rem; text-align:center;">

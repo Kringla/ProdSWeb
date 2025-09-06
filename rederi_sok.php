@@ -161,9 +161,8 @@ if ($q !== '' && mb_strlen($q) >= 2) {
     <?php if (!count($rederiList)): ?>
       <p>Ingen treff.</p>
     <?php else: ?>
-      <div id="rederiliste" class="card centered-card" style="overflow-x:auto;">
-          <div class="table-wrap center">
-            <div class="table-wrap outline-brand"><table class="table tight fit">
+      <div id="rederiliste" class="card centered-card">
+          <div class="table-wrap table-wrap--scroll"><table class="table table--compact table--zebra">
             <thead>
               <tr>
                 <th>Rederi</th>
@@ -191,10 +190,9 @@ if ($q !== '' && mb_strlen($q) >= 2) {
       <?php if (count($fartoyListe) === 0): ?>
         <p>Ingen registrerte fartøyer for dette rederiet.</p>
       <?php else: ?>
-        <div id="fartoyer" class="card centered-card" style="overflow-x:auto;">
-          <div class="table-wrap center">
-            <div class="table-wrap outline-brand">
-              <table class="table tight fit">
+        <div id="fartoyer" class="card centered-card">
+          <div class="table-wrap table-wrap--scroll">
+              <table class="table table--compact table--zebra">
               <thead>
                 <tr>
                   <th>Navn</th>

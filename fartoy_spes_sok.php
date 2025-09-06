@@ -1,364 +1,299 @@
 <?php
-    // New search page for vessel specifications (tblFartSpes)
-    // Based on user/fartoy_nat.php but expanded to support multiple filters.
+// /user/fartoy_spes_sok.php
+// Søk på spesifikasjoner (uten navnesøk) – med paginering
+// Filtrerer KUN på: FartDrift_ID, FartSkrog_ID, FartFunk_ID (0 = Alle)
+// Kolonner: Dimensjoner ~20ch, Materiale ~10ch
 
-    /**
-     * Denne filen lar en bruker søke i spesifikasjonstabellen tblFartSpes på ett eller flere
-     * kriterier. Hver av søkefeltene knyttet til parametertabeller viser en lesbar
-     * tekst (for eksempel TypeFunksjon, DriftMiddel, MotorDetalj etc.) i nedtrekkslisten,
-     * men lagrer ID‑verdien som parameter. FartObj_ID og FartSpes_ID kan filtreres via
-     * numeriske felt. Resultatlisten gir en oversikt over matchende spesifikasjoner
-     * sammen med den tilhørende fartøynavnet, og lenker inn til fartøydetaljer via
-     * fartoydetaljer.php.
-     */
+if (!function_exists('h')) {
+  function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES|ENT_SUBSTITUTE, 'UTF-8'); }
+}
 
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
+/* ---------------------------------------------------------
+   HEADER / BOOTSTRAP
+   --------------------------------------------------------- */
+require_once __DIR__ . '/../includes/header.php';   // $mysqli, BASE_URL, CSS osv.
 
-    require_once __DIR__ . '/../includes/bootstrap.php';
-    require_once __DIR__ . '/../includes/auth.php'; // for meny/rolle
+/* ---------------------------------------------------------
+   INPUTS
+   --------------------------------------------------------- */
+$driftId   = isset($_GET['fartdrift_id']) ? (int)$_GET['fartdrift_id'] : 0;
+$skrogId   = isset($_GET['fartskrog_id']) ? (int)$_GET['fartskrog_id'] : 0;
+$funkId    = isset($_GET['fartfunk_id'])  ? (int)$_GET['fartfunk_id']  : 0;
+$didSubmit = isset($_GET['sok']) && (int)$_GET['sok'] === 1;
 
-    // Hjelpefunksjoner (disse er definert i andre filer men dupliseres her som fall‑back)
-    if (!function_exists('h')) {
-        /**
-         * HTML‑escape av streng.
-         *
-         * @param mixed $s
-         * @return string
-         */
-        function h($s) {
-            return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
-        }
-    }
-    if (!function_exists('val')) {
-        /**
-         * Returner verdi fra array hvis den finnes, ellers default.
-         *
-         * @param array  $arr
-         * @param string $key
-         * @param mixed  $def
-         * @return mixed
-         */
-        function val($arr, $key, $def = '') {
-            return isset($arr[$key]) ? $arr[$key] : $def;
-        }
-    }
+// Paginering
+$page   = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$limit  = 250;
+$offset = ($page - 1) * $limit;
 
-    // --- Hent inn filtreringsparametere fra URL (0 betyr "ingen valgt")
-    $fartMatId   = isset($_GET['fartmat_id'])   ? (int)$_GET['fartmat_id']   : 0;
-    $fartTypeId  = isset($_GET['farttype_id'])  ? (int)$_GET['farttype_id']  : 0;
-    $fartFunkId  = isset($_GET['fartfunk_id'])  ? (int)$_GET['fartfunk_id']  : 0;
-    $fartSkrogId = isset($_GET['fartskrog_id']) ? (int)$_GET['fartskrog_id'] : 0;
-    $fartDriftId = isset($_GET['fartdrift_id']) ? (int)$_GET['fartdrift_id'] : 0;
-    $fartMotorId = isset($_GET['fartmotor_id']) ? (int)$_GET['fartmotor_id'] : 0;
-    $fartRiggId  = isset($_GET['fartrigg_id'])  ? (int)$_GET['fartrigg_id']  : 0;
-    $fartKlasseId= isset($_GET['fartklasse_id'])? (int)$_GET['fartklasse_id']: 0;
-    // FartObj_ID og FartSpes_ID skal ikke benyttes som søkekriterier og beholdes derfor
-    // kun internt til lenkegenerering via SQL‑spørringen. De leses ikke fra URL.
+/* ---------------------------------------------------------
+   Parametertabeller (schema v13 / Fields v1)
+   --------------------------------------------------------- */
+function getOptions(mysqli $db, string $table, string $idField, string $labelField): array {
+  $sql = "SELECT $idField AS id, $labelField AS txt FROM $table ORDER BY $labelField";
+  $res = $db->query($sql);
+  if (!$res) return [];
+  $rows = [];
+  while ($r = $res->fetch_assoc()) $rows[] = $r;
+  $res->free();
+  return $rows;
+}
+$optsDrift = getOptions($mysqli, 'tblzfartdrift', 'FartDrift_ID', 'DriftMiddel');
+$optsSkrog = getOptions($mysqli, 'tblzfartskrog', 'FartSkrog_ID', 'TypeSkrog');
+$optsFunk  = getOptions($mysqli, 'tblzfartfunk',  'FartFunk_ID',  'TypeFunksjon');
 
-    // Kjør søk bare hvis bruker har angitt noen parametre (tom GET betyr ingen søk)
-    $doSearch = ($_GET !== []);
+/* ---------------------------------------------------------
+   SØK – kun når Søk trykkes
+   --------------------------------------------------------- */
+$total_count = 0;
+$rows        = [];
 
-    // --- Forhåndslast alle parametere til nedtrekkslister
-    /**
-     * Hent parametre fra en tabell med id og tekst.
-     * @param mysqli $conn    Databasetilkobling
-     * @param string $table   Tabellnavn
-     * @param string $idCol   Navn på ID‑kolonne
-     * @param string $txtCol  Navn på tekstkolonne
-     * @return array<int,array<string,mixed>>
-     */
-    function getParamList($conn, $table, $idCol, $txtCol) {
-        $list = [];
-        $sql = "SELECT $idCol AS id, $txtCol AS txt FROM $table WHERE $txtCol IS NOT NULL AND $txtCol <> '' ORDER BY $txtCol";
-        if ($res = $conn->query($sql)) {
-            while ($row = $res->fetch_assoc()) {
-                $list[] = $row;
-            }
-            $res->free();
-        }
-        return $list;
-    }
+if ($didSubmit) {
+  $where = [];
+  $types = '';
+  $vals  = [];
 
-    // I henhold til PKD v6 bruker vi bestemte feltnavn fra parametertabellene
-    // Hent lister fra parametertabellene. Kolonnenavn må reflektere schema v6.
-    $listFartMat    = getParamList($conn, 'tblzfartmat',    'FartMat_ID',    'MatFork');     // Materiale/MatFork
-    $listFartType   = getParamList($conn, 'tblzfarttype',   'FartType_ID',   'FartType');    // FartType, ikke 'type'
-    $listFartFunk   = getParamList($conn, 'tblzfartfunk',   'FartFunk_ID',   'TypeFunksjon');
-    $listFartSkrog  = getParamList($conn, 'tblzfartskrog',  'FartSkrog_ID',  'TypeSkrog');
-    $listFartDrift  = getParamList($conn, 'tblzfartdrift',  'FartDrift_ID',  'DriftMiddel');
-    $listFartMotor  = getParamList($conn, 'tblzfartmotor',  'FartMotor_ID',  'MotorDetalj');
-    $listFartRigg   = getParamList($conn, 'tblzfartrigg',   'FartRigg_ID',   'RiggDetalj');
-    $listFartKlasse = getParamList($conn, 'tblzfartklasse', 'FartKlasse_ID', 'KlasseNavn');  // bruker KlasseNavn fra schema v9
+  if ($driftId > 0) { $where[] = 's.FartDrift_ID = ?'; $types .= 'i'; $vals[] = $driftId; }
+  if ($skrogId > 0) { $where[] = 's.FartSkrog_ID = ?'; $types .= 'i'; $vals[] = $skrogId; }
+  if ($funkId  > 0) { $where[] = 's.FartFunk_ID  = ?'; $types .= 'i'; $vals[] = $funkId; }
 
-    // --- Kjør søk ved behov
-    $rows = [];
-    if ($doSearch) {
-        // Bygg SQL med korrelert subquery for å hente seneste FartTid for hver spes
-        $sql = "
-            SELECT
-              fs.FartSpes_ID,
-              fs.FartObj_ID,
-              curr.FartNavn AS FartNavn,
-              curr.FartTid_ID AS FartTid_ID,
-              zft.FartType     AS FartType,
-              zff.TypeFunksjon AS FartFunk,
-              zfs.TypeSkrog    AS FartSkrog,
-              zfd.DriftMiddel  AS FartDrift,
-              zfm.MotorDetalj  AS FartMotor,
-              zfr.RiggDetalj   AS FartRigg,
-              zfk.KlasseNavn   AS FartKlasse,
-              COALESCE(fs.MotorDetalj, zfm.MotorDetalj) AS MotorDetalj
-            FROM tblfartspes AS fs
-            LEFT JOIN tblzfartmat    AS zfm2 ON zfm2.FartMat_ID    = fs.FartMat_ID
-            LEFT JOIN tblzfarttype   AS zft  ON zft.FartType_ID    = fs.FartType_ID
-            LEFT JOIN tblzfartfunk   AS zff  ON zff.FartFunk_ID    = fs.FartFunk_ID
-            LEFT JOIN tblzfartskrog  AS zfs  ON zfs.FartSkrog_ID   = fs.FartSkrog_ID
-            LEFT JOIN tblzfartdrift  AS zfd  ON zfd.FartDrift_ID   = fs.FartDrift_ID
-            LEFT JOIN tblzfartmotor  AS zfm  ON zfm.FartMotor_ID   = fs.FartMotor_ID
-            LEFT JOIN tblzfartrigg   AS zfr  ON zfr.FartRigg_ID    = fs.FartRigg_ID
-            LEFT JOIN tblzfartklasse AS zfk  ON zfk.FartKlasse_ID  = fs.FartKlasse_ID
-            LEFT JOIN tblfarttid AS curr ON curr.FartTid_ID = (
-                SELECT t2.FartTid_ID
-                FROM tblfarttid t2
-                WHERE t2.FartSpes_ID = fs.FartSpes_ID
-                ORDER BY COALESCE(t2.YearTid,0) DESC,
-                         COALESCE(t2.MndTid,0) DESC,
-                         t2.FartTid_ID DESC
-                LIMIT 1
-            )
-            WHERE 1=1
-              AND (? = 0 OR fs.FartMat_ID    = ?)
-              AND (? = 0 OR fs.FartType_ID   = ?)
-              AND (? = 0 OR fs.FartFunk_ID   = ?)
-              AND (? = 0 OR fs.FartSkrog_ID  = ?)
-              AND (? = 0 OR fs.FartDrift_ID  = ?)
-              AND (? = 0 OR fs.FartMotor_ID  = ?)
-              AND (? = 0 OR fs.FartRigg_ID   = ?)
-              AND (? = 0 OR fs.FartKlasse_ID = ?)
-            ORDER BY curr.FartNavn ASC, fs.FartSpes_ID ASC
-            LIMIT 200
-        ";
-        $stmt = $conn->prepare($sql);
-        if (!$stmt) {
-            die('Prepare feilet: ' . $conn->error);
-        }
-        // Bind parametre i samme rekkefølge som de forekommer i SQL
-        $stmt->bind_param(
-            // 16 heltall: 2 for hver av de 8 filtrene
-            'iiiiiiiiiiiiiiii',
-            $fartMatId,   $fartMatId,
-            $fartTypeId,  $fartTypeId,
-            $fartFunkId,  $fartFunkId,
-            $fartSkrogId, $fartSkrogId,
-            $fartDriftId, $fartDriftId,
-            $fartMotorId, $fartMotorId,
-            $fartRiggId,  $fartRiggId,
-            $fartKlasseId,$fartKlasseId
-        );
-        if (!$stmt->execute()) {
-            die('Execute feilet: ' . $stmt->error);
-        }
-        $stmt->execute();
-        $stmt->store_result();
-        $rows = [];
-        $meta  = $stmt->result_metadata();
-        $fields = $meta->fetch_fields();
-        $row = [];
-        $bind = [];
-        foreach ($fields as $field) {
-            $bind[] = &$row[$field->name];
-        }
-        call_user_func_array([$stmt, 'bind_result'], $bind);
-        while ($stmt->fetch()) {
-            $rows[] = array_map(fn($v) => $v, $row);
-        }
-        $stmt->close();
-    }
+  $whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
 
-    // Angi navn på denne filen for tilbakestilling av filter (brukes i frontend)
-    $currentFile = basename(__FILE__);
+  // 1) COUNT — eksakt antall distinkte navnlinjer
+  $sqlCount = "
+    SELECT COUNT(*) AS c
+    FROM (
+      SELECT t.FartTid_ID
+      FROM tblfartspes s
+      JOIN tblfarttid t ON t.FartSpes_ID = s.FartSpes_ID
+      $whereSql
+      GROUP BY t.FartTid_ID
+    ) x
+  ";
+  $stmt = $mysqli->prepare($sqlCount);
+  if ($types !== '') { $stmt->bind_param($types, ...$vals); }
+  $stmt->execute();
+  $res = $stmt->get_result();
+  if ($res) { $row = $res->fetch_assoc(); $total_count = (int)($row['c'] ?? 0); }
+  $stmt->close();
+
+  // 2) DATA – visningsfelter, paginert med LIMIT/OFFSET
+  // (LIMIT/OFFSET settes som rene heltall i SQL-strengen for kompatibilitet)
+  $sqlData = "
+    SELECT
+      t.FartTid_ID,
+      t.FartObj_ID AS ObjId,
+      t.FartNavn,
+      COALESCE(s.YearSpes, t.YearTid) AS YearShow,
+      ft.FartType,
+      s.Materiale,
+      s.Lengde, s.Bredde, s.Dypg,
+      s.Tonnasje, te.TonnFork,
+      s.Drektigh, de.DrektFork
+    FROM tblfartspes s
+    JOIN tblfarttid t     ON t.FartSpes_ID = s.FartSpes_ID
+    LEFT JOIN tblzfarttype ft ON t.FartType_ID = ft.FartType_ID
+    LEFT JOIN tblztonnenh  te ON s.TonnEnh_ID  = te.TonnEnh_ID
+    LEFT JOIN tblzdrektenh de ON s.DrektEnh_ID = de.DrektEnh_ID
+    $whereSql
+    GROUP BY t.FartTid_ID, t.FartObj_ID, t.FartNavn, YearShow, ft.FartType,
+             s.Materiale, s.Lengde, s.Bredde, s.Dypg, s.Tonnasje, te.TonnFork, s.Drektigh, de.DrektFork
+    ORDER BY t.FartNavn, YearShow, t.FartTid_ID
+    LIMIT $limit OFFSET $offset
+  ";
+  $stmt = $mysqli->prepare($sqlData);
+  if ($types !== '') { $stmt->bind_param($types, ...$vals); }
+  $stmt->execute();
+  $res = $stmt->get_result();
+  while ($res && ($r = $res->fetch_assoc())) $rows[] = $r;
+  $stmt->close();
+}
+
+/* ---------------------------------------------------------
+   URL til detaljside (obj_id + tid_id)
+   --------------------------------------------------------- */
+if (!defined('BASE_URL')) define('BASE_URL', '');
+function detaljUrl(int $objId, int $tidId): string {
+  return rtrim(BASE_URL, '/') . '/user/fartoydetaljer.php?obj_id=' . $objId . '&tid_id=' . $tidId;
+}
+
+/* ---------------------------------------------------------
+   Hjelper for å bygge paginerings-URLer med gjeldende filtre
+   --------------------------------------------------------- */
+function pageUrl(int $page, int $driftId, int $skrogId, int $funkId): string {
+  $base = $_SERVER['PHP_SELF'];
+  $qs = http_build_query([
+    'sok'          => 1,
+    'fartdrift_id' => $driftId,
+    'fartskrog_id' => $skrogId,
+    'fartfunk_id'  => $funkId,
+    'page'         => $page,
+  ]);
+  return $base . '?' . $qs;
+}
 ?>
-<?php include __DIR__ . '/../includes/header.php'; ?>
-<?php include __DIR__ . '/../includes/menu.php'; ?>
 
+<h1>Fartøy – søk på spesifikasjoner</h1>
 
-   <!-- Responsive image box (contain, no crop) -->
-    <div class="container" style="display:flex; justify-content:center;">
-        <div class="image-box">
-            <?php
-            // 1) Velg tryggt bilde (DB -> fallback). Bruk basename()+h() for sikkerhet.
-            $imgCandidate = null;
-
-            // Hvis du i denne siden har en $imgRow fra tblxnmmfoto:
-            if (isset($imgRow) && is_array($imgRow) && !empty($imgRow['Bilde_Fil'])) {
-                $base = rtrim((string)($imgRow['URL_Bane'] ?? '/assets/img/skip'), '/');
-                $file = basename((string)$imgRow['Bilde_Fil']); // dropp path-fragmenter
-                $imgCandidate = $base . '/' . $file;
-            }
-            // Alternativ kilde: $main['Bilde_Fil'] dersom du bruker den i siden:
-            elseif (!empty($main['Bilde_Fil'])) {
-                $imgCandidate = '/assets/img/skip/' . basename((string)$main['Bilde_Fil']);
-            }
-            // 2) Garantert fallback:
-            if (!$imgCandidate) {
-                $imgCandidate = '/assets/img/skip/placeholder.jpg';
-            }
-
-            // 3) Relativ URL hvis siden ligger i /user/
-            $imgRel = (substr($imgCandidate, 0, 1) === '/') ? ('..' . $imgCandidate) : $imgCandidate;
-
-            // 4) Alt‑tekst (prøv å bruke type + navn hvis det finnes)
-            $altText = trim(
-                (string)($main['TypeFork'] ?? ($main['FartType'] ?? '')) . ' ' .
-                (string)($main['FartNavn'] ?? 'Fartøy')
-            );
-            if ($altText === '') { $altText = 'Fartøybilde'; }
-            ?>
-            <img src="<?= h($imgRel) ?>" alt="<?= h($altText) ?>">
+<!-- FILTRE – smalt kort (maks bredde som i navn-søk) -->
+<div class="card centered-card" style="max-width: 960px; margin: 1rem auto 0;">
+  <div class="card-content">
+    <form id="spes-sok-form" method="get" class="search-form" onsubmit="return startSpinner();">
+      <input type="hidden" name="sok" value="1">
+      <div class="search-grid" style="display:flex; gap:.75rem; flex-wrap:wrap; align-items:flex-end; justify-content:flex-start;">
+        <div class="form-field" style="min-width:220px;">
+          <label for="fartdrift_id">Drift</label>
+          <select id="fartdrift_id" name="fartdrift_id">
+            <option value="0">Alle</option>
+            <?php foreach($optsDrift as $o): ?>
+              <option value="<?= (int)$o['id'] ?>"<?= $driftId===(int)$o['id']?' selected':'' ?>><?= h($o['txt']) ?></option>
+            <?php endforeach; ?>
+          </select>
         </div>
-    </div>
-    <div class="container">
-        <h1 style="text-align:center;">Søk fartøyspesifikasjoner</h1>
-        <form method="get" class="form-inline">
-            <div class="filters-wrap">
-                <div class="row-center">
-                    <div class="form-field">
-                        <label for="farttype_id">Type</label>
-                        <select id="farttype_id" name="farttype_id">
-                            <option value="0"<?= $fartTypeId === 0 ? ' selected' : '' ?>>Alle</option>
-                            <?php foreach ($listFartType as $r): ?>
-                                <option value="<?= (int)$r['id'] ?>"<?= $fartTypeId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="form-field">
-                        <label for="fartfunk_id">Funksjon</label>
-                        <select id="fartfunk_id" name="fartfunk_id">
-                            <option value="0"<?= $fartFunkId === 0 ? ' selected' : '' ?>>Alle</option>
-                            <?php foreach ($listFartFunk as $r): ?>
-                                <option value="<?= (int)$r['id'] ?>"<?= $fartFunkId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </div>
-                <div class="search-grid"><div class="form-field">
-                    <label for="fartdrift_id">Driftsmiddel</label>
-                    <select id="fartdrift_id" name="fartdrift_id">
-                        <option value="0"<?= $fartDriftId === 0 ? ' selected' : '' ?>>Alle</option>
-                    <?php foreach ($listFartDrift as $r): ?>
-                        <option value="<?= (int)$r['id'] ?>"<?= $fartDriftId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="form-field">
-                    <label for="fartrigg_id">Rigg</label>
-                    <select id="fartrigg_id" name="fartrigg_id">
-                        <option value="0"<?= $fartRiggId === 0 ? ' selected' : '' ?>>Alle</option>
-                        <?php foreach ($listFartRigg as $r): ?>
-                            <option value="<?= (int)$r['id'] ?>"<?= $fartRiggId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?>
-                        </option><?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="form-field">
-                    <label for="fartmotor_id">Motor</label>
-                    <select id="fartmotor_id" name="fartmotor_id">
-                        <option value="0"<?= $fartMotorId === 0 ? ' selected' : '' ?>>Alle</option>
-                        <?php foreach ($listFartMotor as $r): ?>
-                            <option value="<?= (int)$r['id'] ?>"<?= $fartMotorId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
-                            <?php endforeach; ?>
-                    </select>
-                </div>
-            </div>
-            <div class="row-center">
-                <div class="form-field">
-                    <label for="fartskrog_id">Skrog</label>
-                    <select id="fartskrog_id" name="fartskrog_id">
-                        <option value="0"<?= $fartSkrogId === 0 ? ' selected' : '' ?>>Alle</option>
-                        <?php foreach ($listFartSkrog as $r): ?>
-                            <option value="<?= (int)$r['id'] ?>"<?= $fartSkrogId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="form-field">
-                    <label for="fartmat_id">Materiale</label>
-                    <select id="fartmat_id" name="fartmat_id">
-                        <option value="0"<?= $fartMatId === 0 ? ' selected' : '' ?>>Alle</option>
-                        <?php foreach ($listFartMat as $r): ?>
-                            <option value="<?= (int)$r['id'] ?>"<?= $fartMatId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            </div>
-            <div class="row-center">
-                <div class="form-field center-col">
-                    <label for="fartklasse_id">Klasse</label>
-                    <select id="fartklasse_id" name="fartklasse_id">
-                        <option value="0"<?= $fartKlasseId === 0 ? ' selected' : '' ?>>Alle</option>
-                        <?php foreach ($listFartKlasse as $r): ?>
-                            <option value="<?= (int)$r['id'] ?>"<?= $fartKlasseId === (int)$r['id'] ? ' selected' : '' ?>><?= h($r['txt']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </div>
-                <div class="actions actions-compact">
-                    <button type="submit" class="btn">Søk</button>
-                    <button type="button" class="btn" onclick="window.location.href='<?= h($currentFile) ?>';">Nullstill filtre</button>
-                </div>
-            </div>
-        </form>
+        <div class="form-field" style="min-width:220px;">
+          <label for="fartskrog_id">Skrog</label>
+          <select id="fartskrog_id" name="fartskrog_id">
+            <option value="0">Alle</option>
+            <?php foreach($optsSkrog as $o): ?>
+              <option value="<?= (int)$o['id'] ?>"<?= $skrogId===(int)$o['id']?' selected':'' ?>><?= h($o['txt']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="form-field" style="min-width:220px;">
+          <label for="fartfunk_id">Funksjon</label>
+          <select id="fartfunk_id" name="fartfunk_id">
+            <option value="0">Alle</option>
+            <?php foreach($optsFunk as $o): ?>
+              <option value="<?= (int)$o['id'] ?>"<?= $funkId===(int)$o['id']?' selected':'' ?>><?= h($o['txt']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+      </div>
 
-        <?php if ($doSearch): ?>
-            <p>Antall funnet: <strong><?= count($rows) ?></strong></p>
-        <?php endif; ?>
+      <div class="actions-compact" style="margin-top:.5rem;">
+        <button type="submit" class="btn">Søk</button>
+      </div>
 
-        <?php if ($rows): ?>
-        <div class="table-wrap outline-brand">
-            <table class="table tight fit">
-            <thead>
-                <tr>
-                    <th>Navn</th>
-                    <th>Type</th>
-                    <th>Funksjon</th>
-                    <th>Skrog</th>
-                    <th>Drift</th>
-                    <th>Rigg</th>
-                    <th>Vis</th>
-                </tr>
+      <!-- Spinner -->
+      <div id="spinner" style="display:none; margin-top:6px; text-align:left;">
+        <img src="<?= h(rtrim(BASE_URL,'/')) ?>/assets/img/spinner.gif" alt="Søker …" width="24" height="24" style="vertical-align:middle;">
+        <span style="margin-left:6px;">Søker …</span>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- RESULTATER – smalt kort (samme bredde som over) -->
+<?php if ($didSubmit): ?>
+  <div class="card centered-card" style="max-width: 960px; margin: 1rem auto 0;">
+    <div class="card-content">
+      <?php
+        $shown        = count($rows);
+        $total_pages  = ($total_count > 0) ? (int)ceil($total_count / $limit) : 1;
+        $title = ($total_count > $limit)
+          ? "Resultater ($shown av $total_count) – side $page av $total_pages"
+          : "Resultater ($total_count)";
+      ?>
+      <h2 style="margin-top:0; position:sticky; top:0; background:var(--bg); z-index:3; padding:.25rem 0;"><?= h($title) ?></h2>
+
+      <div class="table-wrap center">
+        <div class="table-wrap outline-brand" style="max-height: 440px; overflow: auto;">
+          <table class="table tight fit">
+            <thead style="position: sticky; top: 0; z-index: 2;">
+              <tr>
+                <th style="min-width:22ch;">Fartøysnavn</th>
+                <th>År</th>
+                <th>Type</th>
+                <!-- Materiale ~10ch, Dimensjoner ~20ch -->
+                <th style="width:10ch; min-width:10ch;">Materiale</th>
+                <th style="width:20ch; min-width:20ch;">Dimensjoner (L×B×D)</th>
+                <th>Tonnasje</th>
+                <th>Drektighet</th>
+                <th style="text-align:center; width:1%;">&nbsp;</th>
+              </tr>
             </thead>
             <tbody>
-            <?php foreach ($rows as $r): ?>
+              <?php if (!$rows): ?>
+                <tr><td colspan="8">Ingen treff for valgte kriterier.</td></tr>
+              <?php else: foreach ($rows as $r): ?>
                 <tr>
-                    <td><?= h(val($r,'FartNavn','')) ?></td>
-                    <td><?= h(val($r,'FartType','')) ?></td>
-                    <td><?= h(val($r,'FartFunk','')) ?></td>
-                    <td><?= h(val($r,'FartSkrog','')) ?></td>
-                    <td><?= h(val($r,'FartDrift','')) ?></td>
-                    <td><?= h(val($r,'FartRigg','')) ?></td>
-                    <td>
-                        <?php $objId  = (int)val($r,'FartObj_ID',0); ?>
-                        <?php $tidId  = (int)val($r,'FartTid_ID',0); ?>
-                        <?php if ($objId > 0 && $tidId > 0): ?>
-                            <a class="btn-small" href="fartoydetaljer.php?obj_id=<?= $objId ?>&tid_id=<?= $tidId ?>">Vis</a>
-                        <?php else: ?>
-                            <span class="muted">–</span>
-                        <?php endif; ?>
-                    </td>
+                  <td><?= h($r['FartNavn'] ?? '') ?></td>
+                  <td><?= h($r['YearShow'] ?? '') ?></td>
+                  <td><?= h($r['FartType'] ?? '') ?></td>
+                  <td><?= h($r['Materiale'] ?? '') ?></td>
+                  <td>
+                    <?php
+                      $dims = [];
+                      if (!empty($r['Lengde'])) $dims[] = h($r['Lengde']).' m';
+                      if (!empty($r['Bredde'])) $dims[] = h($r['Bredde']).' m';
+                      if (!empty($r['Dypg']))   $dims[] = h($r['Dypg']).' m';
+                      echo $dims ? implode(' × ', $dims) : '';
+                    ?>
+                  </td>
+                  <td>
+                    <?php
+                      $tonn = trim((string)($r['Tonnasje'] ?? ''));
+                      $tf   = trim((string)($r['TonnFork'] ?? ''));
+                      echo h(trim($tonn . ($tf ? (' ' . $tf) : '')));
+                    ?>
+                  </td>
+                  <td>
+                    <?php
+                      $dr  = trim((string)($r['Drektigh'] ?? ''));
+                      $df  = trim((string)($r['DrektFork'] ?? ''));
+                      echo h(trim($dr . ($df ? (' ' . $df) : '')));
+                    ?>
+                  </td>
+                  <td style="text-align:center;">
+                    <?php
+                      $tid  = (int)($r['FartTid_ID'] ?? 0);
+                      $obj  = (int)($r['ObjId'] ?? 0);
+                    ?>
+                    <?php if ($tid > 0 && $obj > 0): ?>
+                      <a class="btn-small" href="<?= h(detaljUrl($obj, $tid)) ?>">Vis</a>
+                    <?php else: ?>
+                      <span class="text-muted">Ugyldig</span>
+                    <?php endif; ?>
+                  </td>
                 </tr>
-            <?php endforeach; ?>
+              <?php endforeach; endif; ?>
             </tbody>
-        </table>
+          </table>
         </div>
-        <?php elseif ($doSearch): ?>
-            <p>Ingen treff.</p>
-        <?php else: ?>
-            <p>Velg ett eller flere filtre for å søke i spesifikasjonene.</p>
-        <?php endif; ?>
-    </div>
-    <!-- Tilbake-knapp nederst: midtstilt -->
-    <div class="actions" style="margin:1rem 0 2rem; text-align:center;">
-    <a class="btn" href="#" onclick="if(history.length>1){history.back();return false;}" title="Tilbake">← Tilbake</a>
-    </div>
+      </div>
 
-<?php include __DIR__ . '/../includes/footer.php'; ?>
+      <?php if ($total_count > $limit): ?>
+        <div class="actions-compact" style="margin-top:0.75rem; display:flex; gap:0.5rem; align-items:center; justify-content:center;">
+          <?php if ($page > 1): ?>
+            <a class="btn-small" href="<?= h(pageUrl($page-1, $driftId, $skrogId, $funkId)) ?>">Forrige</a>
+          <?php endif; ?>
+          <span>Side <?= (int)$page ?> av <?= (int)$total_pages ?></span>
+          <?php if ($page < $total_pages): ?>
+            <a class="btn-small" href="<?= h(pageUrl($page+1, $driftId, $skrogId, $funkId)) ?>">Neste</a>
+          <?php endif; ?>
+        </div>
+      <?php endif; ?>
+
+    </div>
+  </div>
+<?php else: ?>
+  <div class="card centered-card" style="max-width: 960px; margin: 1rem auto 0;">
+    <div class="card-content">
+      <p>Velg ett eller flere filtre og trykk <strong>Søk</strong>.</p>
+    </div>
+  </div>
+<?php endif; ?>
+
+<script>
+function startSpinner(){
+  var sp = document.getElementById('spinner');
+  if (sp) sp.style.display = 'block';
+  return true;
+}
+window.addEventListener('load', function(){
+  var sp = document.getElementById('spinner');
+  if (sp) sp.style.display = 'none';
+});
+</script>
+
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

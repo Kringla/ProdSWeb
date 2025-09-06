@@ -105,6 +105,7 @@
   outline-offset: 2px;
 }
 
+
 /* “Lav prioritet” kolonner */
 .col--low { min-width: 120px; }
 .col--tight { white-space: nowrap; }

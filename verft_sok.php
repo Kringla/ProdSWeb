@@ -209,10 +209,9 @@ if ($q !== '' && mb_strlen($q) >= 2) {
     <?php if (!count($verftList)): ?>
       <p>Ingen treff.</p>
     <?php else: ?>
-      <div id="verftliste" class="card centered-card" style="overflow-x:auto;">
-          <div class="table-wrap center">
-            <div class="table-wrap outline-brand">
-            <table class="table tight fit">
+      <div id="verftliste" class="card centered-card">
+          <div class="table-wrap table-wrap--scroll">
+            <table class="table table--compact table--zebra">
             <thead>
               <tr>
                 <th>Verft</th>
@@ -243,9 +242,8 @@ if ($q !== '' && mb_strlen($q) >= 2) {
       <?php if (count($leveranseList) === 0): ?>
         <p>Ingen registrerte leveranser for dette verftet.</p>
       <?php else: ?>
-        <div id="leveranser" class="card centered-card" style="overflow-x:auto;">
-          <div class="table-wrap center">
-            <div class="table-wrap outline-brand"><table class="table tight fit">
+        <div id="leveranser" class="card centered-card">
+          <div class="table-wrap table-wrap--scroll"><table class="table table--compact table--zebra">
               <thead>
                 <tr>
                   <th>Byggenr</th>
@@ -304,9 +302,8 @@ if ($q !== '' && mb_strlen($q) >= 2) {
       <?php if (count($skrogList) === 0): ?>
         <p>Ingen registrerte skrogbygg for dette verftet.</p>
       <?php else: ?>
-        <div id="skrogleveranser" class="card centered-card" style="overflow-x:auto;">
-          <div class="table-wrap center">
-            <div class="table-wrap outline-brand"><table class="table tight fit">
+        <div id="skrogleveranser" class="card centered-card">
+          <div class="table-wrap table-wrap--scroll"><table class="table table--compact table--zebra">
               <thead>
                 <tr>
                   <th>Byggenr</th>

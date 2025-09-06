@@ -236,6 +236,33 @@ h4{
   background: var(--accent);
 }
 
+/* Hover-effekt på hele raden */
+.table tr:hover {
+  background-color: #f0f0f0;   /* litt mørkere grå bakgrunn */
+  cursor: pointer;
+}
+
+/* Markering av valgt rad (kan settes med JS ved klikk) */
+.table tr.selected {
+  background-color: #444;      /* mørk bakgrunn */
+  color: #fff;                 /* hvit tekst */
+}
+
+/* Marker felter med "error" eller "berørt" */
+.table td.error {
+  background-color: #c62828;   /* rød */
+  color: #fff;                 /* hvit tekst */
+  font-weight: bold;
+}
+
+/* Alternativ for header, så hover/selected ikke overstyrer */
+.table thead tr:hover,
+.table thead tr.selected {
+  background-color: inherit;
+  color: inherit;
+  cursor: default;
+}
+
 /* ---------------------- Alerts ---------------------- */
 .alert{
   background: #f1f5f9;
@@ -502,3 +529,52 @@ input[type="text"], select {
   font-size: 14px;
   box-sizing: border-box; /* inkludér padding i høyden */
 }
+/* --- Table hover/selection v2 (override) -------------------------------- */
+/* Celle-basert hover: sikrer synlighet med border-collapse og vinner kaskaden */
+.table tbody tr:hover > td {
+  background-color: #dfe7f1; /* litt mørkere enn --accent */
+  cursor: pointer;
+}
+
+/* Valgt rad: støtt både .selected, aria og data-attributter */
+.table tbody tr.selected > td,
+.table tbody tr[aria-selected="true"] > td,
+.table tbody tr[data-selected="1"] > td {
+  background-color: var(--brand-700);
+  color: #fff;
+}
+
+/* Lenker og småknapper skal være lesbare på mørk bakgrunn */
+.table tbody tr.selected a,
+.table tbody tr[aria-selected="true"] a,
+.table tbody tr[data-selected="1"] a { color: #fff; text-decoration: underline; }
+
+/* Header skal ikke få hover/selected-styling */
+.table thead tr:hover > th,
+.table thead tr.selected > th,
+.table thead tr[aria-selected="true"] > th,
+.table thead tr[data-selected="1"] > th {
+  background: inherit; color: inherit; cursor: default;
+}
+
+/* "Berørte" / feilede felt: rødt med hvit tekst (flere alias-klasser støttes) */
+.table td.error,
+.table td.changed,
+.table td.-dirty,
+.table td[data-state="error"] {
+  background-color: var(--secondary); /* #c83c3c */
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Hvis en hel rad er valgt og enkeltceller i raden også er error:
+   behold kontrast ved å la rød dominere cellen */
+.table tr.selected td.error,
+.table tr[aria-selected="true"] td.error,
+.table tr[data-selected="1"] td.error {
+  background-color: var(--secondary);
+  color: #fff;
+}
+
+/* Valgfritt: mykere overgang når hover/markering endres */
+.table td { transition: background-color .12s ease, color .12s ease; }
